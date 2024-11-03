@@ -51,6 +51,7 @@ const RolesDropdown = ({
   return (
     <SelectWrapper
       onChange={handleOnChangle}
+      // @ts-ignore
       value={String(roleId ?? '')}
       placeholder='Select Role...'
       {...{ className, options }}

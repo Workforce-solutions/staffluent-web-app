@@ -19,7 +19,7 @@ import {
   useGetEmployeesQuery,
 } from '@/services/staffApi'
 import { IconBuilding } from '@tabler/icons-react'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useParams } from 'react-router-dom'
 
 export function CreateTeamEmployee({ open, setOpen }: OpenModalProps) {
@@ -38,14 +38,6 @@ export function CreateTeamEmployee({ open, setOpen }: OpenModalProps) {
     value: { label: employee.name, value: employee.id.toString() },
     label: employee.name,
   }))
-
-  useEffect(() => {
-    setSelectedEmployees(
-      employees.map((employee) => {
-        return { label: employee.name, value: employee.id.toString() }
-      })
-    )
-  }, [employees])
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()

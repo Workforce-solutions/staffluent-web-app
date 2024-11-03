@@ -36,15 +36,25 @@ export const getFirstCharacters = (value = '') => {
 }
 
 export const getStatusColor = (status: string) => {
-  switch (status) {
+  switch (status?.toLowerCase()) {
     case 'active':
-      return 'bg-green-500'
-    case 'on break':
-      return 'bg-yellow-500'
+      return 'bg-green-500 text-white'
+    case 'inactive':
+      return 'bg-gray-500 text-white'
+    case 'on-break':
+      return 'bg-yellow-500 text-white'
+    case 'on-leave':
+      return 'bg-blue-500 text-white'
+    case 'suspended':
+      return 'bg-red-500 text-white'
     case 'off-duty':
-      return 'bg-gray-500'
+      return 'bg-slate-500 text-white'
+    case 'probation':
+      return 'bg-orange-500 text-white'
+    case 'terminated':
+      return 'bg-red-700 text-white'
     default:
-      return 'bg-blue-500'
+      return 'bg-gray-500 text-white'
   }
 }
 

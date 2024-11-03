@@ -17,10 +17,12 @@ const SelectTimeFrame = ({ timeFrame, setTimeFrame }: SelectTimeFrameProps) => {
     { value: { label: 'Yearly', value: 'yearly' }, label: 'Yearly' },
   ]
 
+
   return (
     <SelectWrapper
       options={options}
       onChange={setTimeFrame}
+      // @ts-ignore
       value={timeFrame}
       placeholder='Select time frame'
       selectValue={timeFrame}
