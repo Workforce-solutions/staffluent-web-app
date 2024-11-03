@@ -6,6 +6,7 @@ export interface EmployeeResponse {
   email: string
   status: string
   start_date: string | null
+  phone?: string
   hire_date: string | null
   custom_role: string | null
   projects_assigned: number
@@ -36,8 +37,8 @@ export interface AddEmployeePayload {
   personal_phone: string
   company_email: string
   company_phone: string
-  profile_picture?: File  // Add this
-  create_user: number     // Add this
+  profile_picture?: File // Add this
+  create_user: number // Add this
   address: {
     city_id: number
     address_line1: string
@@ -47,7 +48,7 @@ export interface AddEmployeePayload {
   }
   manager_id: string
   is_custom: number
-  employee_password?: string  // Make optional
+  employee_password?: string // Make optional
 }
 
 export interface CreateEmployeeProps {
@@ -55,7 +56,8 @@ export interface CreateEmployeeProps {
   employeeData: FormData
 }
 
-export interface UpdateEmployeeProps extends Omit<CreateEmployeeProps, 'employeeData'> {
+export interface UpdateEmployeeProps
+  extends Omit<CreateEmployeeProps, 'employeeData'> {
   id: number
   employeeData: FormData
 }
@@ -101,6 +103,12 @@ export interface CreateTeam {
 export interface CreateTeamLeader {
   id: number
   employee_id: number
+  short_code: string
+}
+
+export interface DeleteTeamEmployee {
+  id: number
+  employee_ids: number[]
   short_code: string
 }
 
@@ -182,6 +190,12 @@ export interface TeamByIdProps {
   operations_manager: OMObject
 }
 
+export interface BaseUserProps {
+  id: number
+  name: string
+  description: string
+}
+
 export interface EmployeeFullProfile {
   id: number
   name: string
@@ -199,10 +213,7 @@ export interface EmployeeFullProfile {
     role_type: 'system' | 'custom'
   }
   department_id: number
-  department: {
-    id: number
-    name: string
-  }
+  department: BaseUserProps
   manager_id: number | null
   is_custom: boolean
   address: {
@@ -212,6 +223,7 @@ export interface EmployeeFullProfile {
     country_id: number
     postal_code: string
   }
+  manager: BaseUserProps
 }
 
 export interface OMObject {
@@ -232,6 +244,10 @@ export interface TeamsResponse {
   department: DepartmentResponse
   employees: EmployeeResponse[]
   departments: DepartmentResponse[]
+}
+
+export interface ShortCodeProps {
+  venue_short_code: string
 }
 
 export interface IdShortCodeProps {

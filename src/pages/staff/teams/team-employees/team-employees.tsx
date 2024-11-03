@@ -27,6 +27,7 @@ import {
 import { useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { CreateTeamLeader } from './add-team-leader'
+import { CreateTeamEmployee } from './add-team-employee'
 
 // Helper function for status badge styling
 const getStatusColor = (status: string) => {
@@ -48,6 +49,7 @@ export default function TeamEmployees() {
   const [searchTerm, setSearchTerm] = useState('')
   const [deleteOpen, setDeleteOpen] = useState(false)
   const [teamLeaderOpen, setTeamLeaderOpen] = useState(false)
+  const [openEmployee, setOpenEmployee] = useState(false)
   const [selectedEmployee, setSelectedEmployee] =
     useState<TeamMemberResponse | null>(null)
   const { toast } = useToast()
@@ -77,7 +79,7 @@ export default function TeamEmployees() {
     try {
       await removeEmployee({
         id: Number(id),
-        employee_id: selectedEmployee.id,
+        employee_ids: [selectedEmployee.id],
         short_code: venue_short_code,
       }).unwrap()
 
@@ -207,6 +209,8 @@ export default function TeamEmployees() {
         description='Are you sure you want to remove this member from the team? This action cannot be undone.'
       />
 
+      <CreateTeamEmployee open={openEmployee} setOpen={setOpenEmployee} />
+
       <CreateTeamLeader setOpen={setTeamLeaderOpen} open={teamLeaderOpen} />
 
       <Layout.Header>
@@ -234,7 +238,10 @@ export default function TeamEmployees() {
               />
               <SearchIcon className='absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground' />
             </div>
-            <Button className='flex items-center gap-2'>
+            <Button
+              onClick={() => setOpenEmployee(true)}
+              className='flex items-center gap-2'
+            >
               <PlusIcon className='h-4 w-4' />
               Add Member
             </Button>

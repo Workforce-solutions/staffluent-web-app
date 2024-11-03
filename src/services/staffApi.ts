@@ -6,9 +6,12 @@ import {
   CreateTeamEmployee,
   CreateTeamLeader,
   CreateTeamOfficeManager,
-  DepartmentsType, EmployeeFullProfile,
+  DeleteTeamEmployee,
+  DepartmentsType,
+  EmployeeFullProfile,
   EmployeeResponse,
   IdShortCodeProps,
+  ShortCodeProps,
   TeamByIdProps,
   TeamMemberResponse,
   TeamsResponseType,
@@ -110,6 +113,26 @@ export const staffApi = createApi({
       query: ({ venue_short_code, id }) => ({
         url: getCommonUrl({
           queryString: `/teams/${id}/employees`,
+          query: `&venue_short_code=${venue_short_code}`,
+          params: staffAdminAppkeyParam,
+        }),
+      }),
+      providesTags: ['TeamEmployees'],
+    }),
+    getTeamleaders: builder.query<EmployeeResponse[], ShortCodeProps>({
+      query: ({ venue_short_code }) => ({
+        url: getCommonUrl({
+          queryString: `/employees/team-leaders`,
+          query: `&venue_short_code=${venue_short_code}`,
+          params: staffAdminAppkeyParam,
+        }),
+      }),
+      providesTags: ['TeamEmployees'],
+    }),
+    getOperationsManager: builder.query<EmployeeResponse[], ShortCodeProps>({
+      query: ({ venue_short_code }) => ({
+        url: getCommonUrl({
+          queryString: `/employees/operations-managers`,
           query: `&venue_short_code=${venue_short_code}`,
           params: staffAdminAppkeyParam,
         }),
@@ -271,17 +294,32 @@ export const staffApi = createApi({
       }),
       invalidatesTags: ['Teams'],
     }),
-    removeTeamEmployee: builder.mutation<void, CreateTeamLeader>({
-      query: ({ short_code, id, employee_id }) => ({
+    removeTeamEmployee: builder.mutation<void, DeleteTeamEmployee>({
+      query: ({ short_code, id, employee_ids }) => ({
         url: getCommonUrl({
-          queryString: `/teams/${id}/unassign-employee`,
+          queryString: `/teams/${id}/remove-employees`,
           params: staffAdminAppkeyParam,
           query: `&venue_short_code=${short_code}`,
         }),
         method: 'POST',
-        body: { employee_id },
+        body: { employee_ids },
       }),
       invalidatesTags: ['TeamEmployees'],
+    }),
+    updateEmployeeStatus: builder.mutation<
+      void,
+      { id: number; status: string; short_code: string }
+    >({
+      query: ({ id, short_code, status }) => ({
+        url: getCommonUrl({
+          queryString: `/employees/${id}/status`,
+          params: staffAdminAppkeyParam,
+          query: `&venue_short_code=${short_code}`,
+        }),
+        method: 'POST',
+        body: { status },
+      }),
+      invalidatesTags: ['Employees'],
     }),
   }),
 })
@@ -296,6 +334,8 @@ export const {
   useLazyGetTeamsQuery,
   useGetTeamByIdQuery,
   useGetDepartmentsByTeamQuery,
+  useGetTeamleadersQuery,
+  useGetOperationsManagerQuery,
   //
   useGetEmployeeByIdQuery,
   useCreateTeamEmployeeMutation,
@@ -310,4 +350,5 @@ export const {
   useDeleteTeamMutation,
   useUpdateTeamMutation,
   useRemoveTeamEmployeeMutation,
+  useUpdateEmployeeStatusMutation,
 } = staffApi

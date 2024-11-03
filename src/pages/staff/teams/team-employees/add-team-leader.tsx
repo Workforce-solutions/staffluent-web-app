@@ -14,7 +14,7 @@ import SelectWrapper from '@/components/wrappers/select-wrapper'
 import { useShortCode } from '@/hooks/use-local-storage'
 import {
   useCreateTeamLeaderMutation,
-  useGetEmployeesQuery,
+  useGetTeamleadersQuery,
 } from '@/services/staffApi'
 import { IconBuilding } from '@tabler/icons-react'
 import { useState } from 'react'
@@ -35,7 +35,9 @@ export function CreateTeamLeader({ open, setOpen }: OpenModalProps) {
   const [selectedEmployee, setSelectedEmployee] = useState(-1)
   const [createTeamEmployee, { isLoading }] = useCreateTeamLeaderMutation()
 
-  const { data: employees = [] } = useGetEmployeesQuery(short_code)
+  const { data: employees = [] } = useGetTeamleadersQuery({
+    venue_short_code: short_code,
+  })
 
   const employeeOptions: OptionsType[] = employees
     .filter((item) => item.role.name === ROLES.teamLeader)

@@ -196,20 +196,15 @@ const router = createBrowserRouter([
         path: 'teams/:id/departments-by-team',
         lazy: async () => ({
           Component: (
-              await import(
-                  './pages/staff/teams/departments-by-team.tsx'
-                  )
+            await import('./pages/staff/teams/departments-by-team.tsx')
           ).default,
         }),
       },
       {
         path: 'teams/:id',
         lazy: async () => ({
-          Component: (
-              await import(
-                  './pages/staff/teams/team-details.tsx'
-                  )
-          ).default,
+          Component: (await import('./pages/staff/teams/team-details.tsx'))
+            .default,
         }),
       },
       {
@@ -225,9 +220,24 @@ const router = createBrowserRouter([
           Component: (await import('./pages/staff/employee/index.tsx')).default,
         }),
       },
+      {
+        path: 'employees/team-leaders',
+        lazy: async () => ({
+          Component: (await import('./pages/staff/employee/team-leaders.tsx'))
+            .default,
+        }),
+      },
+      {
+        path: 'employees/operations-managers',
+        lazy: async () => ({
+          Component: (
+            await import('./pages/staff/employee/operations-managers.tsx')
+          ).default,
+        }),
+      },
       // Staff Details route
       {
-        path: 'staff-management/:id',
+        path: 'employees/:id',
         lazy: async () => ({
           Component: (await import('./pages/staff/employee/details.tsx'))
             .default,

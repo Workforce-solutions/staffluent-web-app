@@ -56,44 +56,49 @@ export function CreateEditTeamModal({
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    if (!departmentId) {
+    if (
+      departmentId === null ||
+      departmentId === undefined ||
+      departmentId < 0
+    ) {
       toast({
         title: 'Error',
         description: 'Please select a department',
         variant: 'destructive',
       })
       return
-    }
+    } else {
+      try {
+        if (isEditing && team) {
+          await updateTeam({
+            id: team.id,
+            name,
+            description,
+            department_id:
+              departmentId === 0 ? team?.department_id : departmentId,
+            short_code: venue_short_code,
+          }).unwrap()
+        } else {
+          await createTeam({
+            name,
+            description,
+            department_id: departmentId,
+            short_code: venue_short_code,
+          }).unwrap()
+        }
 
-    try {
-      if (isEditing && team) {
-        await updateTeam({
-          id: team.id,
-          name,
-          description,
-          department_id: departmentId,
-          short_code: venue_short_code,
-        }).unwrap()
-      } else {
-        await createTeam({
-          name,
-          description,
-          department_id: departmentId,
-          short_code: venue_short_code,
-        }).unwrap()
+        toast({
+          title: 'Success',
+          description: `Team ${isEditing ? 'updated' : 'created'} successfully`,
+        })
+        setOpen(false)
+      } catch (error) {
+        toast({
+          title: 'Error',
+          description: `Failed to ${isEditing ? 'update' : 'create'} team`,
+          variant: 'destructive',
+        })
       }
-
-      toast({
-        title: 'Success',
-        description: `Team ${isEditing ? 'updated' : 'created'} successfully`,
-      })
-      setOpen(false)
-    } catch (error) {
-      toast({
-        title: 'Error',
-        description: `Failed to ${isEditing ? 'update' : 'create'} team`,
-        variant: 'destructive',
-      })
     }
   }
 

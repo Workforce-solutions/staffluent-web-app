@@ -30,6 +30,7 @@ const TeamDropdown = ({
   return (
     <SelectWrapper
       onChange={onChange}
+      // @ts-ignore
       value={String(id ?? '')}
       placeholder='Select Team...'
       {...{ queryParams, setQueryParams, className, options }}
