@@ -1,49 +1,60 @@
-
+import { useState } from 'react'
 import { Layout } from '@/components/custom/layout'
-import { Button } from '@/components/custom/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Search } from '@/components/search'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import ThemeSwitch from '@/components/theme-switch'
-// import { TopNav } from '@/components/top-nav'
 import { UserNav } from '@/components/user-nav'
-import { Bar, BarChart, Line, LineChart, Pie, PieChart, ResponsiveContainer, XAxis, YAxis, Tooltip, Legend } from 'recharts'
+import { Button } from '@/components/custom/button'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  LineChart,
+  Line,
+  BarChart,
+  Bar,
+  PieChart,
+  Pie,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  Cell
+} from 'recharts'
+import { Download, Loader2 } from 'lucide-react'
+import { useGetDashboardQuery } from '@/services/dashboardApi'
+import { useShortCode } from '@/hooks/use-local-storage'
+import { format } from 'date-fns'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 
-// Mock data
-const productivityData = [
-  { name: 'Week 1', actual: 75, expected: 80 },
-  { name: 'Week 2', actual: 82, expected: 80 },
-  { name: 'Week 3', actual: 78, expected: 80 },
-  { name: 'Week 4', actual: 85, expected: 80 },
-]
-
-const taskCompletionData = [
-  { name: 'Completed', value: 68 },
-  { name: 'In Progress', value: 25 },
-  { name: 'Not Started', value: 7 },
-]
-
-const projectStatusData = [
-  { name: 'Project A', completed: 75 },
-  { name: 'Project B', completed: 50 },
-  { name: 'Project C', completed: 90 },
-  { name: 'Project D', completed: 30 },
-]
-
-const topPerformers = [
-  { name: 'Alice Johnson', role: 'Developer', performance: 95 },
-  { name: 'Bob Smith', role: 'Designer', performance: 92 },
-  { name: 'Carol Williams', role: 'Manager', performance: 90 },
-  { name: 'David Brown', role: 'Developer', performance: 88 },
-  { name: 'Eva Davis', role: 'Marketing', performance: 87 },
-]
-
 export default function Dashboard() {
+  const short_code = useShortCode()
+  const [timeFrame, setTimeFrame] = useState<'weekly' | 'monthly' | 'quarterly' | 'yearly'>('monthly')
+
+  const { data, isLoading, isFetching } = useGetDashboardQuery({
+    venue_short_code: short_code,
+    time_frame: timeFrame
+  })
+
+  if (isLoading) {
+    return (
+        <div className="flex h-screen items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin" />
+        </div>
+    )
+  }
+
+  const productivityTrendData = data?.overview.productivityTrend.dates.map((date, index) => ({
+    date: format(new Date(date), 'MMM d'),
+    actual: data.overview.productivityTrend.actual[index],
+    expected: data.overview.productivityTrend.expected[index]
+  }))
+
+
   return (
       <Layout>
         <Layout.Header>
-          {/*<TopNav links={topNav} />*/}
           <div className='ml-auto flex items-center space-x-4'>
             <Search />
             <ThemeSwitch />
@@ -51,78 +62,123 @@ export default function Dashboard() {
           </div>
         </Layout.Header>
 
-        <Layout.Body>
-          <div className='mb-2 flex items-center justify-between space-y-2'>
-            <h1 className='text-2xl font-bold tracking-tight'>Staff Management Dashboard</h1>
-            <div className='flex items-center space-x-2'>
-              <Button>Export Data</Button>
+        <Layout.Body className='space-y-8'>
+          <div className='flex flex-col space-y-4 sm:flex-row sm:justify-between sm:items-center sm:space-y-0'>
+            <div>
+              <h1 className='text-2xl font-bold tracking-tight md:text-3xl'>
+                Staff Management Dashboard
+                {isFetching && <span className="text-sm text-muted-foreground ml-2">(Updating...)</span>}
+              </h1>
+              <p className="text-muted-foreground">
+                Monitor staff performance, tasks, and project progress
+              </p>
+            </div>
+            <div className='flex flex-col space-y-2 sm:flex-row sm:space-x-2 sm:space-y-0'>
+              {/*// @ts-ignore*/}
+              <Select value={timeFrame} onValueChange={setTimeFrame}>
+                <SelectTrigger className="w-full sm:w-[180px]">
+                  <SelectValue placeholder="Select time frame"/>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="weekly">Weekly</SelectItem>
+                  <SelectItem value="monthly">Monthly</SelectItem>
+                  <SelectItem value="quarterly">Quarterly</SelectItem>
+                  <SelectItem value="yearly">Yearly</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button className="w-full sm:w-auto">
+                <Download className="mr-2 h-4 w-4"/>
+                Export Data
+              </Button>
             </div>
           </div>
-          <Tabs defaultValue='overview' className='space-y-4'>
+
+          <Tabs defaultValue="overview" className="space-y-4">
             <TabsList>
-              <TabsTrigger value='overview'>Overview</TabsTrigger>
-              <TabsTrigger value='performance'>Performance</TabsTrigger>
-              <TabsTrigger value='tasks'>Tasks</TabsTrigger>
-              <TabsTrigger value='projects'>Projects</TabsTrigger>
+              <TabsTrigger value="overview">Overview</TabsTrigger>
+              <TabsTrigger value="performance">Performance</TabsTrigger>
+              <TabsTrigger value="tasks">Tasks</TabsTrigger>
+              <TabsTrigger value="projects">Projects</TabsTrigger>
             </TabsList>
 
-            <TabsContent value='overview' className='space-y-4'>
-              <div className='grid gap-4 md:grid-cols-2 lg:grid-cols-4'>
+            <TabsContent value="overview" className="space-y-4">
+              <div className="grid gap-4 md:grid-cols-4">
                 <Card>
-                  <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-                    <CardTitle className='text-sm font-medium'>Total Staff</CardTitle>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium text-muted-foreground">
+                      Total Staff
+                    </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className='text-2xl font-bold'>245</div>
-                    <p className='text-xs text-muted-foreground'>+5% from last month</p>
+                    <div className="text-2xl font-bold">{data?.overview.totalStaff.count}</div>
+                    <p className="text-xs text-muted-foreground">{data?.overview.totalStaff.change}</p>
                   </CardContent>
                 </Card>
                 <Card>
-                  <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-                    <CardTitle className='text-sm font-medium'>Average Productivity</CardTitle>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium text-muted-foreground">
+                      Average Productivity
+                    </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className='text-2xl font-bold'>82%</div>
-                    <p className='text-xs text-muted-foreground'>+3% from last month</p>
+                    <div className="text-2xl font-bold">{data?.overview.averageProductivity.percentage}%</div>
+                    <p className="text-xs text-muted-foreground">{data?.overview.averageProductivity.change}</p>
                   </CardContent>
                 </Card>
                 <Card>
-                  <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-                    <CardTitle className='text-sm font-medium'>Tasks Completed</CardTitle>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium text-muted-foreground">
+                      Tasks Completed
+                    </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className='text-2xl font-bold'>1,234</div>
-                    <p className='text-xs text-muted-foreground'>+10% from last month</p>
+                    <div className="text-2xl font-bold">{data?.overview.tasksCompleted.count}</div>
+                    <p className="text-xs text-muted-foreground">{data?.overview.tasksCompleted.change}</p>
                   </CardContent>
                 </Card>
                 <Card>
-                  <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-                    <CardTitle className='text-sm font-medium'>Active Projects</CardTitle>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium text-muted-foreground">
+                      Active Projects
+                    </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className='text-2xl font-bold'>12</div>
-                    <p className='text-xs text-muted-foreground'>2 completed this month</p>
+                    <div className="text-2xl font-bold">{data?.overview.activeProjects.count}</div>
+                    <p className="text-xs text-muted-foreground">{data?.overview.activeProjects.completed}</p>
                   </CardContent>
                 </Card>
               </div>
-              <div className='grid gap-4 md:grid-cols-2'>
+
+              <div className="grid gap-6 md:grid-cols-2">
                 <Card>
                   <CardHeader>
                     <CardTitle>Productivity Trend</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <ResponsiveContainer width="100%" height={300}>
-                      <LineChart data={productivityData}>
-                        <XAxis dataKey="name" />
+                      <LineChart data={productivityTrendData}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="date" />
                         <YAxis />
                         <Tooltip />
                         <Legend />
-                        <Line type="monotone" dataKey="actual" stroke="#8884d8" />
-                        <Line type="monotone" dataKey="expected" stroke="#82ca9d" />
+                        <Line
+                            type="monotone"
+                            dataKey="actual"
+                            stroke="#8884d8"
+                            name="Actual"
+                        />
+                        <Line
+                            type="monotone"
+                            dataKey="expected"
+                            stroke="#82ca9d"
+                            name="Expected"
+                        />
                       </LineChart>
                     </ResponsiveContainer>
                   </CardContent>
                 </Card>
+
                 <Card>
                   <CardHeader>
                     <CardTitle>Task Completion Status</CardTitle>
@@ -130,8 +186,32 @@ export default function Dashboard() {
                   <CardContent>
                     <ResponsiveContainer width="100%" height={300}>
                       <PieChart>
-                        <Pie dataKey="value" data={taskCompletionData} fill="#8884d8" label />
+                        <Pie
+                            data={[
+                              // @ts-ignore
+                              { name: 'Completed', value: parseInt(data?.overview.taskCompletionStatus.completed) || 0 },
+                              // @ts-ignore
+                              { name: 'In Progress', value: parseInt(data?.overview.taskCompletionStatus.inProgress) || 0 },
+                              // @ts-ignore
+                              { name: 'Not Started', value: parseInt(data?.overview.taskCompletionStatus.notStarted) || 0 }
+                            ]}
+                            cx="50%"
+                            cy="50%"
+                            outerRadius={100}
+                            fill="#8884d8"
+                            dataKey="value"
+                            nameKey="name"
+                        >
+                          {[
+                            { fill: '#16a34a' },  // green for Completed
+                            { fill: '#2563eb' },  // blue for In Progress
+                            { fill: '#dc2626' },  // red for Not Started
+                          ].map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={entry.fill} />
+                          ))}
+                        </Pie>
                         <Tooltip />
+                        <Legend />
                       </PieChart>
                     </ResponsiveContainer>
                   </CardContent>
@@ -139,23 +219,32 @@ export default function Dashboard() {
               </div>
             </TabsContent>
 
-            <TabsContent value='performance' className='space-y-4'>
+            <TabsContent value="performance" className="space-y-4">
               <Card>
                 <CardHeader>
                   <CardTitle>Top Performers</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className='space-y-8'>
-                    {topPerformers.map((performer, index) => (
-                        <div key={index} className='flex items-center'>
-                          <Avatar className='h-9 w-9'>
-                            <AvatarFallback>{performer.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                  <div className="space-y-8">
+                    {data?.performance.map((performer, index) => (
+                        <div key={index} className="flex items-center">
+                          <Avatar className="h-9 w-9">
+                            <AvatarFallback>
+                              {performer.name.split(' ').map(n => n[0]).join('')}
+                            </AvatarFallback>
                           </Avatar>
-                          <div className='ml-4 space-y-1'>
-                            <p className='text-sm font-medium leading-none'>{performer.name}</p>
-                            <p className='text-sm text-muted-foreground'>{performer.role}</p>
+                          <div className="ml-4 space-y-1">
+                            <p className="text-sm font-medium leading-none">{performer.name}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {performer.role}
+                            </p>
+                            <div className="text-sm text-muted-foreground">
+                              Activities: {performer.stats.activities} |
+                              Active Days: {performer.stats.activeDays} |
+                              Tasks: {performer.stats.completedTasks}
+                            </div>
                           </div>
-                          <div className='ml-auto font-medium'>{performer.performance}%</div>
+                          <div className="ml-auto font-medium">{performer.performanceScore}%</div>
                         </div>
                     ))}
                   </div>
@@ -163,44 +252,148 @@ export default function Dashboard() {
               </Card>
             </TabsContent>
 
-            <TabsContent value='tasks' className='space-y-4'>
-              <Card>
-                <CardHeader>
-                  <CardTitle>Task Completion by Department</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <BarChart data={[
-                      { name: 'Development', completed: 120, total: 150 },
-                      { name: 'Design', completed: 80, total: 100 },
-                      { name: 'Marketing', completed: 60, total: 80 },
-                      { name: 'Sales', completed: 90, total: 100 },
-                    ]}>
-                      <XAxis dataKey="name" />
-                      <YAxis />
-                      <Tooltip />
-                      <Legend />
-                      <Bar dataKey="completed" fill="#8884d8" name="Completed" />
-                      <Bar dataKey="total" fill="#82ca9d" name="Total" />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </CardContent>
-              </Card>
+            <TabsContent value="tasks" className="space-y-4">
+              <div className="grid gap-4 md:grid-cols-2">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Task Status Distribution</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ResponsiveContainer width="100%" height={300}>
+                      <ResponsiveContainer width="100%" height={300}>
+                        <PieChart>
+                          <Pie
+                              data={[
+                                // @ts-ignore
+                                { name: 'Not Started', value: parseInt(data?.tasks.taskStatus.not_started) || 0 },
+                                // @ts-ignore
+                                { name: 'In Progress', value: parseInt(data?.tasks.taskStatus.in_progress) || 0 },
+                                // @ts-ignore
+                                { name: 'Completed', value: parseInt(data?.tasks.taskStatus.completed) || 0 },
+                                // @ts-ignore
+                                { name: 'Cancelled', value: parseInt(data?.tasks.taskStatus.cancelled) || 0 }
+                              ]}
+                              cx="50%"
+                              cy="50%"
+                              outerRadius={100}
+                              fill="#8884d8"
+                              dataKey="value"
+                              nameKey="name"
+                          >
+                            {/* THIS IS THE KEY PART WE WERE MISSING */}
+                            {data?.tasks.taskStatus && [
+                              { fill: '#dc2626' },  // red for Not Started
+                              { fill: '#2563eb' },  // blue for In Progress
+                              { fill: '#16a34a' },  // green for Completed
+                              { fill: '#71717a' }   // gray for Cancelled
+                            ].map((entry, index) => (
+                                <Cell key={`cell-${index}`} fill={entry.fill} />
+                            ))}
+                          </Pie>
+                          <Tooltip />
+                          <Legend />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </ResponsiveContainer>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Task Status Summary</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="grid gap-4 grid-cols-2">
+                        <div className="bg-green-50 dark:bg-green-950 p-4 rounded-lg">
+                          <div className="text-green-600 dark:text-green-400 text-2xl font-bold">
+                            {data?.tasks.taskStatus.completed || 0}
+                          </div>
+                          <div className="text-sm text-green-700 dark:text-green-300">Completed</div>
+                        </div>
+                        <div className="bg-blue-50 dark:bg-blue-950 p-4 rounded-lg">
+                          <div className="text-blue-600 dark:text-blue-400 text-2xl font-bold">
+                            {data?.tasks.taskStatus.in_progress || 0}
+                          </div>
+                          <div className="text-sm text-blue-700 dark:text-blue-300">In Progress</div>
+                        </div>
+                        <div className="bg-red-50 dark:bg-red-950 p-4 rounded-lg">
+                          <div className="text-red-600 dark:text-red-400 text-2xl font-bold">
+                            {data?.tasks.taskStatus.not_started || 0}
+                          </div>
+                          <div className="text-sm text-red-700 dark:text-red-300">Not Started</div>
+                        </div>
+                        <div className="bg-zinc-50 dark:bg-zinc-900 p-4 rounded-lg">
+                          <div className="text-zinc-600 dark:text-zinc-400 text-2xl font-bold">
+                            {/*// @ts-ignore*/}
+                            {data?.tasks.taskStatus.cancelled || 0}
+                          </div>
+                          <div className="text-sm text-zinc-700 dark:text-zinc-300">Cancelled</div>
+                        </div>
+                      </div>
+
+                      <div className="pt-4 border-t">
+                        <div className="text-sm text-muted-foreground">Total Tasks</div>
+                        <div className="text-2xl font-bold">
+                          {data?.tasks.taskStatus.total || 0}
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/*// @ts-ignore*/}
+              {data?.tasks.taskDistribution.length > 0 && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Tasks by Priority</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <ResponsiveContainer width="100%" height={300}>
+                        {/*// @ts-ignore*/}
+                        <BarChart data={data.tasks.taskDistribution}>
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis dataKey="priority" />
+                          <YAxis />
+                          <Tooltip />
+                          <Legend />
+                          <Bar dataKey="completed" fill="#16a34a" name="Completed" />
+                          <Bar dataKey="total" fill="#2563eb" name="Total" />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </CardContent>
+                  </Card>
+              )}
             </TabsContent>
 
-            <TabsContent value='projects' className='space-y-4'>
+            <TabsContent value="projects" className="space-y-4">
               <Card>
                 <CardHeader>
                   <CardTitle>Project Status Overview</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <ResponsiveContainer width="100%" height={300}>
-                    <BarChart data={projectStatusData} layout="vertical">
+                    <BarChart
+                        data={data?.projects.statusOverview}
+                        layout="vertical"
+                        margin={{ left: 0, right: 30, top: 10, bottom: 10 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" />
                       <XAxis type="number" />
-                      <YAxis dataKey="name" type="category" />
+                      <YAxis
+                          type="category"
+                          dataKey="name"
+                          width={80}
+                          tick={{ fontSize: 12 }}
+                      />
                       <Tooltip />
                       <Legend />
-                      <Bar dataKey="completed" fill="#8884d8" />
+                      <Bar
+                          dataKey="completion"
+                          fill="#8884d8"
+                          name="Completion %"
+                      />
                     </BarChart>
                   </ResponsiveContainer>
                 </CardContent>
@@ -211,10 +404,3 @@ export default function Dashboard() {
       </Layout>
   )
 }
-
-// const topNav = [
-//   { title: 'Dashboard', href: '/dashboard', isActive: true },
-//   { title: 'Staff', href: '/staff', isActive: false },
-//   { title: 'Projects', href: '/projects', isActive: false },
-//   { title: 'Reports', href: '/reports', isActive: false },
-// ]

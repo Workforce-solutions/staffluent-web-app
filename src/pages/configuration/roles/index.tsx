@@ -2,7 +2,6 @@
 
 import { Role } from '@/@types/auth'
 import { Layout } from '@/components/custom/layout'
-import { Search } from '@/components/search'
 import ThemeSwitch from '@/components/theme-switch'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -113,13 +112,12 @@ export default function RolesPage() {
         description='Are you sure you want to delete this role? This action cannot be undone.'
       />
 
-      <Layout.Header>
-        <div className='ml-auto flex items-center space-x-2 sm:space-x-4'>
-          <ThemeSwitch />
-          <Search />
-          <UserNav />
-        </div>
-      </Layout.Header>
+        <Layout.Header>
+          <div className='ml-auto flex items-center space-x-2 sm:space-x-4'>
+            <ThemeSwitch />
+            <UserNav />
+          </div>
+        </Layout.Header>
 
       <Layout.Body className='space-y-8'>
         <div className='flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0'>

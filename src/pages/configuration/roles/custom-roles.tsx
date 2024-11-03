@@ -1,6 +1,5 @@
 import { Role } from '@/@types/auth'
 import { Layout } from '@/components/custom/layout'
-import { Search } from '@/components/search'
 import { initialPage } from '@/components/table/data'
 import ThemeSwitch from '@/components/theme-switch'
 import { Button } from '@/components/ui/button'
@@ -67,20 +66,20 @@ export default function CustomRoles() {
       header: 'Name',
       accessorKey: 'name',
       cell: ({ row: { original } }) => (
-        <span className='font-medium'>{original.name}</span>
+          <span className='font-medium'>{original.name}</span>
       ),
     },
     {
       header: 'Description',
       accessorKey: 'description',
       cell: ({ row: { original } }) => (
-        <div className='max-w-[300px] truncate text-sm'>
-          {original.description || (
-            <span className='italic text-muted-foreground'>
+          <div className='max-w-[300px] truncate text-sm'>
+            {original.description || (
+                <span className='italic text-muted-foreground'>
               No description provided
             </span>
-          )}
-        </div>
+            )}
+          </div>
       ),
     },
     {
@@ -115,7 +114,6 @@ export default function CustomRoles() {
       <Layout.Header>
         <div className='ml-auto flex items-center space-x-2 sm:space-x-4'>
           <ThemeSwitch />
-          <Search />
           <UserNav />
         </div>
       </Layout.Header>
