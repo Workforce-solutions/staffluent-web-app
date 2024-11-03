@@ -1,6 +1,4 @@
-import { RolesResponse } from '@/@types/auth'
 import { PaginatedParams } from '@/@types/common'
-import { RolesProps } from '@/@types/role'
 import {
   CreateDepartmentPayload,
   CreateEmployeeProps,
@@ -8,7 +6,7 @@ import {
   CreateTeamEmployee,
   CreateTeamLeader,
   CreateTeamOfficeManager,
-  DepartmentsType,
+  DepartmentsType, EmployeeFullProfile,
   EmployeeResponse,
   IdShortCodeProps,
   TeamByIdProps,
@@ -78,6 +76,7 @@ export const staffApi = createApi({
         }),
         method: 'POST',
         body: employeeData,
+        formData: true, // Add this
       }),
       invalidatesTags: ['Employees'],
     }),
@@ -89,14 +88,15 @@ export const staffApi = createApi({
           params: staffAdminAppkeyParam,
           query: `&venue_short_code=${short_code}`,
         }),
-        method: 'PUT',
+        method: 'POST',
         body: employeeData,
+        formData: true, // Add this
       }),
       invalidatesTags: ['Employees'],
     }),
 
     // Team employee
-    getEmployeeById: builder.query<RolesResponse, RolesProps & { id: number }>({
+    getEmployeeById: builder.query<EmployeeFullProfile, IdShortCodeProps>({
       query: ({ id, venue_short_code }) => ({
         url: getCommonUrl({
           queryString: `/employees/full/${id}`,

@@ -1,3 +1,4 @@
+import { Role } from '@/@types/auth'
 import { OpenModalProps } from '@/@types/common'
 import { Button } from '@/components/ui/button'
 import {
@@ -12,39 +13,85 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useToast } from '@/components/ui/use-toast'
 import { useShortCode } from '@/hooks/use-local-storage'
-import { useCreateCustomRoleMutation } from '@/services/roleApi'
+import {
+  useCreateCustomRoleMutation,
+  useUpdateCustomRoleMutation,
+} from '@/services/roleApi'
 import { IconUserShield } from '@tabler/icons-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
-export function AddCustomRoleModal({ open, setOpen }: OpenModalProps) {
+interface CustomRoleModalProps extends OpenModalProps {
+  role?: Role
+}
+
+export function AddCustomRoleModal({
+  open,
+  setOpen,
+  role,
+}: CustomRoleModalProps) {
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
   const [createCustomRole, { isLoading }] = useCreateCustomRoleMutation()
   const { toast } = useToast()
   const venue_short_code = useShortCode()
 
+  const [editRole, { isLoading: isEditLoading }] = useUpdateCustomRoleMutation()
+
+  useEffect(() => {
+    if (role) {
+      setDescription(role.description)
+      setName(role.name)
+    } else {
+      setDescription('')
+      setName('')
+    }
+  }, [role])
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    try {
-      await createCustomRole({
-        name,
-        description,
-        venue_short_code,
-      }).unwrap()
 
-      toast({
-        title: 'Success',
-        description: 'Custom role created successfully',
-      })
-      setOpen(false)
-      setName('')
-      setDescription('')
-    } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'Failed to create custom role',
-        variant: 'destructive',
-      })
+    if (role) {
+      try {
+        await editRole({
+          id: role.id,
+          name,
+          description,
+          short_code: venue_short_code,
+        }).unwrap()
+        toast({
+          title: 'Success',
+          description: 'Custom role updated successfully',
+        })
+        setOpen(false)
+      } catch (error) {
+        toast({
+          title: 'Error',
+          description: 'Failed to update custom role',
+          variant: 'destructive',
+        })
+      }
+    } else {
+      try {
+        await createCustomRole({
+          name,
+          description,
+          venue_short_code,
+        }).unwrap()
+
+        toast({
+          title: 'Success',
+          description: 'Custom role created successfully',
+        })
+        setOpen(false)
+        setName('')
+        setDescription('')
+      } catch (error) {
+        toast({
+          title: 'Error',
+          description: 'Failed to create custom role',
+          variant: 'destructive',
+        })
+      }
     }
   }
 
@@ -55,7 +102,7 @@ export function AddCustomRoleModal({ open, setOpen }: OpenModalProps) {
           <DialogTitle>
             <div className='flex items-center space-x-2'>
               <IconUserShield size={24} />
-              <span>Create Custom Role</span>
+              <span>{`${!role ? 'Create' : 'Update'} Custom Role`}</span>
             </div>
           </DialogTitle>
           <DialogDescription>
@@ -100,7 +147,13 @@ export function AddCustomRoleModal({ open, setOpen }: OpenModalProps) {
               Cancel
             </Button>
             <Button type='submit' disabled={isLoading}>
-              {isLoading ? 'Creating...' : 'Create Custom Role'}
+              {isEditLoading
+                ? 'Updating...'
+                : isLoading
+                  ? 'Creating...'
+                  : role
+                    ? 'Update Custom Role'
+                    : 'Create Custom Role'}
             </Button>
           </DialogFooter>
         </form>

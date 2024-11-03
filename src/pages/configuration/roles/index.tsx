@@ -83,17 +83,13 @@ export default function RolesPage() {
     {
       header: 'Actions',
       cell: ({ row: { original } }) => (
-        <div className='flex items-center gap-1'>
+        <div className='flex items-center justify-end  gap-1'>
           <EditDelete
             original={original}
             handleDelete={() => {
               setSelectedRole(original)
               setDeleteOpen(true)
             }}
-            // handleEdit={() => {
-            //   setSelectedRole(original)
-            //   setEditOpen(true)
-            // }}
           />
         </div>
       ),
@@ -112,12 +108,12 @@ export default function RolesPage() {
         description='Are you sure you want to delete this role? This action cannot be undone.'
       />
 
-        <Layout.Header>
-          <div className='ml-auto flex items-center space-x-2 sm:space-x-4'>
-            <ThemeSwitch />
-            <UserNav />
-          </div>
-        </Layout.Header>
+      <Layout.Header>
+        <div className='ml-auto flex items-center space-x-2 sm:space-x-4'>
+          <ThemeSwitch />
+          <UserNav />
+        </div>
+      </Layout.Header>
 
       <Layout.Body className='space-y-8'>
         <div className='flex flex-col space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0'>

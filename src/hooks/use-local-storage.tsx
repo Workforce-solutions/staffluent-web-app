@@ -6,6 +6,10 @@ interface LocalStorageProps<T> {
   defaultValue: T
 }
 
+interface DataAuthProps {
+  data: AuthProps
+}
+
 export default function useLocalStorage<T>({
   key,
   defaultValue,
@@ -26,7 +30,7 @@ export const useShortCode = () => {
   const [shortCode, setShortCode] = useState<string>(() => {
     const vbAuth = localStorage.getItem('vbAuth')
     return vbAuth
-      ? ((JSON.parse(vbAuth) as AuthProps)?.data?.venue?.short_code ?? '')
+      ? ((JSON.parse(vbAuth) as DataAuthProps)?.data?.venue?.short_code ?? '')
       : ''
   })
 
@@ -34,7 +38,7 @@ export const useShortCode = () => {
     const handleStorageChange = () => {
       const vbAuth = localStorage.getItem('vbAuth')
       const newShortCode = vbAuth
-        ? ((JSON.parse(vbAuth) as AuthProps)?.data?.venue?.short_code ?? '')
+        ? ((JSON.parse(vbAuth) as DataAuthProps)?.data?.venue?.short_code ?? '')
         : ''
       setShortCode(newShortCode)
     }

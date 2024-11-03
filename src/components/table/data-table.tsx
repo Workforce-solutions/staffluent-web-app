@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import {
   ColumnFiltersState,
   SortingState,
@@ -23,7 +24,6 @@ import {
 import { DataTableProps } from '@/@types/table'
 import { DataTablePagination } from './data-table-pagination'
 import { DataTableToolbar } from './data-table-toolbar'
-import { useState } from 'react'
 
 export function DataTable<TData, TValue>({
   columns = [],
@@ -61,14 +61,18 @@ export function DataTable<TData, TValue>({
   return (
     <div className='space-y-4'>
       {showToolbar && <DataTableToolbar table={table} {...rest} />}
-      <div className='rounded-md border'>
+      <div className='overflow-x-auto rounded-md border'>
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
+                {headerGroup.headers.map((header, index) => {
+                  const isLastColumn = index === headerGroup.headers.length - 1
                   return (
-                    <TableHead key={header.id} colSpan={header.colSpan}>
+                    <TableHead
+                      key={header.id}
+                      className={isLastColumn ? 'text-right' : ''}
+                    >
                       {header.isPlaceholder
                         ? null
                         : flexRender(
@@ -88,14 +92,21 @@ export function DataTable<TData, TValue>({
                   key={row.id}
                   data-state={row.getIsSelected() && 'selected'}
                 >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
+                  {row.getVisibleCells().map((cell, index) => {
+                    const isLastColumn =
+                      index === row.getVisibleCells().length - 1
+                    return (
+                      <TableCell
+                        key={cell.id}
+                        className={isLastColumn ? 'text-right' : ''}
+                      >
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </TableCell>
+                    )
+                  })}
                 </TableRow>
               ))
             ) : (
@@ -111,7 +122,7 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      <DataTablePagination {...{ table }} {...rest} />
+      <DataTablePagination table={table} {...rest} />
     </div>
   )
 }

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/custom/button'
 import {
@@ -11,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-expect-error
+
 import supabase from '@/supabaseClient'
 import { useNavigate } from 'react-router-dom'
 // @ts-ignore
@@ -30,6 +31,7 @@ export function UserNav() {
   const handleLogout = async () => {
     try {
       await supabase.auth.signOut()
+      localStorage.removeItem('adminToken')
       setUserInfo(undefined)
       navigate('/login')
     } catch (error) {

@@ -1,9 +1,16 @@
 import { HeaderProps } from '@/@types/common'
 
-export const getPrepareHeaders = ({ headers, apikey = false }: HeaderProps) => {
+export const getPrepareHeaders = ({
+  headers,
+  apikey = false,
+  isRefreshToken,
+}: HeaderProps) => {
   const token = localStorage.getItem('adminToken')
-  if (token) {
-    headers.set('Authorization', `Bearer ${token}`)
+  const refreshToken = localStorage.getItem('refreshToken')
+  const updatedToken = isRefreshToken ? refreshToken : token
+
+  if ((updatedToken ?? '')?.length > 0) {
+    headers.set('Authorization', `Bearer ${refreshToken ?? token}`)
   }
   if (apikey) {
     headers.set('apikey', supabaseKey)

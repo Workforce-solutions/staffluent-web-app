@@ -5,8 +5,7 @@ import { RouterProvider } from 'react-router-dom'
 import { Toaster } from '@/components/ui/toaster'
 import { ThemeProvider } from '@/components/theme-provider'
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-expect-error
-import { SessionProvider } from '@/contexts/SessionContext'
+import { SessionProvider } from './contexts/SessionContext'
 import router from '@/router'
 import '@/index.css'
 import { Provider } from 'react-redux'

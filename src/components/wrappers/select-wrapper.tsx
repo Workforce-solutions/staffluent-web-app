@@ -37,6 +37,7 @@ const SelectWrapper = ({
 
   const listItems = options.map((item, index) => {
     const isSelected =
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       value?.value === item.value.value || value === item.value.value
 

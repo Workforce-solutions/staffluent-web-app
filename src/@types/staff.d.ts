@@ -13,8 +13,7 @@ export interface EmployeeResponse {
   company_phone: string | null
   company_email: string | null
   profile_picture: string
-  role: { id: number
-    name: string } | string,
+  role: { id: number; name: string }
   department: {
     id: number
     name: string
@@ -37,6 +36,8 @@ export interface AddEmployeePayload {
   personal_phone: string
   company_email: string
   company_phone: string
+  profile_picture?: File  // Add this
+  create_user: number     // Add this
   address: {
     city_id: number
     address_line1: string
@@ -46,16 +47,17 @@ export interface AddEmployeePayload {
   }
   manager_id: string
   is_custom: number
-  employee_password: string
+  employee_password?: string  // Make optional
 }
 
 export interface CreateEmployeeProps {
   short_code: string
-  employeeData: Partial<AddEmployeePayload>
+  employeeData: FormData
 }
 
-export interface UpdateEmployeeProps extends CreateEmployeeProps {
+export interface UpdateEmployeeProps extends Omit<CreateEmployeeProps, 'employeeData'> {
   id: number
+  employeeData: FormData
 }
 
 export interface DepartmentResponse {
@@ -125,7 +127,6 @@ interface DepartmentStats {
   cross_teams_count: number
 }
 
-
 export interface TeamLeaderProps {
   id: number
   name: string
@@ -165,7 +166,6 @@ interface Department {
   stats: DepartmentStats
 }
 
-
 export interface TeamByIdProps {
   id: number
   name: string
@@ -182,10 +182,41 @@ export interface TeamByIdProps {
   operations_manager: OMObject
 }
 
-export interface OMObject {
-  name: string,
+export interface EmployeeFullProfile {
+  id: number
+  name: string
   email: string
+  profile_picture: string
+  hire_date: string
+  personal_email: string
+  personal_phone: string
+  company_email: string
+  company_phone: string
+  status: string
+  role: {
+    id: number
+    name: string
+    role_type: 'system' | 'custom'
+  }
+  department_id: number
+  department: {
+    id: number
+    name: string
+  }
+  manager_id: number | null
+  is_custom: boolean
+  address: {
+    address_line1: string
+    city_id: number
+    state_id: number
+    country_id: number
+    postal_code: string
+  }
+}
 
+export interface OMObject {
+  name: string
+  email: string
 }
 
 export interface TeamsResponse {

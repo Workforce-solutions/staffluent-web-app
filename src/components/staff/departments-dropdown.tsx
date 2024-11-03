@@ -30,6 +30,7 @@ const DepartmentsDropdown = ({
   return (
     <SelectWrapper
       onChange={onChange}
+        // @ts-ignore
       value={String(departmentId ?? '')}
       placeholder='Select Department...'
       {...{ queryParams, setQueryParams, className, options }}
