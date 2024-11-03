@@ -23,7 +23,7 @@ export default function CustomRoles() {
   const [paginationValues, setPaginationValues] = useState(initialPage)
   const [open, setOpen] = useState(false)
   const [deleteOpen, setDeleteOpen] = useState(false)
-  const [selectedRole, setSelectedRole] = useState<Role | null>(null)
+  const [selectedRole, setSelectedRole] = useState<Role>()
 
   const { toast } = useToast()
   const venue_short_code = useShortCode()
@@ -51,7 +51,7 @@ export default function CustomRoles() {
         description: 'Role deleted successfully',
       })
       setDeleteOpen(false)
-      setSelectedRole(null)
+      setSelectedRole(undefined)
     } catch (error) {
       toast({
         title: 'Error',
@@ -66,31 +66,35 @@ export default function CustomRoles() {
       header: 'Name',
       accessorKey: 'name',
       cell: ({ row: { original } }) => (
-          <span className='font-medium'>{original.name}</span>
+        <span className='font-medium'>{original.name}</span>
       ),
     },
     {
       header: 'Description',
       accessorKey: 'description',
       cell: ({ row: { original } }) => (
-          <div className='max-w-[300px] truncate text-sm'>
-            {original.description || (
-                <span className='italic text-muted-foreground'>
+        <div className='max-w-[300px] truncate text-sm'>
+          {original.description || (
+            <span className='italic text-muted-foreground'>
               No description provided
             </span>
-            )}
-          </div>
+          )}
+        </div>
       ),
     },
     {
       header: 'Actions',
       cell: ({ row: { original } }) => (
-        <div className='flex items-center gap-1'>
+        <div className='flex w-full items-center justify-end gap-1'>
           <EditDelete
             original={original}
             handleDelete={() => {
               setSelectedRole(original)
               setDeleteOpen(true)
+            }}
+            handleEdit={() => {
+              setSelectedRole(original)
+              setOpen(true)
             }}
           />
         </div>
@@ -100,7 +104,7 @@ export default function CustomRoles() {
 
   return (
     <Layout>
-      <AddCustomRoleModal setOpen={setOpen} open={open} />
+      <AddCustomRoleModal setOpen={setOpen} open={open} role={selectedRole} />
       <ConfirmationModal
         handleDelete={handleDelete}
         open={deleteOpen}
@@ -123,12 +127,16 @@ export default function CustomRoles() {
           <div>
             <h2 className='text-2xl font-bold tracking-tight'>Custom roles</h2>
             <p className='text-muted-foreground'>
-              Create and customize unique roles specific to your organization's needs
+              Create and customize unique roles specific to your organization's
+              needs
             </p>
           </div>
           <div className='flex flex-col space-y-2 sm:flex-row sm:items-center sm:space-x-4 sm:space-y-0'>
             <Button
-              onClick={() => setOpen(true)}
+              onClick={() => {
+                setOpen(true)
+                setSelectedRole(undefined)
+              }}
               className='flex items-center gap-2'
             >
               <PlusIcon className='h-4 w-4' />

@@ -7,6 +7,7 @@ import {
   DeleteRoleProps,
   RolesProps,
 } from '@/@types/role'
+import { UpdateDepartmentPayload } from '@/@types/staff'
 import { getCommonUrl } from '@/hooks/common/common-api-url'
 import {
   getPrepareHeaders,
@@ -78,6 +79,21 @@ export const roleApi = createApi({
       }),
       invalidatesTags: ['Roles'],
     }),
+    updateCustomRole: builder.mutation<void, UpdateDepartmentPayload>({
+      query: ({ name, description, id, short_code }) => ({
+        url: getCommonUrl({
+          queryString: `/roles/custom/${id}`,
+          params: staffAdminAppkeyParam,
+          query: `&venue_short_code=${short_code}`,
+        }),
+        method: 'PUT',
+        body: {
+          name,
+          description,
+        },
+      }),
+      invalidatesTags: ['Roles'],
+    }),
     deleteCustomRole: builder.mutation<void, DeleteRoleProps>({
       query: ({ id, short_code }) => ({
         url: getCommonUrl({
@@ -96,6 +112,7 @@ export const {
   useGetRolesQuery,
   useGetCustomRolesQuery,
   useDeleteRoleMutation,
+  useUpdateCustomRoleMutation,
   useCreateCustomRoleMutation,
   useDeleteCustomRoleMutation,
   useCreateAttachedRoleMutation,

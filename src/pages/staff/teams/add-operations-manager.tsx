@@ -67,7 +67,7 @@ export function CreateOperationsManager({ open, setOpen }: OpenModalProps) {
           <DialogTitle>
             <div className='flex items-center space-x-2'>
               <IconBuilding size={24} />
-              <span>Create New Operation Manager</span>
+              <span>Manage Operations Managers</span>
             </div>
           </DialogTitle>
           <DialogDescription>

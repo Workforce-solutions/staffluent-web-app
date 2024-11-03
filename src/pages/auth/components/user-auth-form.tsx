@@ -1,5 +1,3 @@
-// @ts-ignore
-
 import { HTMLAttributes, useState } from 'react'
 import { useForm } from 'react-hook-form'
 // import {Link} from 'react-router-dom'
@@ -20,7 +18,7 @@ import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
 
 import { useCheckConnectionMutation } from '@/services/vbAuthApi'
-// @ts-ignore
+
 import supabase from '@/supabaseClient'
 import { useNavigate } from 'react-router-dom'
 
@@ -62,7 +60,8 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
     const { email, password } = data
 
     // Attempt to sign in with Supabase
-    const loginData = await supabase.auth.signInWithPassword({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const loginData: any = await supabase.auth.signInWithPassword({
       email,
       password,
     })
@@ -74,13 +73,14 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
     } else {
       navigate('/')
       checkConnection({
-        email: loginData.data.user.email,
-        supabase_id: loginData.data.user.id,
+        email: loginData?.data?.user?.email ?? '',
+        supabase_id: loginData?.data?.user?.id ?? '',
       }).then((res) => {
         if (res) {
           localStorage.setItem('vbAuth', JSON.stringify(res))
-          // @ts-ignore
+
           localStorage.setItem('adminToken', res?.data?.token ?? '')
+          localStorage.setItem('refreshToken', res?.data?.refresh_token ?? '')
         }
       })
     }

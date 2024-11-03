@@ -166,7 +166,7 @@ export default function StaffDepartment() {
     {
       header: 'Actions',
       cell: ({ row: { original } }) => (
-        <div className='flex items-center gap-1'>
+        <div className='flex items-center justify-end  gap-1'>
           <EditDelete
             original={original}
             handleDelete={() => {

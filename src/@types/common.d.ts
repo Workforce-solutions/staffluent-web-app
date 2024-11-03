@@ -6,6 +6,7 @@ export interface UpdateApiProps<T> {
 export interface HeaderProps {
   headers: Headers
   apikey?: boolean
+  isRefreshToken?: boolean
 }
 
 export interface CommonUrlProps {
