@@ -143,6 +143,41 @@ const router = createBrowserRouter([
         ],
       },
       {
+        path: 'client-portal',
+        children: [
+          {
+            path: 'dashboard',
+            lazy: async () => ({
+              Component: (await import('./pages/client-portal/dashboard')).default,
+            }),
+          },
+          {
+            path: 'services',
+            lazy: async () => ({
+              Component: (await import('./pages/client-portal/services')).default,
+            }),
+          },
+          {
+            path: 'services/:id',
+            lazy: async () => ({
+              Component: (await import('./pages/client-portal/services/service-details')).default,
+            }),
+          },
+          {
+            path: 'invoices',
+            lazy: async () => ({
+              Component: (await import('./pages/client-portal/invoices')).default,
+            }),
+          },
+          {
+            path: 'support',
+            lazy: async () => ({
+              Component: (await import('./pages/client-portal/support')).default,
+            }),
+          },
+        ],
+      },
+      {
         path: 'projects/list',
         lazy: async () => ({
           Component: (await import('./pages/projects/list')).default,

@@ -18,7 +18,7 @@ import {
   IconUsers,
   IconBuildingStore,
 } from '@tabler/icons-react'
-import { User2Icon, Users } from 'lucide-react'
+import { User2Icon, Users, MessageSquare, Receipt } from 'lucide-react';
 
 // Navigation Link Interfaces
 export interface NavLink {
@@ -173,6 +173,34 @@ export const sidelinks: SideLink[] = [
     label: '',
     href: '/settings',
     icon: <IconSettings size={18} />,
+  },
+  {
+    title: 'Client Portal',
+    label: '',
+    href: '/client-portal',
+    icon: <IconBuildingStore size={18} />,
+    sub: [
+      {
+        title: 'Dashboard',
+        href: '/client-portal/dashboard',
+        icon: <IconLayoutDashboard size={18} />,
+      },
+      {
+        title: 'My Services',
+        href: '/client-portal/services',
+        icon: <IconChecklist size={18} />,
+      },
+      {
+        title: 'Invoices',
+        href: '/client-portal/invoices',
+        icon: <Receipt size={18} />,
+      },
+      {
+        title: 'Support',
+        href: '/client-portal/support',
+        icon: <MessageSquare size={18} />,
+      }
+    ]
   },
 ]
 
