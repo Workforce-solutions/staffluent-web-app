@@ -1,4 +1,4 @@
-import { ClientResponse } from '@/@types/clients'
+import { ClientResponse, ClientsType } from '@/@types/clients'
 import { Layout } from '@/components/custom/layout'
 import ThemeSwitch from '@/components/theme-switch'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -22,11 +22,22 @@ import {
   useGetClientsQuery,
 } from '@/services/clientsApi'
 import { IconBuildingStore, IconUser } from '@tabler/icons-react'
-import { PencilIcon, PlusIcon, TrashIcon, Eye } from 'lucide-react'
-import { useState } from 'react'
+import {
+  PencilIcon,
+  PlusIcon,
+  TrashIcon,
+  Eye,
+  MailIcon,
+  PhoneIcon,
+} from 'lucide-react'
+import { useMemo, useState } from 'react'
 import { AddClientModal } from './add-client'
 import { UpdateClientModal } from './update-client'
 import { useNavigate } from 'react-router-dom'
+import { ColumnDef } from '@tanstack/react-table'
+import { Badge } from '@/components/ui/badge'
+import { getStatusColor } from '@/hooks/common/common-functions'
+import GenericTableWrapper from '@/components/wrappers/generic-wrapper'
 
 export default function Clients() {
   const navigate = useNavigate()
@@ -67,6 +78,144 @@ export default function Clients() {
     }
   }
 
+  const columns: ColumnDef<ClientResponse>[] = useMemo(
+    () => [
+      {
+        accessorKey: 'name',
+        header: 'Name',
+        cell: ({ row }) => (
+          <span className='font-medium'>{row.original.name}</span>
+        ),
+      },
+      {
+        accessorKey: 'contact_person',
+        header: 'Contact Person',
+        cell: ({ row }) => (
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <Avatar
+              style={{
+                width: '24px',
+                height: '24px',
+                marginRight: '8px',
+              }}
+            >
+              <AvatarImage
+                src={`https://api.dicebear.com/5.x/initials/svg?seed=${row?.original?.contact_person}`}
+                alt={`${row?.original?.contact_person}'s avatar`}
+              />
+              <AvatarFallback>
+                {row?.original?.contact_person
+                  .split(' ')
+                  .map((n) => n[0])
+                  .join('')}
+              </AvatarFallback>
+            </Avatar>
+            <span>{row?.original?.contact_person}</span>
+          </div>
+        ),
+      },
+      {
+        accessorKey: 'type',
+        header: 'Type',
+        cell: ({ row }) => (
+          <span
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+            }}
+            className='capitalize'
+          >
+            {row?.original?.type === 'company' ? (
+              <IconBuildingStore size={16} style={{ marginRight: '8px' }} />
+            ) : (
+              <IconUser size={16} style={{ marginRight: '8px' }} />
+            )}
+            {row?.original?.type}
+          </span>
+        ),
+      },
+      {
+        id: 'contact',
+        header: 'Contact',
+        cell: ({ row }) => (
+          <div className='flex space-x-2'>
+            {row.original.email && (
+              <Button
+                variant='ghost'
+                size='sm'
+                className='h-8 w-8 p-0'
+                onClick={() =>
+                  (window.location.href = `mailto:${row.original.email}`)
+                }
+              >
+                <MailIcon className='h-4 w-4' />
+              </Button>
+            )}
+            {row.original.phone && (
+              <Button
+                variant='ghost'
+                size='sm'
+                className='h-8 w-8 p-0'
+                onClick={() =>
+                  (window.location.href = `tel:${row.original.phone}`)
+                }
+              >
+                <PhoneIcon className='h-4 w-4' />
+              </Button>
+            )}
+          </div>
+        ),
+      },
+      {
+        accessorKey: 'phone',
+        header: 'Phone',
+        cell: ({ row }) => <span>{row.original?.phone}</span>,
+      },
+      {
+        accessorKey: 'full_address',
+        header: 'Address',
+        cell: ({ row }) => <span>{row.original?.full_address}</span>,
+      },
+      {
+        id: 'actions',
+        header: 'Actions',
+        cell: ({ row }) => (
+          <div className='flex items-center justify-end space-x-2'>
+            <Button
+              variant='ghost'
+              size='icon'
+              onClick={() => navigate(`/projects/clients/${row?.original?.id}`)}
+            >
+              <Eye className='h-4 w-4' />
+            </Button>
+            <Button
+              variant='ghost'
+              size='icon'
+              onClick={() => {
+                setSelectedClient(row?.original)
+                setEditOpen(true)
+              }}
+            >
+              <PencilIcon className='h-4 w-4' />
+            </Button>
+
+            <Button
+              variant='ghost'
+              size='icon'
+              onClick={() => {
+                setSelectedClient(row?.original)
+                setDeleteOpen(true)
+              }}
+            >
+              <TrashIcon className='h-4 w-4 text-red-500' />
+            </Button>
+          </div>
+        ),
+      },
+    ],
+    [navigate]
+  )
+
   return (
     <Layout>
       <Layout.Header>
@@ -103,132 +252,13 @@ export default function Clients() {
 
         <Card>
           <CardContent className='pt-6'>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Contact Person</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Phone</TableHead>
-                  <TableHead>Address</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {(clients?.clients?.data ?? [])
-                  ?.filter(
-                    (client) =>
-                      client.name
-                        .toLowerCase()
-                        .includes(searchTerm.toLowerCase()) ||
-                      client.contact_person
-                        .toLowerCase()
-                        .includes(searchTerm.toLowerCase()) ||
-                      client.email
-                        .toLowerCase()
-                        .includes(searchTerm.toLowerCase())
-                  )
-                  .map((client) => (
-                    <TableRow key={client.id}>
-                      <TableCell className='font-medium'>
-                        {client.name}
-                      </TableCell>
-                      <TableCell>
-                        <div style={{ display: 'flex', alignItems: 'center' }}>
-                          <Avatar
-                            style={{
-                              width: '24px',
-                              height: '24px',
-                              marginRight: '8px',
-                            }}
-                          >
-                            <AvatarImage
-                              src={`https://api.dicebear.com/5.x/initials/svg?seed=${client.contact_person}`}
-                              alt={`${client.contact_person}'s avatar`}
-                            />
-                            <AvatarFallback>
-                              {client.contact_person
-                                .split(' ')
-                                .map((n) => n[0])
-                                .join('')}
-                            </AvatarFallback>
-                          </Avatar>
-                          <span>{client.contact_person}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell
-                        className='capitalize'
-                        style={{ padding: '8px 16px' }}
-                      >
-                        <span
-                          style={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                          }}
-                        >
-                          {client.type === 'company' ? (
-                            <IconBuildingStore
-                              size={16}
-                              style={{ marginRight: '8px' }}
-                            />
-                          ) : (
-                            <IconUser
-                              size={16}
-                              style={{ marginRight: '8px' }}
-                            />
-                          )}
-                          {client.type}
-                        </span>
-                      </TableCell>
-                      <TableCell>{client.email}</TableCell>
-                      <TableCell>{client.phone}</TableCell>
-                      <TableCell
-                        className='max-w-md truncate'
-                        title={client.full_address}
-                      >
-                        {client.full_address}
-                      </TableCell>
-                      <TableCell>
-                        <div className='flex items-center gap-2'>
-                          <TableCell>
-                            <Button
-                              variant='ghost'
-                              size='icon'
-                              onClick={() =>
-                                navigate(`/projects/clients/${client.id}`)
-                              }
-                            >
-                              <Eye className='h-4 w-4' />
-                            </Button>
-                          </TableCell>
-                          <Button
-                            variant='ghost'
-                            size='icon'
-                            onClick={() => {
-                              setSelectedClient(client)
-                              setEditOpen(true)
-                            }}
-                          >
-                            <PencilIcon className='h-4 w-4' />
-                          </Button>
-
-                          <Button
-                            variant='ghost'
-                            size='icon'
-                            onClick={() => {
-                              setSelectedClient(client)
-                              setDeleteOpen(true)
-                            }}
-                          >
-                            <TrashIcon className='h-4 w-4 text-red-500' />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-              </TableBody>
-            </Table>
+            <GenericTableWrapper
+              columns={columns}
+              data={clients?.clients.data}
+              isLoading={false}
+              isError={false}
+              showToolbar={false}
+            />
           </CardContent>
         </Card>
       </Layout.Body>

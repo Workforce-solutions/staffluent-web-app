@@ -52,3 +52,35 @@ export const useShortCode = () => {
 
   return shortCode
 }
+
+export const useLocalStorageString = (key: string) => {
+  const [value, setValue] = useState<string>(() => {
+    const storedValue = localStorage.getItem(key)
+    return storedValue ?? ''
+  })
+
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const newValue = localStorage.getItem(key)
+      setValue(newValue ?? '')
+    }
+
+    window.addEventListener('storage', handleStorageChange)
+
+    window.addEventListener('local-storage', handleStorageChange)
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange)
+      window.removeEventListener('local-storage', handleStorageChange)
+    }
+  }, [key])
+
+  return value
+}
+
+const originalSetItem = localStorage.setItem
+localStorage.setItem = function (key, value) {
+  const event = new Event('local-storage')
+  originalSetItem.apply(this, [key, value])
+  window.dispatchEvent(event)
+}

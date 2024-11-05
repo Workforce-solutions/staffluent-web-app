@@ -1,10 +1,13 @@
-import { HTMLAttributes, useEffect, useState } from 'react'
-import { IconChevronsLeft, IconMenu2, IconX } from '@tabler/icons-react'
-import { Layout } from './custom/layout'
-import { Button } from './custom/button'
-import Nav from './nav'
-import { cn } from '@/lib/utils'
+import { clientLinks } from '@/data/client-links'
 import { sidelinks } from '@/data/sidelinks'
+import { cn } from '@/lib/utils'
+import { AccountType } from '@/pages/auth/components/user-auth-form'
+import { IconChevronsLeft, IconMenu2, IconX } from '@tabler/icons-react'
+import { HTMLAttributes, useEffect, useState } from 'react'
+import { Button } from './custom/button'
+import { Layout } from './custom/layout'
+import Nav from './nav'
+import { useLocalStorageString } from '@/hooks/use-local-storage'
 
 interface SidebarProps extends HTMLAttributes<HTMLElement> {
   isCollapsed: boolean
@@ -17,6 +20,8 @@ export default function Sidebar({
   setIsCollapsed,
 }: SidebarProps) {
   const [navOpened, setNavOpened] = useState(false)
+
+  const accountType = useLocalStorageString('accountType') as AccountType
 
   /* Make body not scrollable when navBar is opened */
   useEffect(() => {
@@ -54,7 +59,11 @@ export default function Sidebar({
               className={`flex flex-col justify-end truncate ${isCollapsed ? 'invisible w-0' : 'visible w-auto'}`}
             >
               <span className='font-medium'>Electral</span>
-              <span className='text-xs'>Staffluent - Admin</span>
+              <span className='text-xs'>
+                {accountType === AccountType.business
+                  ? 'Staffluent - Admin'
+                  : 'Staffluent - Client Portal'}
+              </span>
             </div>
           </div>
 
@@ -76,7 +85,7 @@ export default function Sidebar({
           className={`z-40 h-full flex-1 overflow-auto ${navOpened ? 'max-h-screen' : 'max-h-0 py-0 md:max-h-screen md:py-2'}`}
           closeNav={() => setNavOpened(false)}
           isCollapsed={isCollapsed}
-          links={sidelinks}
+          links={accountType === AccountType.business ? sidelinks : clientLinks}
         />
 
         {/* Scrollbar width toggle button */}

@@ -6,7 +6,7 @@ import { Toaster } from '@/components/ui/toaster'
 import { ThemeProvider } from '@/components/theme-provider'
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 import { SessionProvider } from './contexts/SessionContext'
-import router from '@/router'
+import router from '@/router/router'
 import '@/index.css'
 import { Provider } from 'react-redux'
 import store from './services/store'

@@ -1,3 +1,5 @@
+import { AccountType } from '@/pages/auth/components/user-auth-form'
+
 export interface LoginData {
   email: string
   supabase_id: string
@@ -52,6 +54,7 @@ export interface AuthProps {
     name: string
     short_code: string
   }
+  account_type: AccountType
   supabase_id: string
   token: string
   access_token: string
