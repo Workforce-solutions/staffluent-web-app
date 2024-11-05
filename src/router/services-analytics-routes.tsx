@@ -17,16 +17,10 @@ export const serviceAnalyticsRoute: RouteObject[] = [
         }),
     },
     {
-        path: 'admin/invoices/revenue',
+        path: 'admin/reports/revenue',
         lazy: async () => ({
             // @ts-ignore
             Component: (await import('../pages/reports/revenue')).default,
-        }),
-    },
-    {
-        path: 'admin/invoices/:id',
-        lazy: async () => ({
-            Component: (await import('../pages/invoices/invoice-details')).default,
         }),
     }
 ]
