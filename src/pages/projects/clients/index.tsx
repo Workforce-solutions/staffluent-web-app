@@ -1,18 +1,10 @@
-import { ClientResponse, ClientsType } from '@/@types/clients'
+import { ClientResponse } from '@/@types/clients'
 import { Layout } from '@/components/custom/layout'
 import ThemeSwitch from '@/components/theme-switch'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
 import { useToast } from '@/components/ui/use-toast'
 import { UserNav } from '@/components/user-nav'
 import ConfirmationModal from '@/components/wrappers/confirmation-modal'
@@ -35,8 +27,6 @@ import { AddClientModal } from './add-client'
 import { UpdateClientModal } from './update-client'
 import { useNavigate } from 'react-router-dom'
 import { ColumnDef } from '@tanstack/react-table'
-import { Badge } from '@/components/ui/badge'
-import { getStatusColor } from '@/hooks/common/common-functions'
 import GenericTableWrapper from '@/components/wrappers/generic-wrapper'
 
 export default function Clients() {

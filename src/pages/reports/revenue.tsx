@@ -1,7 +1,7 @@
 import { Layout } from '@/components/custom/layout'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { DateRangePicker } from "@/components/ui/date-range-picker"
+import { DateRangePicker } from '@/components/ui/date-range-picker'
 import ThemeSwitch from '@/components/theme-switch'
 import { UserNav } from '@/components/user-nav'
 import {
@@ -10,7 +10,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from '@/components/ui/select'
 import {
   Download,
   DollarSign,
@@ -75,12 +75,20 @@ export default function RevenueReport() {
   }
 
   const revenueByServiceData = {
-    labels: ['Equipment Maintenance', 'Repairs', 'Installation', 'Consultation', 'Training'],
-    datasets: [{
-      label: 'Revenue by Service',
-      data: [45000, 35000, 28000, 22000, 18000],
-      backgroundColor: 'rgba(54, 162, 235, 0.5)',
-    }],
+    labels: [
+      'Equipment Maintenance',
+      'Repairs',
+      'Installation',
+      'Consultation',
+      'Training',
+    ],
+    datasets: [
+      {
+        label: 'Revenue by Service',
+        data: [45000, 35000, 28000, 22000, 18000],
+        backgroundColor: 'rgba(54, 162, 235, 0.5)',
+      },
+    ],
   }
 
   const topServices = [
@@ -93,88 +101,98 @@ export default function RevenueReport() {
 
   return (
     <Layout>
-      <Layout.Header className="min-h-fit border-b">
-        <div className="flex w-full flex-col">
-          <div className="ml-auto flex items-center space-x-2 sm:space-x-4">
-            <ThemeSwitch />
-            <UserNav />
-          </div>
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-lg font-medium">Revenue Report</h2>
-              <p className="text-sm text-muted-foreground">
-                Analyze revenue streams and financial performance
-              </p>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Select defaultValue="thisMonth">
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Select period" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="thisMonth">This Month</SelectItem>
-                  <SelectItem value="lastMonth">Last Month</SelectItem>
-                  <SelectItem value="thisYear">This Year</SelectItem>
-                </SelectContent>
-              </Select>
-              <DateRangePicker
-                value={dateRange}
-                // @ts-ignore
-                onValueChange={setDateRange}
-              />
-              <Button variant="outline">
-                <Download className="mr-2 h-4 w-4" />
-                Export
-              </Button>
-            </div>
-          </div>
+      <Layout.Header>
+        <div className='ml-auto flex items-center space-x-2 sm:space-x-4'>
+          <ThemeSwitch />
+          <UserNav />
         </div>
       </Layout.Header>
 
-      <Layout.Body className="space-y-6 p-6">
+      <Layout.Body className='space-y-6 '>
+        <div className='flex items-center justify-between'>
+          <div>
+            <h2 className='text-2xl font-bold tracking-tight'>
+              Revenue Report
+            </h2>
+            <p className='text-sm text-muted-foreground'>
+              Analyze revenue streams and financial performance
+            </p>
+          </div>
+          <div className='flex items-center space-x-2'>
+            <Select defaultValue='thisMonth'>
+              <SelectTrigger className='w-[180px]'>
+                <SelectValue placeholder='Select period' />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value='thisMonth'>This Month</SelectItem>
+                <SelectItem value='lastMonth'>Last Month</SelectItem>
+                <SelectItem value='thisYear'>This Year</SelectItem>
+              </SelectContent>
+            </Select>
+            <DateRangePicker
+              value={dateRange}
+              // @ts-ignore
+              onValueChange={setDateRange}
+            />
+            <Button variant='outline'>
+              <Download className='mr-2 h-4 w-4' />
+              Export
+            </Button>
+          </div>
+        </div>
         {/* Stats Overview */}
-        <div className="grid gap-4 md:grid-cols-4">
+        <div className='grid gap-4 md:grid-cols-4'>
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
-              <DollarSign className="h-4 w-4 text-muted-foreground" />
+            <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+              <CardTitle className='text-sm font-medium'>
+                Total Revenue
+              </CardTitle>
+              <DollarSign className='h-4 w-4 text-muted-foreground' />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">$148,000</div>
-              <p className="text-xs text-muted-foreground">+12% from last month</p>
+              <div className='text-2xl font-bold'>$148,000</div>
+              <p className='text-xs text-muted-foreground'>
+                +12% from last month
+              </p>
             </CardContent>
           </Card>
 
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Average Order Value</CardTitle>
-              <CreditCard className="h-4 w-4 text-muted-foreground" />
+            <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+              <CardTitle className='text-sm font-medium'>
+                Average Order Value
+              </CardTitle>
+              <CreditCard className='h-4 w-4 text-muted-foreground' />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">$1,248</div>
-              <p className="text-xs text-muted-foreground">+5% from last month</p>
+              <div className='text-2xl font-bold'>$1,248</div>
+              <p className='text-xs text-muted-foreground'>
+                +5% from last month
+              </p>
             </CardContent>
           </Card>
 
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Revenue Target</CardTitle>
-              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+              <CardTitle className='text-sm font-medium'>
+                Revenue Target
+              </CardTitle>
+              <TrendingUp className='h-4 w-4 text-muted-foreground' />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">95%</div>
-              <p className="text-xs text-muted-foreground">Of monthly goal</p>
+              <div className='text-2xl font-bold'>95%</div>
+              <p className='text-xs text-muted-foreground'>Of monthly goal</p>
             </CardContent>
           </Card>
 
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Year Growth</CardTitle>
-              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+              <CardTitle className='text-sm font-medium'>Year Growth</CardTitle>
+              <TrendingUp className='h-4 w-4 text-muted-foreground' />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">18.2%</div>
-              <p className="text-xs text-muted-foreground">Year over year</p>
+              <div className='text-2xl font-bold'>18.2%</div>
+              <p className='text-xs text-muted-foreground'>Year over year</p>
             </CardContent>
           </Card>
         </div>
@@ -197,7 +215,7 @@ export default function RevenueReport() {
           </CardContent>
         </Card>
 
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className='grid gap-4 md:grid-cols-2'>
           {/* Revenue by Service */}
           <Card>
             <CardHeader>
@@ -226,25 +244,29 @@ export default function RevenueReport() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Service</TableHead>
-                    <TableHead className="text-right">Revenue</TableHead>
-                    <TableHead className="text-right">Growth</TableHead>
+                    <TableHead className='text-right'>Revenue</TableHead>
+                    <TableHead className='text-right'>Growth</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {topServices.map((service) => (
                     <TableRow key={service.service}>
                       <TableCell>{service.service}</TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className='text-right'>
                         ${service.revenue.toLocaleString()}
                       </TableCell>
-                      <TableCell className="text-right">
-                        <span className={`flex items-center justify-end ${
-    service.growth > 0 ? 'text-green-600' : 'text-red-600'
-}`}>
+                      <TableCell className='text-right'>
+                        <span
+                          className={`flex items-center justify-end ${
+                            service.growth > 0
+                              ? 'text-green-600'
+                              : 'text-red-600'
+                          }`}
+                        >
                           {service.growth > 0 ? (
-                            <ChevronUp className="h-4 w-4 mr-1" />
+                            <ChevronUp className='mr-1 h-4 w-4' />
                           ) : (
-                            <ChevronDown className="h-4 w-4 mr-1" />
+                            <ChevronDown className='mr-1 h-4 w-4' />
                           )}
                           {Math.abs(service.growth)}%
                         </span>

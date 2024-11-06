@@ -28,6 +28,14 @@ export const clientsRoute: RouteObject[] = [
         }),
       },
       {
+        path: 'service-requests',
+        lazy: async () => ({
+          Component: (
+            await import('../pages/client-portal/services/service-requests.tsx')
+          ).default,
+        }),
+      },
+      {
         path: 'invoices',
         lazy: async () => ({
           Component: (await import('../pages/client-portal/invoices/index.tsx'))
@@ -39,6 +47,13 @@ export const clientsRoute: RouteObject[] = [
         lazy: async () => ({
           Component: (await import('../pages/client-portal/support/index.tsx'))
             .default,
+        }),
+      },
+      {
+        path: 'notifications',
+        lazy: async () => ({
+          Component: (await import('../pages/client-portal/notifications/index.tsx'))
+              .default,
         }),
       },
     ],
@@ -55,4 +70,5 @@ export const clientsRoute: RouteObject[] = [
       Component: (await import('../pages/clients/client-feedback.tsx')).default,
     }),
   },
+
 ]

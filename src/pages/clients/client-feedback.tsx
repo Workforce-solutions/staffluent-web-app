@@ -19,24 +19,24 @@ export default function ClientFeedback() {
 
   return (
     <Layout>
-      <Layout.Header className='min-h-fit border-b'>
-        <div className='flex w-full flex-col'>
-          <div className='ml-auto flex items-center space-x-2 sm:space-x-4'>
-            <ThemeSwitch />
-            <UserNav />
-          </div>
-          <div className='flex items-center justify-between'>
-            <div>
-              <h2 className='text-lg font-medium'>Client Feedback</h2>
-              <p className='text-sm text-muted-foreground'>
-                Review and analyze client feedback and ratings
-              </p>
-            </div>
-          </div>
+      <Layout.Header>
+        <div className='ml-auto flex items-center space-x-2 sm:space-x-4'>
+          <ThemeSwitch />
+          <UserNav />
         </div>
       </Layout.Header>
 
-      <Layout.Body className='space-y-6 p-6'>
+      <Layout.Body className='space-y-6'>
+        <div className='flex items-center justify-between'>
+          <div>
+            <h2 className='text-2xl font-bold tracking-tight'>
+              Client Feedback
+            </h2>
+            <p className='text-sm text-muted-foreground'>
+              Review and analyze client feedback and ratings
+            </p>
+          </div>
+        </div>
         {/* Feedback Stats */}
         <div className='grid gap-4 md:grid-cols-4'>
           <Card>

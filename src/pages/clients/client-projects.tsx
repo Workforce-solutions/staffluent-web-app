@@ -141,24 +141,24 @@ export default function ClientProjects() {
 
   return (
     <Layout>
-      <Layout.Header className='min-h-fit border-b'>
-        <div className='flex w-full flex-col'>
-          <div className='ml-auto flex items-center space-x-2 sm:space-x-4'>
-            <ThemeSwitch />
-            <UserNav />
-          </div>
-          <div className='flex items-center justify-between'>
-            <div>
-              <h2 className='text-lg font-medium'>Client Projects</h2>
-              <p className='text-sm text-muted-foreground'>
-                Manage and monitor all client projects
-              </p>
-            </div>
-          </div>
+      <Layout.Header>
+        <div className='ml-auto flex items-center space-x-2 sm:space-x-4'>
+          <ThemeSwitch />
+          <UserNav />
         </div>
       </Layout.Header>
 
-      <Layout.Body className='space-y-6 p-6'>
+      <Layout.Body className='space-y-6'>
+        <div className='flex items-center justify-between'>
+          <div>
+            <h2 className='text-2xl font-bold tracking-tight'>
+              Client Projects
+            </h2>
+            <p className='text-sm text-muted-foreground'>
+              Manage and monitor all client projects
+            </p>
+          </div>
+        </div>
         {/* Project Stats */}
         <div className='grid gap-4 md:grid-cols-3'>
           <Card>

@@ -1,36 +1,56 @@
 import {
   IconBuildingStore,
-  IconChecklist,
+  IconList,
+  IconReceipt2,
+  IconMessageCircle2,
   IconLayoutDashboard,
 } from '@tabler/icons-react'
-import { MessageSquare, Receipt } from 'lucide-react'
+import { FileText, MessageSquare } from 'lucide-react'
 import { SideLink } from './sidelinks'
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const clientLinks: SideLink[] = [
   {
-    title: 'Client Portal',
-    label: '',
+    title: 'Dashboard',
+    href: '/client-portal/dashboard',
+    icon: <IconLayoutDashboard size={18} />,
+  },
+  {
+    title: 'My Services',
     href: '/client-portal',
     icon: <IconBuildingStore size={18} />,
     sub: [
       {
-        title: 'Dashboard',
-        href: '/client-portal/dashboard',
-        icon: <IconLayoutDashboard size={18} />,
-      },
-      {
-        title: 'My Services',
+        title: 'List',
         href: '/client-portal/services',
-        icon: <IconChecklist size={18} />,
+        icon: <IconList size={18} />,
       },
       {
-        title: 'Invoices',
+        title: 'Requests',
+        href: '/client-portal/service-requests',
+        icon: <FileText size={18} />,
+      },
+    ],
+  },
+  {
+    title: 'Invoices',
+    href: '/client-portal',
+    icon: <IconReceipt2 size={18} />,
+    sub: [
+      {
+        title: 'List',
         href: '/client-portal/invoices',
-        icon: <Receipt size={18} />,
+        icon: <IconReceipt2 size={18} />,
       },
+    ],
+  },
+  {
+    title: 'Support',
+    href: '/client-portal',
+    icon: <IconMessageCircle2 size={18} />,
+    sub: [
       {
-        title: 'Support',
+        title: 'Tickets',
         href: '/client-portal/support',
         icon: <MessageSquare size={18} />,
       },

@@ -83,7 +83,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
         supabase_id: loginData?.data?.user?.id ?? '',
       }).then((res) => {
         if (res) {
-          const accountType = AccountType.client
+          const accountType = res?.data?.account_type ?? AccountType.business
           localStorage.setItem('vbAuth', JSON.stringify(res))
 
           localStorage.setItem('adminToken', res?.data?.token ?? '')
@@ -91,7 +91,9 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
           localStorage.setItem('accountType', accountType)
 
           navigate(
-           '/client-portal/dashboard'
+            accountType === AccountType.business
+              ? '/'
+              : '/client-portal/dashboard'
           )
         }
       })

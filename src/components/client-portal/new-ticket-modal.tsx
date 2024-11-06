@@ -1,92 +1,79 @@
-// components/client-portal/new-ticket-modal.tsx
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
+import React, { useState } from 'react'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 import {
   Form,
   FormControl,
   FormField,
   FormItem,
   FormLabel,
-  FormMessage
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
+  FormMessage,
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
+import { Textarea } from '@/components/ui/textarea'
+import { useForm } from 'react-hook-form'
+import { useToast } from '@/components/ui/use-toast'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { useForm } from "react-hook-form"
-import { z } from "zod"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useToast } from "@/components/ui/use-toast"
-import { useState } from "react"
-import { useCreateSupportTicketMutation } from "@/services/clientPortalApi"
+} from '@/components/ui/select'
+import { useCreateSupportTicketMutation } from '@/services/clientPortalApi'
 
-const ticketSchema = z.object({
-  subject: z.string().min(5, "Subject must be at least 5 characters"),
-  type: z.string().min(1, "Please select a ticket type"),
-  priority: z.string().min(1, "Please select a priority level"),
-  description: z.string().min(20, "Description must be at least 20 characters"),
-  service_id: z.string().optional()
-})
-
-type TicketForm = z.infer<typeof ticketSchema>
-
-const ticketTypes = [
-  { value: 'technical', label: 'Technical Issue' },
-  { value: 'billing', label: 'Billing Query' },
-  { value: 'service', label: 'Service Request' },
-  { value: 'feedback', label: 'General Feedback' },
-  { value: 'other', label: 'Other' }
-]
-
-const priorityLevels = [
-  { value: 'low', label: 'Low' },
-  { value: 'medium', label: 'Medium' },
-  { value: 'high', label: 'High' },
-  { value: 'urgent', label: 'Urgent' }
-]
-
-interface NewTicketModalProps {
+interface CreateTicketModalProps {
   open: boolean
-  setOpen: (open: boolean) => void
-  serviceId?: string // Optional service ID if creating ticket from service page
+  onOpenChange: (open: boolean) => void
 }
 
-export function NewTicketModal({ open, setOpen, serviceId }: NewTicketModalProps) {
+interface TicketFormValues {
+  subject: string
+  description: string
+  priority: string
+  client: string
+  assignedTo: string
+}
+
+export function CreateTicketModal({
+  open,
+  onOpenChange,
+}: CreateTicketModalProps) {
+  const [createTicket] = useCreateSupportTicketMutation()
   const { toast } = useToast()
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [createTicket] = useCreateSupportTicketMutation()
 
-  const form = useForm<TicketForm>({
-    resolver: zodResolver(ticketSchema),
+  const form = useForm<TicketFormValues>({
     defaultValues: {
       subject: '',
-      type: '',
-      priority: 'medium',
       description: '',
-      service_id: serviceId
-    }
+      priority: '',
+      client: '',
+      assignedTo: '',
+    },
   })
 
-  const onSubmit = async (data: TicketForm) => {
+  const onSubmit = async (data: TicketFormValues) => {
     try {
       setIsSubmitting(true)
       await createTicket(data).unwrap()
       toast({
-        title: "Ticket Created",
-        description: "Your support ticket has been submitted successfully"
+        title: 'Ticket Created',
+        description: 'Your support ticket has been submitted successfully',
       })
-      setOpen(false)
+      onOpenChange(false)
       form.reset()
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to create support ticket",
-        variant: "destructive"
+        title: 'Error',
+        description: 'Failed to create support ticket',
+        variant: 'destructive',
       })
     } finally {
       setIsSubmitting(false)
@@ -94,25 +81,51 @@ export function NewTicketModal({ open, setOpen, serviceId }: NewTicketModalProps
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="sm:max-w-[425px]">
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className='sm:max-w-[600px]'>
         <DialogHeader>
-          <DialogTitle>Create Support Ticket</DialogTitle>
+          <DialogTitle>Create New Support Ticket</DialogTitle>
           <DialogDescription>
-            Fill out the form below to submit a new support ticket
+            Create a new support ticket for a client. Fill in all required
+            fields.
           </DialogDescription>
         </DialogHeader>
-
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>
             <FormField
               control={form.control}
-              name="subject"
+              name='client'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Client</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder='Select client' />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value='1'>Client 1</SelectItem>
+                      <SelectItem value='2'>Client 2</SelectItem>
+                      <SelectItem value='3'>Client 3</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name='subject'
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Subject</FormLabel>
                   <FormControl>
-                    <Input placeholder="Brief summary of your issue" {...field} />
+                    <Input placeholder='Enter ticket subject' {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -121,64 +134,14 @@ export function NewTicketModal({ open, setOpen, serviceId }: NewTicketModalProps
 
             <FormField
               control={form.control}
-              name="type"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Ticket Type</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select ticket type" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {ticketTypes.map(type => (
-                        <SelectItem key={type.value} value={type.value}>
-                          {type.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="priority"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Priority Level</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select priority level" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {priorityLevels.map(level => (
-                        <SelectItem key={level.value} value={level.value}>
-                          {level.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="description"
+              name='description'
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Description</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="Please provide detailed information about your issue..."
-                      className="min-h-[100px]"
+                      placeholder='Enter detailed description of the issue'
+                      className='min-h-[100px]'
                       {...field}
                     />
                   </FormControl>
@@ -187,14 +150,72 @@ export function NewTicketModal({ open, setOpen, serviceId }: NewTicketModalProps
               )}
             />
 
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+            <div className='grid grid-cols-2 gap-4'>
+              <FormField
+                control={form.control}
+                name='priority'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Priority</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder='Select priority' />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value='high'>High</SelectItem>
+                        <SelectItem value='medium'>Medium</SelectItem>
+                        <SelectItem value='low'>Low</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name='assignedTo'
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Assign To</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder='Select agent' />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value='1'>Agent 1</SelectItem>
+                        <SelectItem value='2'>Agent 2</SelectItem>
+                        <SelectItem value='3'>Agent 3</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className='flex justify-end space-x-2 pt-4'>
+              <Button
+                variant='outline'
+                onClick={() => onOpenChange(false)}
+                type='button'
+              >
                 Cancel
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Creating..." : "Create Ticket"}
+              <Button type='submit' disabled={isSubmitting}>
+                {isSubmitting ? 'Creating...' : 'Create Ticket'}
               </Button>
-            </DialogFooter>
+            </div>
           </form>
         </Form>
       </DialogContent>
