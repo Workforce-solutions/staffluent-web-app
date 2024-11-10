@@ -24,6 +24,17 @@ export const authApi = createApi({
       }),
       invalidatesTags: ['User'],
     }),
+    vbLogin: builder.mutation<AuthProps, LoginProps>({
+      query: (body) => ({
+        url: getCommonUrl({
+          queryString: '/login',
+          params: staffAdminAppkeyParam,
+        }),
+        method: 'POST',
+        body,
+      }),
+      invalidatesTags: ['User'],
+    }),
     authRefresh: builder.mutation<AuthProps, RefreshProps>({
       query: ({ venue_short_code }) => ({
         url: getCommonUrl({
@@ -38,4 +49,5 @@ export const authApi = createApi({
   }),
 })
 
-export const { useLoginMutation, useAuthRefreshMutation } = authApi
+export const { useLoginMutation, useAuthRefreshMutation, useVbLoginMutation } =
+  authApi

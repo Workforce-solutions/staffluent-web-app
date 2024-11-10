@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
@@ -15,10 +15,6 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
-import { Textarea } from '@/components/ui/textarea'
-import { useForm } from 'react-hook-form'
-import { useToast } from '@/components/ui/use-toast'
 import {
   Select,
   SelectContent,
@@ -26,7 +22,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Textarea } from '@/components/ui/textarea'
+import { useToast } from '@/components/ui/use-toast'
 import { useCreateSupportTicketMutation } from '@/services/clientPortalApi'
+import { useState } from 'react'
+import { useForm } from 'react-hook-form'
 
 interface CreateTicketModalProps {
   open: boolean

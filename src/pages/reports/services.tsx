@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Layout } from '@/components/custom/layout'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -40,7 +41,10 @@ ChartJS.register(
 )
 
 export default function ServiceAnalytics() {
-  const [dateRange, setDateRange] = useState({ from: undefined, to: undefined })
+  const [dateRange, setDateRange] = useState<any>({
+    from: undefined,
+    to: undefined,
+  })
 
   // Sample data for charts
   const serviceUsageData = {
@@ -81,7 +85,6 @@ export default function ServiceAnalytics() {
     ],
   }
 
-  // @ts-ignore
   return (
     <Layout>
       <Layout.Header>
@@ -112,11 +115,7 @@ export default function ServiceAnalytics() {
                 <SelectItem value='thisYear'>This Year</SelectItem>
               </SelectContent>
             </Select>
-            <DateRangePicker
-              value={dateRange}
-              // @ts-ignore
-              onValueChange={setDateRange}
-            />
+            <DateRangePicker value={dateRange} onValueChange={setDateRange} />
             <Button variant='outline'>
               <Download className='mr-2 h-4 w-4' />
               Export
@@ -192,7 +191,6 @@ export default function ServiceAnalytics() {
                 options={{
                   responsive: true,
                   maintainAspectRatio: false,
-                  // @ts-ignore
                   height: 300,
                 }}
               />
@@ -227,7 +225,6 @@ export default function ServiceAnalytics() {
               options={{
                 responsive: true,
                 maintainAspectRatio: false,
-                // @ts-ignore
                 height: 300,
               }}
             />

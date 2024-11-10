@@ -1,7 +1,12 @@
 // utils/status.ts
-export type ServiceStatus = 'active' | 'pending' | 'completed' | 'cancelled' | 'on-hold'
+export type ServiceStatus =
+  | 'active'
+  | 'pending'
+  | 'completed'
+  | 'cancelled'
+  | 'on-hold'
 
-export const getStatusVariant = (status: ServiceStatus) => {
+export const getStatusVariant = (status = '') => {
   switch (status?.toLowerCase()) {
     case 'active':
       return 'default'
@@ -31,7 +36,6 @@ export const getClientServiceStatusVariant = (status: string) => {
       return 'default'
   }
 }
-
 
 export const getPriorityVariant = (priority: string) => {
   switch (priority) {
