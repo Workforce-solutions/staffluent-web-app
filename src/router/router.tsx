@@ -1,12 +1,17 @@
 import { createBrowserRouter } from 'react-router-dom'
-import GeneralError from './pages/errors/general-error'
-import NotFoundError from './pages/errors/not-found-error'
-import MaintenanceError from './pages/errors/maintenance-error'
-import UnauthorisedError from './pages/errors/unauthorised-error.tsx'
+import GeneralError from '../pages/errors/general-error.tsx'
+import NotFoundError from '../pages/errors/not-found-error.tsx'
+import MaintenanceError from '../pages/errors/maintenance-error.tsx'
+import UnauthorisedError from '../pages/errors/unauthorised-error.tsx'
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-expect-error
-import { ProtectedRoute } from './components/ProtectedRoute'
-import AppShell from './components/app-shell'
+import { ProtectedRoute } from '../components/ProtectedRoute.jsx'
+import AppShell from '../components/app-shell.tsx'
+import { servicesRoute } from './services-routes.tsx'
+import { invoicesRoute } from './invoices-routes.tsx'
+import { clientsRoute } from './client-routes.tsx'
+import { serviceAnalyticsRoute } from './services-analytics-routes'
+import { supportRoutes } from './support-routes.tsx'
 // import Login from "./pages/auth/login";
 
 const router = createBrowserRouter([
@@ -14,7 +19,7 @@ const router = createBrowserRouter([
   {
     path: '/login',
     lazy: async () => ({
-      Component: (await import('./pages/auth/login')).default,
+      Component: (await import('../pages/auth/login.tsx')).default,
     }),
   },
   // {
@@ -52,10 +57,15 @@ const router = createBrowserRouter([
     ), // Explicitly wrap AppShell with ProtectedRoute here
     errorElement: <GeneralError />,
     children: [
+      ...servicesRoute,
+      ...clientsRoute,
+      ...invoicesRoute,
+      ...supportRoutes,
+      ...serviceAnalyticsRoute,
       {
         index: true,
         lazy: async () => ({
-          Component: (await import('./pages/dashboard')).default,
+          Component: (await import('../pages/dashboard/index.tsx')).default,
         }),
       },
       {
@@ -97,67 +107,77 @@ const router = createBrowserRouter([
       {
         path: 'settings',
         lazy: async () => ({
-          Component: (await import('./pages/settings')).default,
+          Component: (await import('../pages/settings/index.tsx')).default,
         }),
         errorElement: <GeneralError />,
         children: [
           {
             index: true,
             lazy: async () => ({
-              Component: (await import('./pages/settings/profile')).default,
+              Component: (await import('../pages/settings/profile/index.tsx'))
+                .default,
             }),
           },
           {
             path: 'account',
             lazy: async () => ({
-              Component: (await import('./pages/settings/account')).default,
+              Component: (await import('../pages/settings/account/index.tsx'))
+                .default,
             }),
           },
           {
             path: 'appearance',
             lazy: async () => ({
-              Component: (await import('./pages/settings/appearance')).default,
+              Component: (
+                await import('../pages/settings/appearance/index.tsx')
+              ).default,
             }),
           },
           {
             path: 'notifications',
             lazy: async () => ({
-              Component: (await import('./pages/settings/notifications'))
-                .default,
+              Component: (
+                await import('../pages/settings/notifications/index.tsx')
+              ).default,
             }),
           },
           {
             path: 'display',
             lazy: async () => ({
-              Component: (await import('./pages/settings/display')).default,
+              Component: (await import('../pages/settings/display/index.tsx'))
+                .default,
             }),
           },
           {
             path: 'error-example',
             lazy: async () => ({
-              Component: (await import('./pages/settings/error-example'))
-                .default,
+              Component: (
+                await import('../pages/settings/error-example/index.tsx')
+              ).default,
             }),
             errorElement: <GeneralError className='h-[50svh]' minimal />,
           },
         ],
       },
+
       {
         path: 'projects/list',
         lazy: async () => ({
-          Component: (await import('./pages/projects/list')).default,
+          Component: (await import('../pages/projects/list.tsx')).default,
         }),
       },
       {
         path: 'projects/tasks',
         lazy: async () => ({
-          Component: (await import('./pages/projects/tasks')).default,
+          Component: (await import('../pages/projects/tasks/index.tsx'))
+            .default,
         }),
       },
       {
-        path: 'projects/clients',
+        path: 'admin/clients',
         lazy: async () => ({
-          Component: (await import('./pages/projects/clients')).default,
+          Component: (await import('../pages/projects/clients/index.tsx'))
+            .default,
         }),
       },
 
@@ -165,21 +185,22 @@ const router = createBrowserRouter([
         path: 'projects/clients/:id',
         lazy: async () => ({
           Component: (
-            await import('./pages/projects/clients/client-details.tsx')
+            await import('../pages/projects/clients/client-details.tsx')
           ).default,
         }),
       },
       {
         path: 'real-time-activity',
         lazy: async () => ({
-          Component: (await import('./pages/real-time-activity')).default,
+          Component: (await import('../pages/real-time-activity/index.tsx'))
+            .default,
         }),
       },
       // Staff Overview route
       {
         path: 'teams',
         lazy: async () => ({
-          Component: (await import('./pages/staff/teams/index.tsx')).default,
+          Component: (await import('../pages/staff/teams/index.tsx')).default,
         }),
       },
       {
@@ -187,7 +208,7 @@ const router = createBrowserRouter([
         lazy: async () => ({
           Component: (
             await import(
-              './pages/staff/teams/team-employees/team-employees.tsx'
+              '../pages/staff/teams/team-employees/team-employees.tsx'
             )
           ).default,
         }),
@@ -196,34 +217,35 @@ const router = createBrowserRouter([
         path: 'teams/:id/departments-by-team',
         lazy: async () => ({
           Component: (
-            await import('./pages/staff/teams/departments-by-team.tsx')
+            await import('../pages/staff/teams/departments-by-team.tsx')
           ).default,
         }),
       },
       {
         path: 'teams/:id',
         lazy: async () => ({
-          Component: (await import('./pages/staff/teams/team-details.tsx'))
+          Component: (await import('../pages/staff/teams/team-details.tsx'))
             .default,
         }),
       },
       {
         path: 'departments',
         lazy: async () => ({
-          Component: (await import('./pages/staff/department/index.tsx'))
+          Component: (await import('../pages/staff/department/index.tsx'))
             .default,
         }),
       },
       {
         path: 'employees',
         lazy: async () => ({
-          Component: (await import('./pages/staff/employee/index.tsx')).default,
+          Component: (await import('../pages/staff/employee/index.tsx'))
+            .default,
         }),
       },
       {
         path: 'employees/team-leaders',
         lazy: async () => ({
-          Component: (await import('./pages/staff/employee/team-leaders.tsx'))
+          Component: (await import('../pages/staff/employee/team-leaders.tsx'))
             .default,
         }),
       },
@@ -231,7 +253,7 @@ const router = createBrowserRouter([
         path: 'employees/operations-managers',
         lazy: async () => ({
           Component: (
-            await import('./pages/staff/employee/operations-managers.tsx')
+            await import('../pages/staff/employee/operations-managers.tsx')
           ).default,
         }),
       },
@@ -239,70 +261,76 @@ const router = createBrowserRouter([
       {
         path: 'employees/:id',
         lazy: async () => ({
-          Component: (await import('./pages/staff/employee/details.tsx'))
+          Component: (await import('../pages/staff/employee/details.tsx'))
             .default,
         }),
       },
       {
         path: 'performance-metrics',
         lazy: async () => ({
-          Component: (await import('./pages/performance-metrics')).default,
+          Component: (await import('../pages/performance-metrics/index.tsx'))
+            .default,
         }),
       },
       {
         path: 'reports/productivity',
         lazy: async () => ({
-          Component: (await import('./pages/reports/productivity')).default,
+          Component: (await import('../pages/reports/productivity/index.tsx'))
+            .default,
         }),
       },
       {
         path: 'reports/attendance',
         lazy: async () => ({
-          Component: (await import('./pages/reports/attendance')).default,
+          Component: (await import('../pages/reports/attendance/index.tsx'))
+            .default,
         }),
       },
       {
         path: 'schedule',
         lazy: async () => ({
-          Component: (await import('./pages/schedule')).default,
+          Component: (await import('../pages/schedule/index.tsx')).default,
         }),
       },
       {
         path: 'configuration/alerts',
         lazy: async () => ({
-          Component: (await import('./pages/configuration/alerts')).default,
+          Component: (await import('../pages/configuration/alerts/index.tsx'))
+            .default,
         }),
       },
       {
         path: 'configuration/messages',
         lazy: async () => ({
-          Component: (await import('./pages/configuration/messages')).default,
+          Component: (await import('../pages/configuration/messages/index.tsx'))
+            .default,
         }),
       },
       {
         path: 'configuration/roles',
         lazy: async () => ({
-          Component: (await import('./pages/configuration/roles')).default,
+          Component: (await import('../pages/configuration/roles/index.tsx'))
+            .default,
         }),
       },
       {
         path: 'configuration/roles/custom',
         lazy: async () => ({
           Component: (
-            await import('./pages/configuration/roles/custom-roles.tsx')
+            await import('../pages/configuration/roles/custom-roles.tsx')
           ).default,
         }),
       },
       {
         path: 'integrations',
         lazy: async () => ({
-          Component: (await import('./pages/integrations')).default,
+          Component: (await import('../pages/integrations/index.tsx')).default,
         }),
       },
       {
         path: 'audit-logs',
         lazy: async () => ({
-          Component: (await import('./pages/audit-logs')).default,
+          Component: (await import('../pages/audit-logs/index.tsx')).default,
         }),
       },
     ],

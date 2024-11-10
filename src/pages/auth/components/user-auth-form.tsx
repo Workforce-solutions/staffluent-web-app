@@ -22,6 +22,12 @@ import { useCheckConnectionMutation } from '@/services/vbAuthApi'
 import supabase from '@/supabaseClient'
 import { useNavigate } from 'react-router-dom'
 
+// eslint-disable-next-line react-refresh/only-export-components
+export enum AccountType {
+  client = 'client',
+  business = 'business',
+}
+
 interface UserAuthFormProps extends HTMLAttributes<HTMLDivElement> {}
 
 const formSchema = z.object({
@@ -77,10 +83,20 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
         supabase_id: loginData?.data?.user?.id ?? '',
       }).then((res) => {
         if (res) {
+          // const accountType = res?.data?.account_type ?? AccountType.business
+          const accountType = AccountType.client
           localStorage.setItem('vbAuth', JSON.stringify(res))
 
           localStorage.setItem('adminToken', res?.data?.token ?? '')
           localStorage.setItem('refreshToken', res?.data?.refresh_token ?? '')
+          localStorage.setItem('accountType', accountType)
+
+          navigate(
+            // @ts-ignore
+            accountType === AccountType.business
+              ? '/'
+              : '/client-portal/dashboard'
+          )
         }
       })
     }

@@ -10,7 +10,8 @@ export const getPrepareHeaders = ({
   const updatedToken = isRefreshToken ? refreshToken : token
 
   if ((updatedToken ?? '')?.length > 0) {
-    headers.set('Authorization', `Bearer ${refreshToken ?? token}`)
+    // headers.set('Authorization', `Bearer ${refreshToken ?? token}`)
+    headers.set('Authorization', `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL2NvcmUudmVudWVib29zdC5pby9hcGkvdjEvYXV0aC9sb2dpbiIsImlhdCI6MTczMTI0MjEwOSwiZXhwIjoxNzMxMjQ1NzA5LCJuYmYiOjE3MzEyNDIxMDksImp0aSI6IlJQbnl4ZU92TExNV01QS0kiLCJzdWIiOiIyMzIiLCJwcnYiOiIyM2JkNWM4OTQ5ZjYwMGFkYjM5ZTcwMWM0MDA4NzJkYjdhNTk3NmY3In0.0ApnwodRb96VmXDD9ZneHkG7mCbMb0pkAvaoVrDUL4Y`)
   }
   if (apikey) {
     headers.set('apikey', supabaseKey)
@@ -26,6 +27,8 @@ export const supabaseKey =
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVuemtidnllYWVmY3Bvb3FlZW56Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mjg4Njg2MDcsImV4cCI6MjA0NDQ0NDYwN30.mTzcMdIuOmwY8CGLc5PvQQywrjQWFQ_x7bJ0a7eY1r8' // Use VITE_ prefix for environment variables in Vite
 export const staffAdminAppkeyParam =
   '?SN-BOOST-CORE-ADMIN-API-KEY=boost-sn-23010xC0R3-admin!'
+export const staffClientPortalkeyParam =
+    '?SN_BOOST_CORE_CLIENT_PORTAL_API_KEY=boost-sn-25011xC0R5-clientportal!'
 
 export const getFirstCharacters = (value = '') => {
   const words = value.split(' ')

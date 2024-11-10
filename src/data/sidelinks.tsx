@@ -16,9 +16,26 @@ import {
   IconUser,
   IconUserShield,
   IconUsers,
-  IconBuildingStore,
+  IconReportAnalytics,
+  IconDeviceDesktopAnalytics,
+  IconAlignBoxCenterTop
 } from '@tabler/icons-react'
-import { User2Icon, Users } from 'lucide-react'
+import {
+  Briefcase,
+  Building,
+  ClipboardList,
+  FolderTree,
+  MessageSquare,
+  User2Icon,
+  Users,
+  Wrench,
+  Receipt,
+  FileText,
+  FilePlus,
+  WalletCards,
+  LifeBuoyIcon,
+  Tickets,
+} from 'lucide-react'
 
 // Navigation Link Interfaces
 export interface NavLink {
@@ -32,7 +49,6 @@ export interface SideLink extends NavLink {
   sub?: NavLink[]
 }
 
-// Sidebar Links
 // eslint-disable-next-line react-refresh/only-export-components
 export const sidelinks: SideLink[] = [
   {
@@ -59,12 +75,72 @@ export const sidelinks: SideLink[] = [
         href: '/projects/tasks',
         icon: <IconHexagonNumber2 size={18} />,
       },
+    ],
+  },
+  {
+    title: 'Service Management',
+    icon: <Wrench size={18} />,
+    href: 'services',
+    sub: [
       {
-        title: 'Clients',
-        label: '',
-        href: '/projects/clients',
-        icon: <IconBuildingStore size={18} />,
+        title: 'Services',
+        href: '/admin/services',
+        icon: <Wrench size={18} />,
       },
+      {
+        title: 'Categories',
+        href: '/admin/services/categories',
+        icon: <FolderTree size={18} />,
+      },
+      {
+        title: 'Service Requests',
+        href: '/admin/services/requests',
+        icon: <ClipboardList size={18} />,
+      },
+    ],
+  },
+  {
+    title: 'Client Management',
+    icon: <Users size={18} />,
+    href: 'clients',
+    sub: [
+      {
+        title: 'Client List',
+        href: '/admin/clients',
+        icon: <Building size={18} />,
+      },
+      {
+        title: 'Client Projects',
+        href: '/admin/clients/projects',
+        icon: <Briefcase size={18} />,
+      },
+      {
+        title: 'Client Feedback',
+        href: '/admin/clients/feedback',
+        icon: <MessageSquare size={18} />,
+      },
+    ],
+  },
+  {
+    title: 'Invoice Management',
+    icon: <Receipt size={18} />,
+    href: 'invoices',
+    sub: [
+      {
+        title: 'All Invoices',
+        href: '/admin/invoices',
+        icon: <FileText size={18} />,
+      },
+      {
+        title: 'Generate Invoice',
+        href: '/admin/invoices/create',
+        icon: <FilePlus size={18} />,
+      },
+      {
+        title: 'Payment History',
+        href: '/admin/invoices/payments',
+        icon: <WalletCards size={18} />,
+      }
     ],
   },
   {
@@ -105,6 +181,19 @@ export const sidelinks: SideLink[] = [
     icon: <IconChartHistogram size={18} />,
   },
   {
+    title: "Support",
+    href: '/support',
+    icon: <LifeBuoyIcon size={18} />,
+    sub: [
+      {
+        title: 'Tickets',
+        label: '',
+        href: '/admin/support/tickets',
+        icon: <Tickets size={18} />,
+      },
+    ],
+  },
+  {
     title: 'Reports',
     label: '',
     href: '/reports',
@@ -121,6 +210,24 @@ export const sidelinks: SideLink[] = [
         label: '',
         href: '/reports/attendance',
         icon: <IconHexagonNumber4 size={18} />,
+      },
+      {
+        title: 'Service Analytics',
+        label: '',
+        href: '/admin/reports/services',
+        icon: <IconReportAnalytics size={18} />,
+      },
+      {
+        title: 'Client Analytics',
+        label: '',
+        href: '/admin/reports/clients',
+        icon: <IconDeviceDesktopAnalytics size={18} />,
+      },
+      {
+        title: 'Revenue Reports',
+        label: '',
+        href: '/admin/reports/revenue',
+        icon: <IconAlignBoxCenterTop size={18} />,
       },
     ],
   },
@@ -175,39 +282,3 @@ export const sidelinks: SideLink[] = [
     icon: <IconSettings size={18} />,
   },
 ]
-
-// Example Sidebar Component
-const Sidebar = () => {
-  return (
-    <nav className='sidebar'>
-      <ul>
-        {sidelinks.map((link) => (
-          <li key={link.title}>
-            <a href={link.href}>
-              {link.icon}
-              <span>{link.title}</span>
-              {link.label && <span className='badge'>{link.label}</span>}
-            </a>
-            {link.sub && (
-              <ul>
-                {link.sub.map((subLink) => (
-                  <li key={subLink.title}>
-                    <a href={subLink.href}>
-                      {subLink.icon}
-                      <span>{subLink.title}</span>
-                      {subLink.label && (
-                        <span className='badge'>{subLink.label}</span>
-                      )}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </li>
-        ))}
-      </ul>
-    </nav>
-  )
-}
-
-export default Sidebar
