@@ -88,3 +88,30 @@ export function getInitials(name: string) {
     .join('')
     .toUpperCase()
 }
+
+export const getStatusVariant = (
+  status: string
+):
+  | 'default'
+  | 'destructive'
+  | 'secondary'
+  | 'outline'
+  | 'success'
+  | 'warning'
+  | null
+  | undefined => {
+  switch (status.toLocaleLowerCase()) {
+    case 'pending':
+      return 'default'
+    case 'scheduled':
+      return 'secondary'
+    case 'inProgres':
+      return 'warning'
+    case 'completed':
+      return 'success'
+    case 'cancelled':
+      return 'destructive'
+    default:
+      return 'default'
+  }
+}

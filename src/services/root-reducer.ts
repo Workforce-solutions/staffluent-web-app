@@ -10,6 +10,7 @@ import { roleApi } from './roleApi'
 import { productivityApi } from './productivityApi'
 import { attendanceApi } from './attendanceApi'
 import { clientPortalApi } from './clientPortalApi'
+import { servicesApi } from './servicesApi'
 
 const rootReducer = combineReducers({
   [vbAuthApi.reducerPath]: vbAuthApi.reducer,
@@ -23,6 +24,7 @@ const rootReducer = combineReducers({
   [productivityApi.reducerPath]: productivityApi.reducer,
   [attendanceApi.reducerPath]: attendanceApi.reducer,
   [clientPortalApi.reducerPath]: clientPortalApi.reducer,
+  [servicesApi.reducerPath]: servicesApi.reducer,
 })
 
 export default rootReducer

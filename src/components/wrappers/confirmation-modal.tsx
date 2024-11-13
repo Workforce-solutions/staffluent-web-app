@@ -16,6 +16,18 @@ interface ConfirmationModalProps<T> extends OpenModalProps {
   title: string
   description?: string
   loading?: boolean
+  label?: string
+  labelLoading?: string
+  variant?:
+    | 'link'
+    | 'default'
+    | 'secondary'
+    | 'destructive'
+    | 'outline'
+    | 'ghost'
+    | null
+    | undefined
+  extraContent?: React.ReactNode
 }
 
 const ConfirmationModal = <T,>({
@@ -26,10 +38,14 @@ const ConfirmationModal = <T,>({
   title,
   description = '',
   loading = false,
+  label = 'Delete',
+  labelLoading = 'Deleting...',
+  variant = 'destructive',
+  extraContent,
 }: ConfirmationModalProps<T>) => {
   const [isLoading, setIsLoading] = useState(false)
 
-  const handleDeleteClick = async () => {
+  const handleClick = async () => {
     setIsLoading(true)
     try {
       await handleDelete(id)
@@ -46,6 +62,7 @@ const ConfirmationModal = <T,>({
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
+        {extraContent}
         <DialogFooter>
           <Button
             variant='outline'
@@ -55,12 +72,12 @@ const ConfirmationModal = <T,>({
             Cancel
           </Button>
           <Button
-            variant='destructive'
-            onClick={handleDeleteClick}
+            variant={variant}
+            onClick={handleClick}
             disabled={loading || isLoading}
             aria-busy={loading || isLoading}
           >
-            {loading || isLoading ? 'Deleting...' : 'Delete'}
+            {loading || isLoading ? labelLoading : label}
           </Button>
         </DialogFooter>
       </DialogContent>

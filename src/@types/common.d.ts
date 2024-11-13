@@ -34,6 +34,10 @@ export interface PaginatedParams {
   venue_short_code?: string
 }
 
+export interface VenueShortCode {
+  venue_short_code: string
+}
+
 export interface EditDeleteProps<T> {
   original: T
   handleEdit?: (value: T) => void

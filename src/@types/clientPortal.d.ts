@@ -1,4 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+
+import { PaginatedResponse } from "./common"
+
 // @/@types/clientPortal.ts
 export interface ClientService {
   id: number
@@ -180,3 +183,17 @@ export interface ServiceRequestForm {
 }
 
 export interface SupportTicket {}
+
+export type ServiceData = {
+  id: number
+  name: string
+  slug: string
+  services_count: number
+  active_services_count: number
+  last_updated: string
+}
+
+export interface ServiceCategoriesResponse {
+  stats: Record<string,string|number>;
+  categories: PaginatedResponse<ServiceData>;
+}
