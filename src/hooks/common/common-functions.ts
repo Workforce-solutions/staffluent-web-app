@@ -11,7 +11,7 @@ export const getPrepareHeaders = ({
 
   if ((updatedToken ?? '')?.length > 0) {
     // headers.set('Authorization', `Bearer ${refreshToken ?? token}`)
-    headers.set('Authorization', `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL2NvcmUudmVudWVib29zdC5pby9hcGkvdjEvYXV0aC9sb2dpbiIsImlhdCI6MTczMTI0MjEwOSwiZXhwIjoxNzMxMjQ1NzA5LCJuYmYiOjE3MzEyNDIxMDksImp0aSI6IlJQbnl4ZU92TExNV01QS0kiLCJzdWIiOiIyMzIiLCJwcnYiOiIyM2JkNWM4OTQ5ZjYwMGFkYjM5ZTcwMWM0MDA4NzJkYjdhNTk3NmY3In0.0ApnwodRb96VmXDD9ZneHkG7mCbMb0pkAvaoVrDUL4Y`)
+    headers.set('Authorization', `Bearer ${updatedToken}`)
   }
   if (apikey) {
     headers.set('apikey', supabaseKey)
@@ -28,7 +28,7 @@ export const supabaseKey =
 export const staffAdminAppkeyParam =
   '?SN-BOOST-CORE-ADMIN-API-KEY=boost-sn-23010xC0R3-admin!'
 export const staffClientPortalkeyParam =
-    '?SN_BOOST_CORE_CLIENT_PORTAL_API_KEY=boost-sn-25011xC0R5-clientportal!'
+  '?SN_BOOST_CORE_CLIENT_PORTAL_API_KEY=boost-sn-25011xC0R5-clientportal!'
 
 export const getFirstCharacters = (value = '') => {
   const words = value.split(' ')
@@ -87,4 +87,31 @@ export function getInitials(name: string) {
     .map((n) => n[0])
     .join('')
     .toUpperCase()
+}
+
+export const getStatusVariant = (
+  status: string
+):
+  | 'default'
+  | 'destructive'
+  | 'secondary'
+  | 'outline'
+  | 'success'
+  | 'warning'
+  | null
+  | undefined => {
+  switch (status.toLocaleLowerCase()) {
+    case 'pending':
+      return 'default'
+    case 'scheduled':
+      return 'secondary'
+    case 'inProgres':
+      return 'warning'
+    case 'completed':
+      return 'success'
+    case 'cancelled':
+      return 'destructive'
+    default:
+      return 'default'
+  }
 }

@@ -36,6 +36,14 @@ export const clientsRoute: RouteObject[] = [
         }),
       },
       {
+        path: 'service-requests/:id',
+        lazy: async () => ({
+          Component: (
+              await import('../pages/client-portal/services/service-request-details.tsx')
+          ).default,
+        }),
+      },
+      {
         path: 'invoices',
         lazy: async () => ({
           Component: (await import('../pages/client-portal/invoices/index.tsx'))

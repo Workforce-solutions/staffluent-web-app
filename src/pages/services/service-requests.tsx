@@ -1,47 +1,194 @@
+/* eslint-disable react-refresh/only-export-components */
+import { ServiceRequestsProps } from '@/@types/services'
 import { Layout } from '@/components/custom/layout'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { initialPage } from '@/components/table/data'
 import { Badge } from '@/components/ui/badge'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
-import {
-  Search,
-  Filter,
-  Clock,
-  CheckCircle,
-  AlertCircle,
-  Eye,
-  MoreHorizontal,
-} from 'lucide-react'
-import { useState } from 'react'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { useNavigate } from 'react-router-dom'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { Input } from '@/components/ui/input'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { useToast } from '@/components/ui/use-toast'
+import ConfirmationModal from '@/components/wrappers/confirmation-modal'
+import GenericTableWrapper from '@/components/wrappers/generic-wrapper'
+import { useShortCode } from '@/hooks/use-local-storage'
+import {
+  useApproveServiceRequestMutation,
+  useDeclineServiceRequestMutation,
+  useGetServiceRequestsQuery,
+} from '@/services/servicesApi'
+import { ColumnDef } from '@tanstack/react-table'
+import {
+  AlertCircle,
+  CheckCircle,
+  Clock,
+  Eye,
+  Filter,
+  MoreHorizontal,
+  Search,
+} from 'lucide-react'
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import ThemeSwitch from '../../components/theme-switch'
 import { UserNav } from '../../components/user-nav'
+import { getStatusVariant } from '@/hooks/common/common-functions'
+
+export enum StatusEnum {
+  pending = 'Pending',
+  scheduled = 'Scheduled',
+  inProgres = 'In Progress',
+  completed = 'Completed',
+  cancelled = 'Cancelled',
+}
 
 export default function ServiceRequests() {
   const [searchTerm, setSearchTerm] = useState('')
   const navigate = useNavigate()
+  const [paginationProps, setPaginationProps] = useState(initialPage)
+  const [tabValue, setTabValue] = useState('all')
+  const venue_short_code = useShortCode()
+
+  const [selectedRequest, setSelectedRequest] =
+    useState<ServiceRequestsProps | null>(null)
+  const [approveModalOpen, setApproveModalOpen] = useState(false)
+  const [declineModalOpen, setDeclineModalOpen] = useState(false)
+  const [declineReason, setDeclineReason] = useState('')
+
+  const { toast } = useToast()
+  const [approveRequest] = useApproveServiceRequestMutation()
+  const [declineRequest] = useDeclineServiceRequestMutation()
+
+  const handleApprove = async (id: number) => {
+    try {
+      await approveRequest({ id, venue_short_code }).unwrap()
+      toast({
+        title: 'Success',
+        description: 'Service request approved successfully',
+      })
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to approve service request',
+        variant: 'destructive',
+      })
+    }
+  }
+
+  const handleDecline = async (id: number) => {
+    if (!declineReason) return
+    try {
+      await declineRequest({
+        id,
+        venue_short_code,
+        reason: declineReason,
+      }).unwrap()
+      toast({
+        title: 'Success',
+        description: 'Service request declined successfully',
+      })
+      setDeclineReason('')
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to decline service request',
+        variant: 'destructive',
+      })
+    }
+  }
+
+  const { data, isFetching, isError } = useGetServiceRequestsQuery({
+    venue_short_code,
+    ...paginationProps,
+    status: tabValue !== 'all' ? tabValue : undefined,
+  })
+
+  const columns: ColumnDef<ServiceRequestsProps>[] = [
+    {
+      header: 'Request ID',
+      accessorKey: 'id',
+      cell: ({ row }) => (
+        <div className='font-medium'>REQ-{row.original.id}</div>
+      ),
+    },
+    {
+      header: 'Client',
+      accessorKey: 'client',
+    },
+    {
+      header: 'Service',
+      accessorKey: 'service',
+    },
+    {
+      header: 'Requested Date',
+      accessorKey: 'requestedDate',
+      cell: ({ row }) => (
+        <div>{new Date(row.original.requested_date).toLocaleDateString()}</div>
+      ),
+    },
+    {
+      header: 'Schedule Date',
+      accessorKey: 'scheduleDate',
+      cell: ({ row }) => (
+        <div>
+          {new Date(row.original.scheduled_date ?? '').toLocaleDateString()}
+        </div>
+      ),
+    },
+    {
+      header: 'Status',
+      accessorKey: 'status',
+      cell: ({ row: { original } }) => (
+        <Badge variant={getStatusVariant(original?.status)}>
+          {original?.status}
+        </Badge>
+      ),
+    },
+    {
+      header: 'Actions',
+      cell: ({ row }) => (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant='ghost' size='icon'>
+              <MoreHorizontal className='h-4 w-4' />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align='end'>
+            <DropdownMenuItem
+              onClick={() =>
+                navigate(`/admin/services/requests/${row.original.id}`)
+              }
+            >
+              <Eye className='mr-2 h-4 w-4' />
+              View Details
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => {
+                setSelectedRequest(row.original)
+                setApproveModalOpen(true)
+              }}
+            >
+              <CheckCircle className='mr-2 h-4 w-4' />
+              Approve Request
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => {
+                setSelectedRequest(row.original)
+                setDeclineModalOpen(true)
+              }}
+            >
+              <AlertCircle className='mr-2 h-4 w-4' />
+              Decline Request
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ),
+    },
+  ]
 
   return (
     <Layout>
@@ -65,6 +212,42 @@ export default function ServiceRequests() {
         </div>
         {/* Request Stats */}
         <div className='grid gap-4 md:grid-cols-4'>
+          {approveModalOpen && selectedRequest && (
+            <ConfirmationModal
+              open={approveModalOpen}
+              setOpen={setApproveModalOpen}
+              handleDelete={handleApprove}
+              id={selectedRequest?.id}
+              title='Approve Service Request'
+              description='Are you sure you want to approve this service request?'
+              label='Approve'
+              labelLoading='Approving...'
+              variant='default'
+            />
+          )}
+
+          {selectedRequest && (
+            <ConfirmationModal
+              open={declineModalOpen}
+              setOpen={setDeclineModalOpen}
+              handleDelete={handleDecline}
+              id={selectedRequest?.id}
+              title='Decline Service Request'
+              description='Please provide a reason for declining this request'
+              label='Decline'
+              labelLoading='Declining...'
+              variant='destructive'
+              extraContent={
+                <Input
+                  placeholder='Enter reason for declining'
+                  value={declineReason}
+                  onChange={(e) => setDeclineReason(e.target.value)}
+                  className='mt-4'
+                />
+              }
+            />
+          )}
+
           <Card>
             <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
               <CardTitle className='text-sm font-medium'>
@@ -128,6 +311,7 @@ export default function ServiceRequests() {
               </div>
               <div className='flex items-center space-x-2'>
                 <div className='relative'>
+                  {/* TODO search query param to be added */}
                   <Search className='absolute left-2 top-2.5 h-4 w-4 text-muted-foreground' />
                   <Input
                     placeholder='Search requests...'
@@ -136,17 +320,7 @@ export default function ServiceRequests() {
                     className='w-[300px] pl-8'
                   />
                 </div>
-                <Select defaultValue='all'>
-                  <SelectTrigger className='w-[180px]'>
-                    <SelectValue placeholder='Filter by status' />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value='all'>All Requests</SelectItem>
-                    <SelectItem value='pending'>Pending</SelectItem>
-                    <SelectItem value='in-progress'>In Progress</SelectItem>
-                    <SelectItem value='completed'>Completed</SelectItem>
-                  </SelectContent>
-                </Select>
+
                 <Button variant='outline' size='icon'>
                   <Filter className='h-4 w-4' />
                 </Button>
@@ -154,89 +328,30 @@ export default function ServiceRequests() {
             </div>
           </CardHeader>
           <CardContent>
-            <Tabs defaultValue='all' className='space-y-4'>
+            <Tabs
+              value={tabValue}
+              onValueChange={setTabValue}
+              className='space-y-4'
+            >
               <TabsList>
                 <TabsTrigger value='all'>All Requests</TabsTrigger>
-                <TabsTrigger value='pending'>Pending</TabsTrigger>
-                <TabsTrigger value='in-progress'>In Progress</TabsTrigger>
-                <TabsTrigger value='completed'>Completed</TabsTrigger>
+                {Object.entries(StatusEnum).map(([key, label]) => (
+                  <TabsTrigger key={key} value={key.toLowerCase()}>
+                    {label}
+                  </TabsTrigger>
+                ))}
               </TabsList>
 
-              <TabsContent value='all'>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Request ID</TableHead>
-                      <TableHead>Client</TableHead>
-                      <TableHead>Service</TableHead>
-                      <TableHead>Requested Date</TableHead>
-                      <TableHead>Schedule Date</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <TableRow key={i}>
-                        <TableCell className='font-medium'>
-                          REQ-{2024001 + i}
-                        </TableCell>
-                        <TableCell>Client {i + 1}</TableCell>
-                        <TableCell>Equipment Maintenance</TableCell>
-                        <TableCell>{new Date().toLocaleDateString()}</TableCell>
-                        <TableCell>
-                          {new Date(
-                            Date.now() + 86400000 * 2
-                          ).toLocaleDateString()}
-                        </TableCell>
-                        <TableCell>
-                          <Badge
-                            variant={
-                              i === 0
-                                ? 'default'
-                                : i === 1
-                                  ? 'secondary'
-                                  : i === 2
-                                    ? 'destructive'
-                                    : 'success'
-                            }
-                          >
-                            {i === 0
-                              ? 'Pending'
-                              : i === 1
-                                ? 'In Progress'
-                                : i === 2
-                                  ? 'Urgent'
-                                  : 'Completed'}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant='ghost' size='icon'>
-                                <MoreHorizontal className='h-4 w-4' />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align='end'>
-                              <DropdownMenuItem
-                                onClick={() =>
-                                  navigate(
-                                    `/admin/services/requests/${2024001 + i}`
-                                  )
-                                }
-                              >
-                                <Eye className='mr-2 h-4 w-4' />
-                                View Details
-                              </DropdownMenuItem>
-                              <DropdownMenuItem>Update Status</DropdownMenuItem>
-                              <DropdownMenuItem>Assign Staff</DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+              <TabsContent value={tabValue}>
+                <GenericTableWrapper
+                  columns={columns}
+                  data={data?.requests.data || []}
+                  isLoading={isFetching}
+                  isError={isError}
+                  paginationValues={paginationProps}
+                  setPaginationValues={setPaginationProps}
+                  total_pages={data?.requests.total_pages}
+                />
               </TabsContent>
             </Tabs>
           </CardContent>

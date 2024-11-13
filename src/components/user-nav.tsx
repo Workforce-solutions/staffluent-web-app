@@ -44,6 +44,8 @@ export function UserNav() {
     }
   }
 
+  const data = userInfo?.data ?? userInfo
+
   return accountType === AccountType.business ? (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -51,7 +53,7 @@ export function UserNav() {
           <Avatar className='h-8 w-8'>
             <AvatarImage src='/avatars/01.png' alt='@ggerveni' />
             <AvatarFallback>
-              {getFirstCharacters(userInfo?.data?.user.name)}
+              {getFirstCharacters(data?.user.name)}
             </AvatarFallback>
           </Avatar>
         </Button>
@@ -93,7 +95,7 @@ export function UserNav() {
           <Avatar className='h-8 w-8'>
             <AvatarImage src='/avatars/01.png' alt='@ggerveni' />
             <AvatarFallback>
-              {getFirstCharacters(userInfo?.data?.user.name)}
+              {getFirstCharacters(data?.user.name)}
             </AvatarFallback>
           </Avatar>
         </Button>
@@ -102,10 +104,10 @@ export function UserNav() {
         <DropdownMenuLabel className='font-normal'>
           <div className='flex flex-col space-y-1'>
             <p className='text-sm font-medium leading-none'>
-              {userInfo?.data.user.name}
+              {data?.user.name}
             </p>
             <p className='text-xs leading-none text-muted-foreground'>
-              {userInfo?.data.user.email}
+              {data?.user.email}
             </p>
           </div>
         </DropdownMenuLabel>

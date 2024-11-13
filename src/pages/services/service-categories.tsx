@@ -24,39 +24,40 @@ import { UserNav } from '@/components/user-nav'
 import { CategoryModal } from './category-modal'
 import ConfirmationModal from '@/components/wrappers/confirmation-modal'
 import { useToast } from '@/components/ui/use-toast'
-
-type ServiceData = {
-  id: number
-  name: string
-  slug: string
-  services: number
-  active_services: number
-  last_updated: string
-}
+import { useShortCode } from '@/hooks/use-local-storage'
+import {
+  useDeleteServiceCategorieMutation,
+  useGetServiceCategoriesQuery,
+} from '@/services/servicesApi'
+import { ServiceData } from '@/@types/clientPortal'
+import { initialPage } from '@/components/table/data'
 
 export default function ServiceCategories() {
+  const { toast } = useToast()
+
+  const [paginationValues, setPaginationValues] = useState(initialPage)
+
   const [searchTerm, setSearchTerm] = useState('')
   const [modalOpen, setModalOpen] = useState(false)
   const [deleteOpen, setDeleteOpen] = useState(false)
   const [selectedCategory, setSelectedCategory] = useState<ServiceData | null>(
     null
   )
-  const { toast } = useToast()
+  const [deleteServiceCategorie] = useDeleteServiceCategorieMutation()
 
-  const dummyData: ServiceData[] = Array.from({ length: 5 }, (_, i) => ({
-    id: i + 1,
-    name: 'Maintenance',
-    slug: 'maintenance',
-    services: 15,
-    active_services: 12,
-    last_updated: '2 days ago',
-  }))
+  const venue_short_code = useShortCode()
+  const { data } = useGetServiceCategoriesQuery({
+    venue_short_code,
+    ...paginationValues,
+  })
 
   const handleDelete = async () => {
     if (!selectedCategory) return
-
     try {
-      // Add delete API call here
+      await deleteServiceCategorie({
+        venue_short_code: venue_short_code,
+        id: selectedCategory?.id,
+      }).unwrap()
       toast({
         title: 'Success',
         description: 'Category deleted successfully',
@@ -87,14 +88,14 @@ export default function ServiceCategories() {
         cell: ({ row }) => <span>{row.original.slug}</span>,
       },
       {
-        accessorKey: 'services',
+        accessorKey: 'services_count',
         header: 'Services',
-        cell: ({ row }) => <span>{row.original.services}</span>,
+        cell: ({ row }) => <span>{row.original.services_count}</span>,
       },
       {
-        accessorKey: 'active_services',
+        accessorKey: 'active_services_count',
         header: 'Active Services',
-        cell: ({ row }) => <span>{row.original.active_services}</span>,
+        cell: ({ row }) => <span>{row.original.active_services_count}</span>,
       },
       {
         accessorKey: 'last_updated',
@@ -193,7 +194,9 @@ export default function ServiceCategories() {
               <Package className='h-4 w-4 text-muted-foreground' />
             </CardHeader>
             <CardContent>
-              <div className='text-2xl font-bold'>12</div>
+              <div className='text-2xl font-bold'>
+                {data?.stats?.total_categories}
+              </div>
             </CardContent>
           </Card>
 
@@ -205,7 +208,9 @@ export default function ServiceCategories() {
               <Package className='h-4 w-4 text-muted-foreground' />
             </CardHeader>
             <CardContent>
-              <div className='text-2xl font-bold'>48</div>
+              <div className='text-2xl font-bold'>
+                {data?.stats?.total_active_services}
+              </div>
             </CardContent>
           </Card>
 
@@ -217,7 +222,9 @@ export default function ServiceCategories() {
               <Package className='h-4 w-4 text-muted-foreground' />
             </CardHeader>
             <CardContent>
-              <div className='text-2xl font-bold'>Maintenance</div>
+              <div className='text-2xl font-bold'>
+                {data?.stats?.most_popular}
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -244,10 +251,11 @@ export default function ServiceCategories() {
           <CardContent>
             <GenericTableWrapper
               columns={columns}
-              data={dummyData}
+              data={data?.categories?.data}
               isLoading={false}
               isError={false}
               showToolbar={false}
+              {...{ paginationValues, setPaginationValues }}
             />
           </CardContent>
         </Card>

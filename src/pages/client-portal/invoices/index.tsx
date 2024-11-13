@@ -1,29 +1,21 @@
 import { Layout } from '@/components/custom/layout'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
 import ThemeSwitch from '@/components/theme-switch'
-import { UserNav } from '@/components/user-nav'
-import { Input } from '@/components/ui/input'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { UserNav } from '@/components/user-nav'
+import GenericTableWrapper from '@/components/wrappers/generic-wrapper'
+import { ColumnDef } from '@tanstack/react-table'
+import { format } from 'date-fns'
 import {
-  Search,
-  Download,
-  DollarSign,
   AlertCircle,
   CheckCircle,
+  DollarSign,
+  Download,
+  Search,
 } from 'lucide-react'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
 import { useState } from 'react'
-import { format } from 'date-fns'
-import { ColumnDef } from '@tanstack/react-table'
-import GenericTableWrapper from '@/components/wrappers/generic-wrapper'
 
 interface Invoice {
   id: number
@@ -146,13 +138,6 @@ export default function Invoices() {
       .filter((inv) => inv.status === 'paid')
       .reduce((sum, inv) => sum + inv.amount, 0),
   }
-
-  // Filter invoices based on search term
-  const filteredInvoices = dummyInvoices.filter(
-    (invoice) =>
-      invoice.number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      invoice.service_name.toLowerCase().includes(searchTerm.toLowerCase())
-  )
 
   return (
     <Layout>

@@ -7,10 +7,11 @@ import { clientsApi } from './clientsApi'
 import { adminActivityApi } from './adminActivityApi'
 import { appConfigsApi } from './appConfigsApi'
 import { roleApi } from './roleApi'
-import {dashboardApi} from "./dashboardApi";
-import {productivityApi} from "./productivityApi";
-import {attendanceApi} from "./attendanceApi";
-import {clientPortalApi} from "./clientPortalApi";
+import { dashboardApi } from './dashboardApi'
+import { productivityApi } from './productivityApi'
+import { attendanceApi } from './attendanceApi'
+import { clientPortalApi } from './clientPortalApi'
+import { servicesApi } from './servicesApi'
 
 const store = configureStore({
   reducer: rootReducer,
@@ -21,12 +22,13 @@ const store = configureStore({
       staffApi.middleware,
       clientsApi.middleware,
       adminActivityApi.middleware,
-        dashboardApi.middleware,
+      dashboardApi.middleware,
       appConfigsApi.middleware,
       roleApi.middleware,
       productivityApi.middleware,
       attendanceApi.middleware,
-      clientPortalApi.middleware
+      clientPortalApi.middleware,
+      servicesApi.middleware
     ),
 })
 

@@ -1,80 +1,168 @@
-import { Layout } from '@/components/custom/layout'
-import ThemeSwitch from '@/components/theme-switch'
-import { UserNav } from '@/components/user-nav'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Input } from '@/components/ui/input'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
-import { Search, Clock, Filter } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+import { ColumnDef } from '@tanstack/react-table'
+import { Clock, Filter, PlusIcon, Search } from 'lucide-react'
 import { useState } from 'react'
-import { format } from "date-fns"
+import { Layout } from '@/components/custom/layout'
+import { initialPage } from '@/components/table/data'
+import ThemeSwitch from '@/components/theme-switch'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { UserNav } from '@/components/user-nav'
+import GenericTableWrapper from '@/components/wrappers/generic-wrapper'
+import { useListMyRequestsQuery } from '@/services/clientPortalApi'
+import { Alert } from '@/components/ui/alerts/Alert'
+import { AlertDescription } from '@/components/ui/alerts/AlertDescription'
+import { ServiceRequest } from '@/@types/clientPortal'
+import { RequestServiceModal } from '@/components/client-portal/request-service-modal'
+import { useNavigate } from 'react-router-dom'
 
-interface ServiceRequest {
-  id: number
-  reference: string
-  service_type: string
-  requested_date: Date
-  preferred_date: Date
-  status: 'Pending' | 'Scheduled' | 'Completed' | 'Cancelled'
-  priority: 'High' | 'Normal' | 'Low'
-  description: string
+interface StatsCardProps {
+  title: string
+  count: number
+  label: string
 }
 
-export default function ServiceRequests() {
-  const [searchTerm, setSearchTerm] = useState('')
+const StatsCard = ({ title, count, label }: StatsCardProps) => (
+  <Card>
+    <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+      <CardTitle className='text-sm font-medium'>{title}</CardTitle>
+      <Clock className='h-4 w-4 text-muted-foreground' />
+    </CardHeader>
+    <CardContent>
+      <div className='text-2xl font-bold'>{count}</div>
+      <p className='text-xs text-muted-foreground'>{label}</p>
+    </CardContent>
+  </Card>
+)
 
-  // Dummy data
-  const requests: ServiceRequest[] = [
+const getStatusVariant = (
+  status: string
+): 'default' | 'secondary' | 'destructive' | 'outline' => {
+  switch (status) {
+    case 'Pending':
+      return 'default'
+    case 'Scheduled':
+      return 'secondary'
+    case 'Completed':
+      return 'outline'
+    case 'Cancelled':
+      return 'destructive'
+    default:
+      return 'default'
+  }
+}
+
+const getPriorityVariant = (
+  priority: string
+): 'default' | 'secondary' | 'destructive' | 'outline' => {
+  switch (priority) {
+    case 'High':
+    case 'Urgent':
+      return 'destructive'
+    case 'Normal':
+      return 'default'
+    case 'Low':
+      return 'secondary'
+    default:
+      return 'default'
+  }
+}
+
+const ServiceRequests = () => {
+  const [searchTerm, setSearchTerm] = useState('')
+  const [paginationValues, setPaginationValues] = useState(initialPage)
+  const [openRequestModal, setOpenRequestModal] = useState(false)
+
+  const { data: responseData, isLoading, isError } = useListMyRequestsQuery()
+  const navigate = useNavigate()
+
+  const columns: ColumnDef<ServiceRequest>[] = [
     {
-      id: 1,
-      reference: "SR-2024001",
-      service_type: "Equipment Maintenance",
-      requested_date: new Date('2024-01-20'),
-      preferred_date: new Date('2024-02-01'),
-      status: 'Pending',
-      priority: 'High',
-      description: "Monthly maintenance check for kitchen equipment"
+      accessorKey: 'reference',
+      header: 'Reference',
+      cell: ({ row }) => (
+        <span
+          className='cursor-pointer font-medium hover:text-primary'
+          onClick={() =>
+            navigate(`/client-portal/service-requests/${row.original.id}`)
+          }
+        >
+          {row.original.reference}
+        </span>
+      ),
     },
     {
-      id: 2,
-      reference: "SR-2024002",
-      service_type: "Emergency Repair",
-      requested_date: new Date('2024-01-19'),
-      preferred_date: new Date('2024-01-21'),
-      status: 'Scheduled',
-      priority: 'High',
-      description: "Urgent repair needed for refrigeration unit"
+      accessorKey: 'service_type',
+      header: 'Service Type',
     },
     {
-      id: 3,
-      reference: "SR-2024003",
-      service_type: "Installation",
-      requested_date: new Date('2024-01-15'),
-      preferred_date: new Date('2024-02-05'),
-      status: 'Completed',
-      priority: 'Normal',
-      description: "New equipment installation request"
-    }
+      accessorKey: 'requested_date',
+      header: 'Requested Date',
+      cell: ({ row }) =>
+        new Date(row.original.requested_date).toLocaleDateString(),
+    },
+    {
+      accessorKey: 'preferred_date',
+      header: 'Preferred Date',
+      cell: ({ row }) =>
+        row.original.preferred_date
+          ? new Date(row.original.preferred_date).toLocaleDateString()
+          : '-',
+    },
+    {
+      accessorKey: 'status',
+      header: 'Status',
+      cell: ({ row }) => (
+        <Badge variant={getStatusVariant(row.original.status)}>
+          {row.original.status}
+        </Badge>
+      ),
+    },
+    {
+      accessorKey: 'priority',
+      header: 'Priority',
+      cell: ({ row }) => (
+        <Badge variant={getPriorityVariant(row.original.priority)}>
+          {row.original.priority}
+        </Badge>
+      ),
+    },
+    {
+      accessorKey: 'description',
+      header: 'Description',
+      cell: ({ row }) => (
+        <div className='max-w-[300px] truncate'>{row.original.description}</div>
+      ),
+    },
   ]
 
-  const filteredRequests = requests.filter(request =>
-    request.reference.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    request.service_type.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    request.description.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  const filteredData =
+    responseData?.requests.data.filter(
+      (request) =>
+        request.reference.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        request.description.toLowerCase().includes(searchTerm.toLowerCase())
+    ) ?? []
+
+  if (isError) {
+    return (
+      <Layout>
+        <Layout.Body className='p-6'>
+          <Alert variant='error'>
+            <AlertDescription>
+              Failed to load service requests. Please try again later.
+            </AlertDescription>
+          </Alert>
+        </Layout.Body>
+      </Layout>
+    )
+  }
 
   return (
     <Layout>
-      <Layout.Header className="min-h-fit border-b">
-        <div className="flex w-full flex-col">
+      <Layout.Header className='min-h-fit border-b'>
+        <div className='flex w-full flex-col'>
           <div className='ml-auto flex items-center space-x-2 sm:space-x-4'>
             <ThemeSwitch />
             <UserNav />
@@ -86,128 +174,93 @@ export default function ServiceRequests() {
                 View and manage service requests
               </p>
             </div>
+            <div className='flex items-center space-x-2'>
+              <Button onClick={() => setOpenRequestModal(true)}>
+                <PlusIcon className='mr-2 h-4 w-4' />
+                Request Service
+              </Button>
+            </div>
           </div>
         </div>
       </Layout.Header>
 
       <Layout.Body className='space-y-6 p-6'>
-        {/* Stats Overview */}
-        <div className="grid gap-4 md:grid-cols-3">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Pending Requests</CardTitle>
-              <Clock className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {requests.filter(r => r.status === 'Pending').length}
-              </div>
-              <p className="text-xs text-muted-foreground">Awaiting processing</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Scheduled</CardTitle>
-              <Clock className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {requests.filter(r => r.status === 'Scheduled').length}
-              </div>
-              <p className="text-xs text-muted-foreground">Confirmed appointments</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Completed</CardTitle>
-              <Clock className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {requests.filter(r => r.status === 'Completed').length}
-              </div>
-              <p className="text-xs text-muted-foreground">This month</p>
-            </CardContent>
-          </Card>
+        <div className='grid gap-4 md:grid-cols-4'>
+          <StatsCard
+            title='Pending Requests'
+            // @ts-ignore
+            count={responseData?.stats.pending.count ?? 0}
+            // @ts-ignore
+            label={responseData?.stats.pending.label ?? 'Awaiting processing'}
+          />
+          <StatsCard
+            title='Scheduled'
+            // @ts-ignore
+            count={responseData?.stats.scheduled.count ?? 0}
+            // @ts-ignore
+            label={
+              responseData?.stats.scheduled.label ?? 'Confirmed appointments'
+            }
+          />
+          <StatsCard
+            title='Completed'
+            // @ts-ignore
+            count={responseData?.stats.completed.count ?? 0}
+            // @ts-ignore
+            label={responseData?.stats.completed.label ?? 'This month'}
+          />
+          <StatsCard
+            title='Canceled'
+            // @ts-ignore
+            count={responseData?.stats.canceled.count ?? 0}
+            // @ts-ignore
+            label={responseData?.stats.canceled.label ?? 'Cancelled requests'}
+          />
         </div>
 
-        {/* Requests Table */}
         <Card>
           <CardHeader>
-            <div className="flex items-center justify-between">
-              <div className="space-y-1">
+            <div className='flex items-center justify-between'>
+              <div className='space-y-1'>
                 <CardTitle>All Requests</CardTitle>
-                <p className="text-sm text-muted-foreground">
+                <p className='text-sm text-muted-foreground'>
                   View your service request history
                 </p>
               </div>
-              <div className="flex items-center space-x-2">
-                <div className="relative">
-                  <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+              <div className='flex items-center space-x-2'>
+                <div className='relative'>
+                  <Search className='absolute left-2 top-2.5 h-4 w-4 text-muted-foreground' />
                   <Input
-                    placeholder="Search requests..."
+                    placeholder='Search requests...'
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-8 w-[250px]"
+                    className='w-[250px] pl-8'
                   />
                 </div>
-                <Button variant="outline" size="icon">
-                  <Filter className="h-4 w-4" />
+                <Button variant='outline' size='icon'>
+                  <Filter className='h-4 w-4' />
                 </Button>
               </div>
             </div>
           </CardHeader>
           <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Reference</TableHead>
-                  <TableHead>Service Type</TableHead>
-                  <TableHead>Requested Date</TableHead>
-                  <TableHead>Preferred Date</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Priority</TableHead>
-                  <TableHead>Description</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredRequests.map((request) => (
-                  <TableRow key={request.id}>
-                    <TableCell className="font-medium">{request.reference}</TableCell>
-                    <TableCell>{request.service_type}</TableCell>
-                    <TableCell>{format(request.requested_date, 'MMM dd, yyyy')}</TableCell>
-                    <TableCell>{format(request.preferred_date, 'MMM dd, yyyy')}</TableCell>
-                    <TableCell>
-                      <Badge variant={
-                        request.status === 'Pending' ? 'warning' :
-                        request.status === 'Scheduled' ? 'default' :
-                        request.status === 'Completed' ? 'success' :
-                        'destructive'
-                      }>
-                        {request.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={
-                        request.priority === 'High' ? 'destructive' :
-                        request.priority === 'Normal' ? 'default' :
-                        'secondary'
-                      }>
-                        {request.priority}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="max-w-[300px] truncate">
-                      {request.description}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+            <GenericTableWrapper
+              columns={columns}
+              data={filteredData}
+              isLoading={isLoading}
+              isError={isError}
+              {...{ paginationValues, setPaginationValues }}
+            />
           </CardContent>
         </Card>
       </Layout.Body>
+
+      <RequestServiceModal
+        open={openRequestModal}
+        setOpen={setOpenRequestModal}
+      />
     </Layout>
   )
 }
+
+export default ServiceRequests
