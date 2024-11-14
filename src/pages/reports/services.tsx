@@ -191,6 +191,7 @@ export default function ServiceAnalytics() {
                 options={{
                   responsive: true,
                   maintainAspectRatio: false,
+                  // @ts-ignore
                   height: 300,
                 }}
               />
@@ -225,6 +226,7 @@ export default function ServiceAnalytics() {
               options={{
                 responsive: true,
                 maintainAspectRatio: false,
+                // @ts-ignore
                 height: 300,
               }}
             />

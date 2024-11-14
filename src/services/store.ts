@@ -12,6 +12,7 @@ import { productivityApi } from './productivityApi'
 import { attendanceApi } from './attendanceApi'
 import { clientPortalApi } from './clientPortalApi'
 import { servicesApi } from './servicesApi'
+import { invoiceApi } from './invoiceApi'
 
 const store = configureStore({
   reducer: rootReducer,
@@ -28,7 +29,8 @@ const store = configureStore({
       productivityApi.middleware,
       attendanceApi.middleware,
       clientPortalApi.middleware,
-      servicesApi.middleware
+      servicesApi.middleware,
+      invoiceApi.middleware
     ),
 })
 

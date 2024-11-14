@@ -22,6 +22,7 @@ import { Star } from 'lucide-react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
+{/*// @ts-ignore*/}
 import { useSubmitFeedbackMutation } from '../../services/clientPortalApi'
 import { OpenModalProps } from '@/@types/common'
 

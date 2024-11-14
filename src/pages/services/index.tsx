@@ -1,9 +1,27 @@
+import { ServiceProps } from '@/@types/services'
 import { Layout } from '@/components/custom/layout'
+import { initialPage } from '@/components/table/data'
+import ThemeSwitch from '@/components/theme-switch'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
+import { useToast } from '@/components/ui/use-toast'
+import { UserNav } from '@/components/user-nav'
+import ConfirmationModal from '@/components/wrappers/confirmation-modal'
 import GenericTableWrapper from '@/components/wrappers/generic-wrapper'
+import { getStatusVariant } from '@/hooks/common/common-functions'
+import { useShortCode } from '@/hooks/use-local-storage'
+import {
+  useDeleteServiceMutation,
+  useGetServicesQuery,
+} from '@/services/servicesApi'
 import { ColumnDef } from '@tanstack/react-table'
 import {
   Edit,
@@ -13,49 +31,44 @@ import {
   Search,
   Trash2,
 } from 'lucide-react'
-import { useState, useMemo } from 'react'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import ThemeSwitch from '@/components/theme-switch'
-import { UserNav } from '@/components/user-nav'
+import { useMemo, useState } from 'react'
 import { ServiceModal } from './service-modal'
-import ConfirmationModal from '@/components/wrappers/confirmation-modal'
-import { useToast } from '@/components/ui/use-toast'
-
-interface ServiceData {
-  id: number
-  name: string
-  category: string
-  priceType: string
-  basePrice: string
-  duration: string
-  status: string
-}
 
 export default function AdminServices() {
   const [searchTerm, setSearchTerm] = useState('')
   const [modalOpen, setModalOpen] = useState(false)
   const [deleteOpen, setDeleteOpen] = useState(false)
-  const [selectedService, setSelectedService] = useState<ServiceData | null>(
-    null
-  )
+  const [selectedService, setSelectedService] = useState<ServiceProps>()
   const { toast } = useToast()
+  const venue_short_code = useShortCode()
+  const [deleteService] = useDeleteServiceMutation()
+
+  const [paginationValues, setPaginationValues] = useState(initialPage)
+
+  const {
+    data: services,
+    isFetching,
+    isError,
+  } = useGetServicesQuery({
+    venue_short_code,
+    ...paginationValues,
+  })
 
   const handleDelete = async () => {
     if (!selectedService) return
 
     try {
+      deleteService({ id: selectedService.id, venue_short_code })
+        .unwrap()
+        .then(() => {
+          toast({
+            title: 'Success',
+            description: 'Service deleted successfully',
+          })
+          setDeleteOpen(false)
+          setSelectedService(undefined)
+        })
       // Add delete API call here
-      toast({
-        title: 'Success',
-        description: 'Service deleted successfully',
-      })
-      setDeleteOpen(false)
-      setSelectedService(null)
     } catch (error) {
       toast({
         title: 'Error',
@@ -65,17 +78,7 @@ export default function AdminServices() {
     }
   }
 
-  const data: ServiceData[] = Array.from({ length: 5 }).map((_, i) => ({
-    id: i + 1,
-    name: `Monthly Maintenance ${i + 1}`,
-    category: 'Regular Service',
-    priceType: 'Fixed',
-    basePrice: `$299.99`,
-    duration: '120 mins',
-    status: i % 2 === 0 ? 'Active' : 'Inactive',
-  }))
-
-  const columns: ColumnDef<ServiceData>[] = useMemo(
+  const columns: ColumnDef<ServiceProps>[] = useMemo(
     () => [
       {
         accessorKey: 'name',
@@ -87,17 +90,17 @@ export default function AdminServices() {
       {
         accessorKey: 'category',
         header: 'Category',
-        cell: ({ row }) => <span>{row.original.category}</span>,
+        cell: ({ row }) => <span>{row.original.category.name}</span>,
       },
       {
         accessorKey: 'priceType',
         header: 'Price Type',
-        cell: ({ row }) => <span>{row.original.priceType}</span>,
+        cell: ({ row }) => <span>{row.original.price_type}</span>,
       },
       {
         accessorKey: 'basePrice',
         header: 'Base Price',
-        cell: ({ row }) => <span>{row.original.basePrice}</span>,
+        cell: ({ row }) => <span>{row.original.base_price}</span>,
       },
       {
         accessorKey: 'duration',
@@ -107,13 +110,10 @@ export default function AdminServices() {
       {
         accessorKey: 'status',
         header: 'Status',
-        cell: ({ row }) => (
-          <Badge
-            className={
-              row.original.status === 'Active' ? 'bg-green-500' : 'bg-red-500'
-            }
-          >
-            {row.original.status}
+
+        cell: ({ row: { original } }) => (
+          <Badge variant={getStatusVariant(original?.status)}>
+            {original?.status}
           </Badge>
         ),
       },
@@ -189,7 +189,7 @@ export default function AdminServices() {
           </div>
           <Button
             onClick={() => {
-              setSelectedService(null)
+              setSelectedService(undefined)
               setModalOpen(true)
             }}
           >
@@ -223,10 +223,10 @@ export default function AdminServices() {
           <CardContent>
             <GenericTableWrapper
               columns={columns}
-              data={data}
-              isLoading={false}
-              isError={false}
+              data={services?.services.data as ServiceProps[]}
+              isLoading={isFetching}
               showToolbar={false}
+              {...{ paginationValues, setPaginationValues, isError }}
             />
           </CardContent>
         </Card>

@@ -139,7 +139,9 @@ const ServiceRequests = () => {
   ]
 
   const filteredData =
+    // @ts-ignore
     responseData?.requests.data.filter(
+      // @ts-ignore
       (request) =>
         request.reference.toLowerCase().includes(searchTerm.toLowerCase()) ||
         request.description.toLowerCase().includes(searchTerm.toLowerCase())
@@ -199,6 +201,7 @@ const ServiceRequests = () => {
             count={responseData?.stats.scheduled.count ?? 0}
             // @ts-ignore
             label={
+              // @ts-ignore
               responseData?.stats.scheduled.label ?? 'Confirmed appointments'
             }
           />

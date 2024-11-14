@@ -24,25 +24,60 @@ import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import ThemeSwitch from '../../components/theme-switch'
 import { UserNav } from '../../components/user-nav'
+import { useGetServiceRequestsQuery } from '@/services/servicesApi'
+import { useShortCode } from '@/hooks/use-local-storage'
+import { useState } from 'react'
+import { initialPage } from '@/components/table/data'
+import { ServiceRequestsProps } from '@/@types/services'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
+import { useCreateInvoiceMutation } from '@/services/invoiceApi'
+import { toast } from '@/components/ui/use-toast'
+
+const createInvoiceSchema = z.object({
+  service_request_id: z.string().min(1, { message: 'Please select service request' }),
+  due_date: z.string().min(1, { message: 'Please select due date' }),
+  payment_terms: z.string().min(1, { message: 'Please select payment terms' }),
+  notes: z.string().min(1, { message: 'Please enter note' }),
+})
 
 export default function GenerateInvoice() {
+
   const navigate = useNavigate()
+  const venue_short_code = useShortCode()
+  const [paginationProps] = useState(initialPage)
+  const [createInvoice] = useCreateInvoiceMutation();
+
+  const { data: serviceRequestResponse } = useGetServiceRequestsQuery({
+    venue_short_code,
+    ...paginationProps,
+    status: undefined,
+  })
+
   const form = useForm({
+    resolver: zodResolver(createInvoiceSchema),
     defaultValues: {
       client: '',
-      service: '',
+      service_request_id: '',
       amount: '',
-      dueDate: '',
+      due_date: '',
       notes: '',
       items: [{ description: '', quantity: '1', rate: '', amount: '' }],
-      paymentTerms: '',
+      payment_terms: '',
       currency: 'usd',
     },
   })
 
-  const onSubmit = (data: any) => {
-    console.log(data)
-    // Handle invoice creation
+  const onSubmit = async (data: any) => {
+    await createInvoice({
+      venue_short_code: venue_short_code,
+      data: data,
+    }).unwrap()
+    toast({
+      title: 'Success',
+      description: 'Invoice created successfully',
+    })
+    navigate('/admin/invoices')
   }
 
   return (
@@ -115,24 +150,25 @@ export default function GenerateInvoice() {
 
                   <FormField
                     control={form.control}
-                    name='service'
+                    name='service_request_id'
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Service</FormLabel>
+                        <FormLabel>Service Request</FormLabel>
                         <Select
                           onValueChange={field.onChange}
                           defaultValue={field.value}
                         >
                           <FormControl>
                             <SelectTrigger>
-                              <SelectValue placeholder='Select service' />
+                              <SelectValue placeholder='Select service request' />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value='1'>
-                              Equipment Maintenance
-                            </SelectItem>
-                            <SelectItem value='2'>Repair Service</SelectItem>
+                            {
+                              serviceRequestResponse?.requests.data.filter((request: ServiceRequestsProps) => request.service != '-').map((request: ServiceRequestsProps) => (
+                                <SelectItem value={request.id + ''}>{request.reference}</SelectItem>
+                              ))
+                            }
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -144,7 +180,7 @@ export default function GenerateInvoice() {
                 <div className='grid grid-cols-2 gap-4'>
                   <FormField
                     control={form.control}
-                    name='dueDate'
+                    name='due_date'
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Due Date</FormLabel>
@@ -276,7 +312,7 @@ export default function GenerateInvoice() {
                 <div className='grid grid-cols-2 gap-4'>
                   <FormField
                     control={form.control}
-                    name='paymentTerms'
+                    name='payment_terms'
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Payment Terms</FormLabel>

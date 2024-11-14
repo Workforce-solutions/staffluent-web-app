@@ -26,39 +26,17 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { useGetInvoiceByIdQuery } from '@/services/invoiceApi'
+import { useShortCode } from '@/hooks/use-local-storage'
 
 export default function InvoiceDetails() {
   const navigate = useNavigate()
   const { id } = useParams()
+  const short_code = useShortCode()
 
-  // Mock data - replace with actual API call
-  const invoice = {
-    id: id,
-    number: `INV-${id}`,
-    date: '2024-01-15',
-    dueDate: '2024-02-15',
-    status: 'pending',
-    amount: 299.99,
-    client: {
-      name: 'Restaurant ABC',
-      address: '123 Business St, City, ST 12345',
-      phone: '(555) 123-4567',
-      email: 'contact@restaurantabc.com',
-    },
-    items: [
-      {
-        description: 'Equipment Maintenance',
-        quantity: 1,
-        rate: 299.99,
-        amount: 299.99,
-      },
-    ],
-    subtotal: 299.99,
-    tax: 29.99,
-    total: 329.98,
-    notes: 'Payment is due within 30 days',
-    paymentTerms: 'Net 30',
-  }
+  const {
+    data: invoiceData,
+  } = useGetInvoiceByIdQuery({ id: Number(id), venue_short_code: short_code })
 
   return (
     <Layout>
@@ -81,7 +59,7 @@ export default function InvoiceDetails() {
             </Button>
             <div>
               <h2 className='text-2xl font-bold tracking-tight'>
-                Invoice #{invoice.number}
+                Invoice #{invoiceData?.invoice.number}
               </h2>
               <p className='text-sm text-muted-foreground'>
                 View and manage invoice details
@@ -113,10 +91,10 @@ export default function InvoiceDetails() {
               <div className='flex items-center justify-between'>
                 <span className='text-sm text-muted-foreground'>Status</span>
                 <Badge
-                  variant={invoice.status === 'paid' ? 'success' : 'warning'}
+                  variant={invoiceData?.invoice?.status === 'paid' ? 'success' : 'warning'}
                 >
-                  {invoice.status.charAt(0).toUpperCase() +
-                    invoice.status.slice(1)}
+                  {invoiceData && invoiceData?.invoice.status.charAt(0).toUpperCase() +
+                    invoiceData?.invoice.status.slice(1)}
                 </Badge>
               </div>
               <div className='flex items-center justify-between'>
@@ -125,14 +103,14 @@ export default function InvoiceDetails() {
                 </span>
                 <span className='flex items-center text-sm'>
                   <Clock className='mr-2 h-4 w-4 text-muted-foreground' />
-                  {new Date(invoice.date).toLocaleDateString()}
+                  {invoiceData && new Date(invoiceData?.invoice.dates.issue_date).toLocaleDateString()}
                 </span>
               </div>
               <div className='flex items-center justify-between'>
                 <span className='text-sm text-muted-foreground'>Due Date</span>
                 <span className='flex items-center text-sm'>
                   <Clock className='mr-2 h-4 w-4 text-muted-foreground' />
-                  {new Date(invoice.dueDate).toLocaleDateString()}
+                  {invoiceData && new Date(invoiceData?.invoice.dates.due_date).toLocaleDateString()}
                 </span>
               </div>
             </CardContent>
@@ -144,22 +122,34 @@ export default function InvoiceDetails() {
               <CardTitle>Client Information</CardTitle>
             </CardHeader>
             <CardContent className='space-y-4'>
-              <div className='flex items-center space-x-2'>
-                <Building className='h-4 w-4 text-muted-foreground' />
-                <span className='font-medium'>{invoice.client.name}</span>
-              </div>
-              <div className='flex items-center space-x-2'>
-                <Phone className='h-4 w-4 text-muted-foreground' />
-                <span>{invoice.client.phone}</span>
-              </div>
-              <div className='flex items-center space-x-2'>
-                <MailIcon className='h-4 w-4 text-muted-foreground' />
-                <span>{invoice.client.email}</span>
-              </div>
-              <div className='flex items-center space-x-2'>
-                <MapPin className='h-4 w-4 text-muted-foreground' />
-                <span>{invoice.client.address}</span>
-              </div>
+              {invoiceData?.invoice?.client && (
+                <div className='flex flex-col space-y-2'>
+                  {invoiceData?.invoice?.client.name && (
+                    <div className='flex items-center space-x-2'>
+                      <Building className='h-4 w-4 text-muted-foreground' />
+                      <span className='font-medium'>{invoiceData?.invoice?.client.name}</span>
+                    </div>
+                  )}
+                  {invoiceData?.invoice?.client.email && (
+                    <div className='flex items-center space-x-2'>
+                      <MailIcon className='h-4 w-4 text-muted-foreground' />
+                      <span>{invoiceData?.invoice?.client.email}</span>
+                    </div>
+                  )}
+                  {invoiceData?.invoice?.client.phone && (
+                    <div className='flex items-center space-x-2'>
+                      <Phone className='h-4 w-4 text-muted-foreground' />
+                      <span>{invoiceData?.invoice?.client.phone}</span>
+                    </div>
+                  )}
+                  {invoiceData?.invoice?.client.address && (
+                    <div className='flex items-center space-x-2'>
+                      <MapPin className='h-4 w-4 text-muted-foreground' />
+                      <span>{invoiceData?.invoice?.client.address}</span>
+                    </div>
+                  )}
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
@@ -183,17 +173,17 @@ export default function InvoiceDetails() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {invoice.items.map((item, i) => (
+                {invoiceData?.invoice.items.map((item, i) => (
                   <TableRow key={i}>
                     <TableCell>{item.description}</TableCell>
                     <TableCell className='text-right'>
                       {item.quantity}
                     </TableCell>
                     <TableCell className='text-right'>
-                      ${item.rate.toFixed(2)}
+                      ${Number(item?.rate).toFixed(2)}
                     </TableCell>
                     <TableCell className='text-right'>
-                      ${item.amount.toFixed(2)}
+                      ${Number(item.amount).toFixed(2)}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -204,16 +194,16 @@ export default function InvoiceDetails() {
               <Separator />
               <div className='flex justify-between'>
                 <span className='text-sm text-muted-foreground'>Subtotal</span>
-                <span>${invoice.subtotal.toFixed(2)}</span>
+                <span>${Number(invoiceData?.invoice.amounts.subtotal).toFixed(2)}</span>
               </div>
               <div className='flex justify-between'>
                 <span className='text-sm text-muted-foreground'>Tax (10%)</span>
-                <span>${invoice.tax.toFixed(2)}</span>
+                <span>${Number(invoiceData?.invoice.amounts.tax).toFixed(2)}</span>
               </div>
               <Separator />
               <div className='flex justify-between font-medium'>
                 <span>Total</span>
-                <span>${invoice.total.toFixed(2)}</span>
+                <span>${Number(invoiceData?.invoice.amounts.total).toFixed(2)}</span>
               </div>
             </div>
           </CardContent>
@@ -227,12 +217,12 @@ export default function InvoiceDetails() {
           <CardContent className='space-y-4'>
             <div>
               <h4 className='mb-2 font-medium'>Notes</h4>
-              <p className='text-sm text-muted-foreground'>{invoice.notes}</p>
+              <p className='text-sm text-muted-foreground'>{invoiceData?.invoice.notes}</p>
             </div>
             <div>
               <h4 className='mb-2 font-medium'>Payment Terms</h4>
               <p className='text-sm text-muted-foreground'>
-                {invoice.paymentTerms}
+                {invoiceData?.invoice.payment_terms}
               </p>
             </div>
           </CardContent>

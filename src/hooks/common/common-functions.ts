@@ -101,6 +101,8 @@ export const getStatusVariant = (
   | null
   | undefined => {
   switch (status.toLocaleLowerCase()) {
+    case 'active':
+      return 'success'
     case 'pending':
       return 'default'
     case 'scheduled':
