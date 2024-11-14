@@ -32,10 +32,15 @@ import {
 } from '@/components/ui/select'
 import ThemeSwitch from '../../components/theme-switch'
 import { UserNav } from '../../components/user-nav'
+import { useShortCode } from '@/hooks/use-local-storage'
+import { useGetInvoiceListQuery } from '@/services/invoiceApi'
 
 export default function AdminInvoices() {
   const [searchTerm, setSearchTerm] = useState('')
   const navigate = useNavigate()
+
+  const short_code = useShortCode()
+  const { data: invoice } = useGetInvoiceListQuery({ venue_short_code: short_code });
 
   return (
     <Layout>
@@ -170,35 +175,32 @@ export default function AdminInvoices() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {Array.from({ length: 5 }).map((_, i) => (
+                {invoice?.invoices.data.map((invoiceData: any, i: any) => (
                   <TableRow key={i}>
                     <TableCell className='font-medium'>
-                      #INV-{2024001 + i}
+                      {invoiceData.number}
                     </TableCell>
-                    <TableCell>Restaurant ABC</TableCell>
-                    <TableCell>Equipment Maintenance</TableCell>
-                    <TableCell>$299.99</TableCell>
-                    <TableCell>Jan 15, 2024</TableCell>
-                    <TableCell>Feb 15, 2024</TableCell>
+                    <TableCell>{invoiceData.client}</TableCell>
+                    <TableCell>{invoiceData.service}</TableCell>
+                    <TableCell>${invoiceData.amount}</TableCell>
+                    <TableCell>{invoiceData.date} </TableCell>
+                    <TableCell>{invoiceData.due_date}</TableCell>
                     <TableCell>
                       <Badge
                         variant={
-                          i === 0
+                          invoiceData.status === 'paid'
                             ? 'success'
-                            : i === 1
+                            : invoiceData.status === 'pending'
                               ? 'warning'
-                              : i === 2
+                              : invoiceData.status === 'overdue'
                                 ? 'destructive'
                                 : 'default'
                         }
                       >
-                        {i === 0
-                          ? 'Paid'
-                          : i === 1
-                            ? 'Pending'
-                            : i === 2
-                              ? 'Overdue'
-                              : 'Draft'}
+                        {
+                          invoiceData.status.charAt(0).toUpperCase() +
+                          invoiceData.status.slice(1)
+                        }
                       </Badge>
                     </TableCell>
                     <TableCell>
@@ -210,8 +212,9 @@ export default function AdminInvoices() {
                           variant='ghost'
                           size='icon'
                           onClick={() =>
-                            navigate(`/admin/invoices/${2024001 + i}`)
+                            navigate(`/admin/invoices/${invoiceData.id}`)
                           }
+                        // onClick={() => { handleClick(invoiceData.id) }}
                         >
                           <Eye className='h-4 w-4' />
                         </Button>

@@ -73,7 +73,7 @@ export type ClientsType = {
   clients: PaginatedResponse<ClientResponse>
 }
 
-export type CreateClientPayload = {
+export interface CreateClientPayload {
   name: string
   type: 'homeowner' | 'company'
   contact_person: string
@@ -82,6 +82,10 @@ export type CreateClientPayload = {
   address: AddressPayload
   notes: string
   short_code: string
+}
+
+export interface CreateUser extends CreateClientPayload {
+  password?: string
 }
 
 export type UpdateClientPayload = {

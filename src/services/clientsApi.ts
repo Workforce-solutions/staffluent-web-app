@@ -2,6 +2,7 @@ import {
   ClientResponse,
   ClientsType,
   CreateClientPayload,
+  CreateUser,
   UpdateClientPayload,
 } from '@/@types/clients'
 import { getCommonUrl } from '@/hooks/common/common-api-url'
@@ -58,6 +59,19 @@ export const clientsApi = createApi({
       invalidatesTags: ['Clients'],
     }),
 
+    createUser: builder.mutation<ClientResponse, CreateUser>({
+      query: (payload) => ({
+        url: getCommonUrl({
+          queryString: '/app-clients/create-user',
+          params: staffAdminAppkeyParam,
+          query: `&venue_short_code=${payload.short_code}`,
+        }),
+        method: 'POST',
+        body: payload,
+      }),
+      invalidatesTags: ['Clients'],
+    }),
+
     updateClient: builder.mutation<ClientResponse, UpdateClientPayload>({
       query: (payload) => ({
         url: getCommonUrl({
@@ -91,4 +105,5 @@ export const {
   useCreateClientMutation,
   useUpdateClientMutation,
   useDeleteClientMutation,
+  useCreateUserMutation,
 } = clientsApi
