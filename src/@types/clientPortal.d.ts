@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { PaginatedResponse } from "./common"
+import { PaginatedResponse } from './common'
 
 // @/@types/clientPortal.ts
 export interface ClientService {
@@ -51,6 +51,12 @@ export interface ClientService {
     scheduled_date: string
     description: string
     decline_reason: string | null
+    has_feedback: boolean // Add this
+    feedback_details?: { // Add this
+      rating: number
+      comment: string
+      admin_response?: string
+    }
     progress_updates: Array<{
       id: number
       type: string
@@ -131,8 +137,10 @@ interface ServiceRequest {
   status: string
   priority: string
   requested_date: string
-  scheduled_date: string | null
+  preferred_date: string
+  scheduled_date: string
   description: string
+  decline_reason: string | null
   progress_updates: Array<{
     id: number
     type: string
@@ -140,7 +148,12 @@ interface ServiceRequest {
     date: string
     performed_by: string
   }>
-  preferred_date?: string
+  has_feedback: boolean // add this
+  feedback_details?: { // add this
+    rating: number
+    comment: string
+    admin_response?: string
+  }
 }
 
 export interface ServiceRequestStats {
@@ -194,6 +207,34 @@ export type ServiceData = {
 }
 
 export interface ServiceCategoriesResponse {
-  stats: Record<string,string|number>;
-  categories: PaginatedResponse<ServiceData>;
+  stats: Record<string, string | number>
+  categories: PaginatedResponse<ServiceData>
+}
+
+export interface DashboardData {
+  stats: {
+    active_services: number
+    pending_payments: number
+    total_invoices: number
+  }
+  next_service_date: string | null
+  active_services: Array<{
+    id: number
+    name: string
+    description: string
+    status: string
+  }>
+  recent_invoices: Array<{
+    id: number
+    number: string
+    date: string
+    amount: number
+    status: string
+  }>
+  activity: Array<{
+    id: number
+    description: string
+    date: string
+    type: string
+  }>
 }

@@ -1,21 +1,32 @@
-// src/pages/projects/index.tsx
 import { Layout } from '@/components/custom/layout'
-import { Search } from '@/components/search'
 import ThemeSwitch from '@/components/theme-switch'
 import { UserNav } from '@/components/user-nav'
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-
-import { columns } from './components/columns'
-import { projects } from './data/projects'
-import { Button } from '@/components/custom/button'
-import { PlusIcon } from 'lucide-react'
 import GenericTableWrapper from '@/components/wrappers/generic-wrapper'
+import { useShortCode } from '@/hooks/use-local-storage'
+import { useGetProjectsListQuery } from '@/services/projectApi'
+import { useState } from 'react'
+import { columns } from './components/columns'
+import { CreateEditProjectModal } from './components/create-edit-project'
+import { Button } from '@/components/ui/button'
+import { PlusIcon } from '@radix-ui/react-icons'
 
 export default function Projects() {
+  const short_code = useShortCode()
+  const {
+    data: projects,
+    isFetching,
+    isError,
+  } = useGetProjectsListQuery({
+    venue_short_code: short_code,
+  })
+
+  const [open, setOpen] = useState(false)
+
   return (
     <Layout>
+      <CreateEditProjectModal open={open} setOpen={setOpen} />
+
       <Layout.Header sticky>
-        <Search />
         <div className='ml-auto flex items-center space-x-4'>
           <ThemeSwitch />
           <UserNav />
@@ -31,13 +42,19 @@ export default function Projects() {
             </p>
           </div>
           <div className='flex items-center space-x-2'>
-            <Button>
+            <Button onClick={() => setOpen(true)}>
               <PlusIcon className='mr-2 h-4 w-4' /> Add Project
             </Button>
           </div>
         </div>
         <div className='mt-4 flex-1 space-y-4'>
-          <GenericTableWrapper data={projects} columns={columns} rowsSelected />
+          <GenericTableWrapper
+            data={projects?.projects}
+            columns={columns}
+            rowsSelected
+            {...{ isError }}
+            isLoading={isFetching}
+          />
         </div>
       </Layout.Body>
     </Layout>

@@ -1,4 +1,5 @@
 import {
+  ClientProjectsResponse,
   ClientResponse,
   ClientsType,
   CreateClientPayload,
@@ -12,7 +13,9 @@ import {
   vbUrl,
 } from '@/hooks/common/common-functions'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
+import {VenueShortCode} from "../@types/common";
 
+// Combined API
 export const clientsApi = createApi({
   reducerPath: 'clients',
   baseQuery: fetchBaseQuery({
@@ -21,6 +24,7 @@ export const clientsApi = createApi({
   }),
   tagTypes: ['Clients'],
   endpoints: (builder) => ({
+    // Client endpoints
     getClients: builder.query<ClientsType, string>({
       query: (venue_short_code) => ({
         url: getCommonUrl({
@@ -33,8 +37,8 @@ export const clientsApi = createApi({
     }),
 
     getClientById: builder.query<
-      ClientResponse,
-      { id: number; short_code: string }
+        ClientResponse,
+        { id: number; short_code: string }
     >({
       query: ({ id, short_code }) => ({
         url: getCommonUrl({
@@ -96,6 +100,28 @@ export const clientsApi = createApi({
       }),
       invalidatesTags: ['Clients'],
     }),
+
+    // Client Projects endpoints
+    getClientProjects: builder.query<
+        ClientProjectsResponse,
+        VenueShortCode & {
+      search?: string
+      status?: string
+      page?: number
+      per_page?: number
+      sort_by?: string
+      sort_order?: 'asc' | 'desc'
+    }
+    >({
+      query: ({ venue_short_code, search, status, page, per_page, sort_by, sort_order }) => ({
+        url: getCommonUrl({
+          queryString: '/client-projects',
+          query: `&venue_short_code=${venue_short_code}${search ? `&search=${search}` : ''}${status ? `&status=${status}` : ''}${page ? `&page=${page}` : ''}${per_page ? `&per_page=${per_page}` : ''}${sort_by ? `&sort_by=${sort_by}` : ''}${sort_order ? `&sort_order=${sort_order}` : ''}`,
+          params: staffAdminAppkeyParam,
+        }),
+      }),
+      providesTags: ['Clients'],
+    }),
   }),
 })
 
@@ -106,4 +132,5 @@ export const {
   useUpdateClientMutation,
   useDeleteClientMutation,
   useCreateUserMutation,
+  useGetClientProjectsQuery,
 } = clientsApi

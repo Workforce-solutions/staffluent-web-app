@@ -22,6 +22,8 @@ import { format } from 'date-fns'
 import { Alert } from '@/components/ui/alerts/Alert'
 import { AlertDescription } from '@/components/ui/alerts/AlertDescription'
 import { Skeleton } from '@/components/ui/skeleton'
+import { FeedbackForm, ExistingFeedback } from '@/components/client-portal/feedback-form'
+import {useState} from "react";
 
 interface InfoItemProps {
   icon: React.ReactNode
@@ -44,7 +46,16 @@ const InfoItem = ({ icon, label, value }: InfoItemProps) => (
 export default function ServiceDetails() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const { data: service, isLoading, isError } = useGetServiceDetailsQuery(id)
+  const [refreshTrigger, setRefreshTrigger] = useState(0)
+  // @ts-ignore
+  const { data: service, isLoading, isError } = useGetServiceDetailsQuery(id, {
+    skip: !id,
+    refetchOnMountOrArgChange: true,
+    refetchOnFocus: false,
+    refetchOnReconnect: false,
+    // @ts-ignore
+    forceRefetch: refreshTrigger > 0
+  })
 
   if (isLoading) {
     return (
@@ -258,6 +269,22 @@ export default function ServiceDetails() {
                         ))}
                       </div>
                     </div>
+
+                    {service.current_request?.status === 'Completed' && (
+                        <>
+                          <Separator />
+                          {service.current_request.has_feedback ? (
+                              <ExistingFeedback
+                                  feedback={service.current_request.feedback_details} // renamed from feedback
+                              />
+                          ) : (
+                              <FeedbackForm
+                                  serviceRequestId={service.current_request.id.toString()}
+                                  onSuccess={() => setRefreshTrigger(prev => prev + 1)}
+                              />
+                          )}
+                        </>
+                    )}
                   </div>
                 </CardContent>
               </Card>

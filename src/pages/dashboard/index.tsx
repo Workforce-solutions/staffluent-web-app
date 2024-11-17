@@ -70,7 +70,7 @@ export default function Dashboard() {
             <h2 className='text-2xl font-bold tracking-tight'>
               Staff Management Dashboard
               {isFetching && (
-                  <span className='ml-2 text-sm text-muted-foreground'>
+                <span className='ml-2 text-sm text-muted-foreground'>
                   (Updating...)
                 </span>
               )}

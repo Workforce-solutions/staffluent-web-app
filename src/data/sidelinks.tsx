@@ -3,7 +3,7 @@ import {
   IconBuilding,
   IconChartHistogram,
   IconChecklist,
-  IconComponents,
+  // IconComponents,
   IconExclamationCircle,
   IconHexagonNumber1,
   IconHexagonNumber2,
@@ -263,12 +263,12 @@ export const sidelinks: SideLink[] = [
       },
     ],
   },
-  {
-    title: 'Integrations',
-    label: '',
-    href: '/integrations',
-    icon: <IconComponents size={18} />,
-  },
+  // {
+  //   title: 'Integrations',
+  //   label: '',
+  //   href: '/integrations',
+  //   icon: <IconComponents size={18} />,
+  // },
   {
     title: 'Audit Logs',
     label: '',

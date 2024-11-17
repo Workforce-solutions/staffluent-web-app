@@ -12,6 +12,7 @@ import { invoicesRoute } from './invoices-routes.tsx'
 import { clientsRoute } from './client-routes.tsx'
 import { serviceAnalyticsRoute } from './services-analytics-routes'
 import { supportRoutes } from './support-routes.tsx'
+import { projectsRoute } from './projects-routes.tsx'
 // import Login from "./pages/auth/login";
 
 const router = createBrowserRouter([
@@ -62,6 +63,7 @@ const router = createBrowserRouter([
       ...invoicesRoute,
       ...supportRoutes,
       ...serviceAnalyticsRoute,
+      ...projectsRoute,
       {
         index: true,
         lazy: async () => ({
@@ -160,35 +162,6 @@ const router = createBrowserRouter([
         ],
       },
 
-      {
-        path: 'projects/list',
-        lazy: async () => ({
-          Component: (await import('../pages/projects/list.tsx')).default,
-        }),
-      },
-      {
-        path: 'projects/tasks',
-        lazy: async () => ({
-          Component: (await import('../pages/projects/tasks/index.tsx'))
-            .default,
-        }),
-      },
-      {
-        path: 'admin/clients',
-        lazy: async () => ({
-          Component: (await import('../pages/projects/clients/index.tsx'))
-            .default,
-        }),
-      },
-
-      {
-        path: 'projects/clients/:id',
-        lazy: async () => ({
-          Component: (
-            await import('../pages/projects/clients/client-details.tsx')
-          ).default,
-        }),
-      },
       {
         path: 'real-time-activity',
         lazy: async () => ({

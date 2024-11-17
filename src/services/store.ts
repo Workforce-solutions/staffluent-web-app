@@ -13,6 +13,13 @@ import { attendanceApi } from './attendanceApi'
 import { clientPortalApi } from './clientPortalApi'
 import { servicesApi } from './servicesApi'
 import { invoiceApi } from './invoiceApi'
+import { tasksApi } from './tasksApi'
+import { projectApi } from './projectApi'
+import { scheduleApi } from './scheduleApi'
+import { feedbackApi } from './feedbackApi'
+import { auditLogsApi } from './auditLogsApi'
+import { serviceRequestApi } from './service-requestApi'
+import { clientInvoicesApi } from './clientInvoicesApi'
 
 const store = configureStore({
   reducer: rootReducer,
@@ -30,7 +37,14 @@ const store = configureStore({
       attendanceApi.middleware,
       clientPortalApi.middleware,
       servicesApi.middleware,
-      invoiceApi.middleware
+      invoiceApi.middleware,
+      tasksApi.middleware,
+      projectApi.middleware,
+      scheduleApi.middleware,
+      feedbackApi.middleware,
+      serviceRequestApi.middleware,
+      auditLogsApi.middleware,
+      clientInvoicesApi.middleware,
     ),
 })
 

@@ -206,7 +206,8 @@ export default function Clients() {
     [navigate]
   )
 
-  return (
+  // @ts-ignore
+    return (
     <Layout>
       <Layout.Header>
         <div className='ml-auto flex items-center space-x-2 sm:space-x-4'>
@@ -256,6 +257,7 @@ export default function Clients() {
       {open && <AddClientModal open={open} setOpen={setOpen} />}
       {editOpen && (
         <UpdateClientModal
+            // @ts-ignore
           open={editOpen}
           setOpen={setEditOpen}
           client={selectedClient}

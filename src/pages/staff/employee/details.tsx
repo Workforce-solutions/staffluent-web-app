@@ -362,7 +362,7 @@ export default function StaffDetails() {
   )
 }
 
-function InfoField({
+export function InfoField({
   label,
   value,
   icon,

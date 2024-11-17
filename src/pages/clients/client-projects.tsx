@@ -14,244 +14,314 @@ import {
 } from '@/components/ui/select'
 import { UserNav } from '@/components/user-nav'
 import GenericTableWrapper from '@/components/wrappers/generic-wrapper'
+import { useShortCode } from '@/hooks/use-local-storage'
 import { ColumnDef } from '@tanstack/react-table'
 import {
   Calendar,
+  Eye,
   MoreHorizontal,
+  Plus,
   Search,
   TrendingUp,
   Users,
 } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import {useCallback, useEffect, useMemo, useState} from 'react'
+import { useNavigate } from 'react-router-dom'
+import {
+  useGetClientProjectsQuery
+} from '@/services/clientsApi'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import {ClientProject} from "../../@types/clients";
 
-export interface ClientProject {
-  id: number
-  project_name: string
-  client: string
-  start_date: string
-  due_date: string
-  progress: number
-  status: 'Active' | 'Completed' | 'Pending' | 'On Hold'
-  contact_person: string
-  type: 'company' | 'individual'
-  email?: string
-  phone?: string
-  full_address?: string
+function useDebounce<T>(value: T, delay: number): T {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value)
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value)
+    }, delay)
+
+    return () => {
+      clearTimeout(handler)
+    }
+  }, [value, delay])
+
+  return debouncedValue
 }
 
 export default function ClientProjects() {
+  const navigate = useNavigate()
+  const short_code = useShortCode()
   const [searchTerm, setSearchTerm] = useState('')
+  const [status, setStatus] = useState('all')
+  const [page, setPage] = useState(1)
+  const [perPage, setPerPage] = useState(10)
+  const debouncedSearch = useDebounce(searchTerm, 500)
 
-  const clientProjects: ClientProject[] = Array.from({ length: 5 }, (_, i) => ({
-    id: i + 1,
-    project_name: `Project ${i + 1}`,
-    client: `Client ${i + 1}`,
-    start_date: `2023-10-${i + 1}`,
-    due_date: `2023-12-${i + 1}`,
-    progress: Math.floor(Math.random() * 101),
-    status:
-      i % 4 === 0
-        ? 'Active'
-        : i % 4 === 1
-          ? 'Completed'
-          : i % 4 === 2
-            ? 'Pending'
-            : 'On Hold',
-    contact_person: `Contact Person ${i + 1}`,
-    type: i % 2 === 0 ? 'company' : 'individual',
-    email: `contact${i + 1}@example.com`,
-    phone: `555-01${i + 1}`,
-    full_address: `123 ${i + 1}th Street, City, Country`,
-  }))
+  const {
+    data: clientProjectsData,
+    isLoading,
+    isError,
+  } = useGetClientProjectsQuery({
+    venue_short_code: short_code,
+    search: debouncedSearch,
+    status,
+    page,
+    per_page: perPage,
+  })
+
+  const handleViewProject = useCallback((projectId: number) => {
+    navigate(`/projects/${projectId}`)
+  }, [navigate])
+
+  const handleCreateProject = useCallback(() => {
+    navigate('/projects')
+  }, [navigate])
+
+  // Calculate the difference between current and previous month's active projects
+  const activeProjectsDiff = useMemo(() => {
+    if (!clientProjectsData?.stats) return 0;
+    const current = clientProjectsData.stats.active_projects || 0;
+    const previous = clientProjectsData.stats.previous_month_active || 0;
+    return current - previous;
+  }, [clientProjectsData?.stats]);
 
   const columns: ColumnDef<ClientProject>[] = useMemo(
-    () => [
-      {
-        accessorKey: 'project_name',
-        header: 'Project Name',
-        cell: ({ row }) => (
-          <span className='font-medium'>{row.original.project_name}</span>
-        ),
-      },
-      {
-        accessorKey: 'client',
-        header: 'Client',
-        cell: ({ row }) => (
-          <span className='font-medium'>{row.original.client || 'N/A'}</span>
-        ),
-      },
-      {
-        accessorKey: 'start_date',
-        header: 'Start Date',
-        cell: ({ row }) => (
-          <span>{new Date(row.original.start_date).toLocaleDateString()}</span>
-        ),
-      },
-      {
-        accessorKey: 'due_date',
-        header: 'Due Date',
-        cell: ({ row }) => (
-          <span>{new Date(row.original.due_date).toLocaleDateString()}</span>
-        ),
-      },
-      {
-        accessorKey: 'progress',
-        header: 'Progress',
-        cell: ({ row }) => (
-          <div className='flex items-center space-x-2'>
-            <Progress value={row.original.progress} />
-            <span className='text-sm text-muted-foreground'>
+      () => [
+        {
+          accessorKey: 'project_name',
+          header: 'Project Name',
+          cell: ({ row }) => (
+              <span className='font-medium'>{row.original.project_name}</span>
+          ),
+        },
+        {
+          accessorKey: 'client',
+          header: 'Client',
+          cell: ({ row }) => (
+              <span className='font-medium'>{row.original.client || 'N/A'}</span>
+          ),
+        },
+        {
+          accessorKey: 'start_date',
+          header: 'Start Date',
+          cell: ({ row }) => (
+              <span>{new Date(row.original.start_date).toLocaleDateString()}</span>
+          ),
+        },
+        {
+          accessorKey: 'due_date',
+          header: 'Due Date',
+          cell: ({ row }) => (
+              <span>{new Date(row.original.due_date).toLocaleDateString()}</span>
+          ),
+        },
+        {
+          accessorKey: 'progress',
+          header: 'Progress',
+          cell: ({ row }) => (
+              <div className='flex items-center space-x-2'>
+                <Progress value={row.original.progress} className="h-2" />
+                <span className='text-sm text-muted-foreground'>
               {row.original.progress}%
             </span>
-          </div>
-        ),
-      },
-      {
-        accessorKey: 'status',
-        header: 'Status',
-        cell: ({ row }) => (
-          <Badge
-            variant={row.original.status === 'Active' ? 'success' : 'default'}
-          >
-            {row.original.status}
-          </Badge>
-        ),
-      },
-      {
-        id: 'actions',
-        header: 'Actions',
-        // @ts-ignore
-        cell: ({ row }) => (
-          <div className='flex items-center justify-end space-x-2'>
-            <Button
-              variant='ghost'
-              size='icon'
-              onClick={() => {
-                /* Handle more options */
-              }}
-            >
-              <MoreHorizontal className='h-4 w-4' />
-            </Button>
-          </div>
-        ),
-      },
-    ],
-    []
+              </div>
+          ),
+        },
+        {
+          accessorKey: 'status',
+          header: 'Status',
+          cell: ({ row }) => {
+            // @ts-ignore
+            const statusVariant = {
+              'Active': 'success',
+              'Completed': 'default',
+              'Pending': 'warning',
+              'On Hold': 'secondary',
+            }[row.original.status] || 'default'
+
+            return (
+                <Badge variant={statusVariant as any}>
+                  {row.original.status}
+                </Badge>
+            )
+          },
+        },
+        {
+          id: 'actions',
+          header: 'Actions',
+          cell: ({ row }) => (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                      variant='ghost'
+                      size='icon'
+                      className="h-8 w-8 p-0"
+                  >
+                    <MoreHorizontal className='h-4 w-4' />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => handleViewProject(row.original.id)}>
+                    <Eye className="mr-2 h-4 w-4" /> View Project
+                  </DropdownMenuItem>
+                  {row.original.client_id && (
+                      <DropdownMenuItem onClick={() => navigate(`/projects/clients/${row.original.client_id}`)}>
+                        <Users className="mr-2 h-4 w-4" /> View Client
+                      </DropdownMenuItem>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+          ),
+        },
+      ],
+      [handleViewProject]
   )
 
   return (
-    <Layout>
-      <Layout.Header>
-        <div className='ml-auto flex items-center space-x-2 sm:space-x-4'>
-          <ThemeSwitch />
-          <UserNav />
-        </div>
-      </Layout.Header>
-
-      <Layout.Body className='space-y-6'>
-        <div className='flex items-center justify-between'>
-          <div>
-            <h2 className='text-2xl font-bold tracking-tight'>
-              Client Projects
-            </h2>
-            <p className='text-sm text-muted-foreground'>
-              Manage and monitor all client projects
-            </p>
+      <Layout>
+        <Layout.Header>
+          <div className='ml-auto flex items-center space-x-2 sm:space-x-4'>
+            <ThemeSwitch />
+            <UserNav />
           </div>
-        </div>
-        {/* Project Stats */}
-        <div className='grid gap-4 md:grid-cols-3'>
-          <Card>
-            <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-              <CardTitle className='text-sm font-medium'>
-                Active Projects
-              </CardTitle>
-              <TrendingUp className='h-4 w-4 text-muted-foreground' />
-            </CardHeader>
-            <CardContent>
-              <div className='text-2xl font-bold'>28</div>
-              <p className='text-xs text-muted-foreground'>
-                +4 from last month
-              </p>
-            </CardContent>
-          </Card>
+        </Layout.Header>
 
-          <Card>
-            <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-              <CardTitle className='text-sm font-medium'>
-                Total Clients
-              </CardTitle>
-              <Users className='h-4 w-4 text-muted-foreground' />
-            </CardHeader>
-            <CardContent>
-              <div className='text-2xl font-bold'>156</div>
-              <p className='text-xs text-muted-foreground'>
-                Across all projects
+        <Layout.Body className='space-y-6'>
+          <div className='flex items-center justify-between'>
+            <div>
+              <h2 className='text-2xl font-bold tracking-tight'>
+                Client Projects
+              </h2>
+              <p className='text-sm text-muted-foreground'>
+                Manage and monitor all client projects
               </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-              <CardTitle className='text-sm font-medium'>
-                Due This Month
-              </CardTitle>
-              <Calendar className='h-4 w-4 text-muted-foreground' />
-            </CardHeader>
-            <CardContent>
-              <div className='text-2xl font-bold'>12</div>
-              <p className='text-xs text-muted-foreground'>
-                Projects ending soon
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Projects Table */}
-        <Card>
-          <CardHeader>
-            <div className='flex items-center justify-between'>
-              <div className='space-y-1'>
-                <CardTitle>All Projects</CardTitle>
-                <p className='text-sm text-muted-foreground'>
-                  View and manage client projects
-                </p>
-              </div>
-              <div className='flex items-center space-x-2'>
-                <div className='relative'>
-                  <Search className='absolute left-2 top-2.5 h-4 w-4 text-muted-foreground' />
-                  <Input
-                    placeholder='Search projects...'
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className='w-[250px] pl-8'
-                  />
-                </div>
-                <Select defaultValue='all'>
-                  <SelectTrigger className='w-[180px]'>
-                    <SelectValue placeholder='Filter by status' />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value='all'>All Projects</SelectItem>
-                    <SelectItem value='active'>Active</SelectItem>
-                    <SelectItem value='completed'>Completed</SelectItem>
-                    <SelectItem value='on-hold'>On Hold</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
             </div>
-          </CardHeader>
-          <CardContent>
-            <GenericTableWrapper
-              columns={columns}
-              data={clientProjects}
-              isLoading={false}
-              isError={false}
-              showToolbar={false}
-            />
-          </CardContent>
-        </Card>
-      </Layout.Body>
-    </Layout>
+            <Button onClick={handleCreateProject}>
+              <Plus className="mr-2 h-4 w-4" /> New Project
+            </Button>
+          </div>
+
+          {/* Project Stats */}
+          <div className='grid gap-4 md:grid-cols-3'>
+            <Card>
+              <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+                <CardTitle className='text-sm font-medium'>
+                  Active Projects
+                </CardTitle>
+                <TrendingUp className='h-4 w-4 text-muted-foreground' />
+              </CardHeader>
+              <CardContent>
+                <div className='text-2xl font-bold'>
+                  {clientProjectsData?.stats.active_projects || 0}
+                </div>
+                <p className='text-xs text-muted-foreground'>
+                  {activeProjectsDiff > 0 && `+${activeProjectsDiff}`}
+                  {activeProjectsDiff < 0 && activeProjectsDiff}
+                  {activeProjectsDiff !== 0 && ' from last month'}
+                  {activeProjectsDiff === 0 && 'No change from last month'}
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+                <CardTitle className='text-sm font-medium'>
+                  Total Clients
+                </CardTitle>
+                <Users className='h-4 w-4 text-muted-foreground' />
+              </CardHeader>
+              <CardContent>
+                <div className='text-2xl font-bold'>
+                  {clientProjectsData?.stats.total_clients || 0}
+                </div>
+                <p className='text-xs text-muted-foreground'>
+                  Across all projects
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+                <CardTitle className='text-sm font-medium'>
+                  Due This Month
+                </CardTitle>
+                <Calendar className='h-4 w-4 text-muted-foreground' />
+              </CardHeader>
+              <CardContent>
+                <div className='text-2xl font-bold'>
+                  {clientProjectsData?.stats.due_this_month || 0}
+                </div>
+                <p className='text-xs text-muted-foreground'>
+                  Projects ending soon
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Projects Table */}
+          <Card>
+            <CardHeader>
+              <div className='flex items-center justify-between'>
+                <div className='space-y-1'>
+                  <CardTitle>All Projects</CardTitle>
+                  <p className='text-sm text-muted-foreground'>
+                    View and manage client projects
+                  </p>
+                </div>
+                <div className='flex items-center space-x-2'>
+                  <div className='relative'>
+                    <Search className='absolute left-2 top-2.5 h-4 w-4 text-muted-foreground' />
+                    <Input
+                        placeholder='Search projects...'
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className='w-[250px] pl-8'
+                    />
+                  </div>
+                  <Select
+                      value={status}
+                      onValueChange={setStatus}
+                  >
+                    <SelectTrigger className='w-[180px]'>
+                      <SelectValue placeholder='Filter by status' />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value='all'>All Projects</SelectItem>
+                      <SelectItem value='active'>Active</SelectItem>
+                      <SelectItem value='completed'>Completed</SelectItem>
+                      <SelectItem value='on-hold'>On Hold</SelectItem>
+                      <SelectItem value='planning'>Planning</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <GenericTableWrapper
+                  columns={columns}
+                  data={clientProjectsData?.projects || []}
+                  isLoading={isLoading}
+                  isError={isError}
+                  showToolbar={false}
+                  // @ts-ignore
+                  pagination={{
+                    pageSize: perPage,
+                    pageIndex: page - 1,
+                    pageCount: clientProjectsData?.pagination.total_pages || 1,
+                    // @ts-ignore
+                    onPageChange: (p) => setPage(p + 1),
+                    onPageSizeChange: setPerPage,
+                  }}
+              />
+            </CardContent>
+          </Card>
+        </Layout.Body>
+      </Layout>
   )
 }

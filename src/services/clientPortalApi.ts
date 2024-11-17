@@ -8,6 +8,7 @@ import {
 import {
   AvailableService,
   ClientService,
+  DashboardData,
   ServiceRequest,
   SupportTicket,
 } from '@/@types/clientPortal' // Adjust the import path as necessary
@@ -103,6 +104,41 @@ export const clientPortalApi = createApi({
       }),
       providesTags: ['Services'],
     }),
+    submitFeedback: builder.mutation<
+      void,
+      { id: string; data: { rating: number; comment: string } }
+    >({
+      query: ({ id, data }) => ({
+        url: getCommonUrl({
+          queryString: `/cp-service-requests/${id}/feedback`,
+          params: staffClientPortalkeyParam,
+        }),
+        method: 'POST',
+        body: data,
+      }),
+      invalidatesTags: ['ServiceRequests', 'Services'],
+    }),
+    getFeedback: builder.query<
+      { rating: number; comment: string; admin_response?: string },
+      string
+    >({
+      query: (id) => ({
+        url: getCommonUrl({
+          queryString: `/cp-service-requests/${id}/feedback`,
+          params: staffClientPortalkeyParam,
+        }),
+      }),
+    }),
+
+    // dashboard
+    getDashboardData: builder.query<DashboardData, void>({
+      query: () => ({
+        url: getCommonUrl({
+          queryString: '/cp-dashboard',
+          params: staffClientPortalkeyParam,
+        }),
+      }),
+    }),
   }),
 })
 
@@ -113,5 +149,8 @@ export const {
   useListMyRequestsQuery,
   useGetRequestDetailsQuery,
   useGetAvailableServicesQuery,
+  useGetDashboardDataQuery,
   useCreateSupportTicketMutation,
+  useSubmitFeedbackMutation,
+  useGetFeedbackQuery,
 } = clientPortalApi

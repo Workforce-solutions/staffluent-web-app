@@ -18,11 +18,11 @@ export function DataTableToolbar<TData>({
   const isFiltered = table.getState().columnFilters.length > 0
 
   return (
-    <div className='flex items-center justify-between'>
+    <div className='flex items-center justify-between gap-3'>
       <div className='flex flex-1 flex-col-reverse items-start gap-y-2 sm:flex-row sm:items-center sm:space-x-2'>
         <Input
           placeholder={title}
-          value={(table.getColumn('title')?.getFilterValue() as string) ?? ''}
+          value={''}
           onChange={(event) =>
             table.getColumn('title')?.setFilterValue(event.target.value)
           }

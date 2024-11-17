@@ -21,6 +21,7 @@ export const getPrepareHeaders = ({
 
 export const supabaseUrl = 'https://unzkbvyeaefcpooqeenz.supabase.co'
 export const vbUrl = 'https://core.venueboost.io/api/v1/'
+export const STRIPE_PUBLIC_KEY= 'pk_test_51NfR0wK9QDeYHZl0UJfwbBV4pQA720OkzlPCINfIXd1ghM1AHnvGIYdgOyp1s57JgJfg9zllXgROGytlwkwR0PeO00jNXxIIVd'
 export const vbParams =
   '?SN_BOOST_CORE_VB_APPS_API_KEY=boost-sn-25011xC0R5-vbapps!'
 export const supabaseKey =
@@ -116,4 +117,12 @@ export const getStatusVariant = (
     default:
       return 'default'
   }
+}
+
+export const statusColorMap: Record<string, string> = {
+  in_progress: 'bg-green-500',
+  completed: 'bg-blue-500',
+  on_hold: 'bg-yellow-500',
+  planning: 'bg-purple-500',
+  cancelled: 'bg-red-500',
 }

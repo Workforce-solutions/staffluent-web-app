@@ -26,7 +26,7 @@ import { AccountType } from '@/pages/auth/components/user-auth-form'
 export function UserNav() {
   const navigate = useNavigate()
 
-  const [userInfo, setUserInfo] = useLocalStorage<LoginResponse | undefined>({
+  const [userInfo] = useLocalStorage<LoginResponse | undefined>({
     key: 'vbAuth',
     defaultValue: undefined,
   })
@@ -37,7 +37,7 @@ export function UserNav() {
     try {
       await supabase.auth.signOut()
       localStorage.removeItem('adminToken')
-      setUserInfo(undefined)
+      localStorage.removeItem('vbAuth')
       navigate('/login')
     } catch (error) {
       console.error('Error logging out:', error)

@@ -57,7 +57,8 @@ export default function GenerateInvoice() {
   const form = useForm({
     resolver: zodResolver(createInvoiceSchema),
     defaultValues: {
-      client: '',
+      client: 4,
+      client_id: 4,
       service_request_id: '',
       amount: '',
       due_date: '',
@@ -131,6 +132,7 @@ export default function GenerateInvoice() {
                         <FormLabel>Client</FormLabel>
                         <Select
                           onValueChange={field.onChange}
+                          {/*@ts-ignore*/}
                           defaultValue={field.value}
                         >
                           <FormControl>

@@ -2,7 +2,6 @@ import { TeamMemberResponse } from '@/@types/staff'
 import { Button } from '@/components/custom/button'
 import { Layout } from '@/components/custom/layout'
 import ThemeSwitch from '@/components/theme-switch'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { useToast } from '@/components/ui/use-toast'
@@ -26,8 +25,9 @@ import {
 } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { CreateTeamLeader } from './add-team-leader'
+import EmployeAvatarName from '../../employee/employe-avatar-name'
 import { CreateTeamEmployee } from './add-team-employee'
+import { CreateTeamLeader } from './add-team-leader'
 
 // Helper function for status badge styling
 const getStatusColor = (status: string) => {
@@ -104,15 +104,8 @@ export default function TeamEmployees() {
       header: 'Name',
       cell: ({ row: { original } }) => (
         <div className='flex items-center space-x-3'>
-          <Avatar className='h-8 w-8 ring-2 ring-background'>
-            {original.profile_picture.length <= 2 ? (
-              <AvatarFallback className='bg-primary/10 text-primary'>
-                {original.profile_picture}
-              </AvatarFallback>
-            ) : (
-              <AvatarImage src={original.profile_picture} alt={original.name} />
-            )}
-          </Avatar>
+          <EmployeAvatarName profile_picture={original.profile_picture} />
+
           <div className='flex flex-col'>
             <span className='text-sm font-semibold'>{original.name}</span>
             <span className='text-xs text-muted-foreground'>

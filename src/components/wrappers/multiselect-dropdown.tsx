@@ -20,29 +20,24 @@ function MultiselectDropdown({
       values={value}
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       onValuesChange={(selectedValues: any) => {
-        const updatedValues = selectedValues.reduce(
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (acc: any[], selectedValue: any) => {
-            const existingItem = acc.find(
-              (v) => String(v.value) === String(selectedValue.value)
+        let updatedValues = selectedValues.map((selectedValue: any) => {
+          if (typeof selectedValue == 'string') {
+            const match = itemValue.find(
+              (option) => option.value.value === selectedValue
             )
-            if (existingItem) {
-              return acc.filter((v) => v.value !== selectedValue)
-            } else {
-              const match = itemValue.find(
-                (option) => option.value.value === selectedValue
-              )
-              if (match) {
-                acc.push(match.value)
-              }
-              return acc
-            }
-          },
-          [...value]
-        )
 
+            if (match) {
+              return match.value
+            }
+            return null;
+          } else {
+            return selectedValue
+          }
+        })
+        updatedValues = updatedValues.filter((v: any) => v !== null);
         setValue(updatedValues)
       }}
+
     >
       <MultiSelectorTrigger>
         <MultiSelectorInput placeholder={multiSelectorPlaceholder} />

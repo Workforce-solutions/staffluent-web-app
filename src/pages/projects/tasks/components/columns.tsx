@@ -1,13 +1,12 @@
-import { Badge } from '@/components/ui/badge'
+import { TasksResponse } from '@/@types/tasks'
 import { Checkbox } from '@/components/ui/checkbox'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import EmployeAvatarName from '@/pages/staff/employee/employe-avatar-name'
+import { ColumnDef } from '@tanstack/react-table'
+import { priorities, statuses } from '../data/data'
 import { DataTableColumnHeader } from './data-table-column-header'
 import { DataTableRowActions } from './data-table-row-actions'
-import { labels, priorities, statuses, projects, assignees } from '../data/data'
-import { Task } from '../data/schema'
-import { ColumnDef } from '@tanstack/react-table'
 
-export const columns: ColumnDef<Task, Task>[] = [
+export const columns: ColumnDef<TasksResponse, TasksResponse>[] = [
   {
     id: 'select',
     header: ({ table }) => (
@@ -42,17 +41,15 @@ export const columns: ColumnDef<Task, Task>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: 'title',
+    accessorKey: 'name',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title='Title' />
     ),
     cell: ({ row }) => {
-      const label = labels.find((label) => label.value === row.original.label)
       return (
         <div className='flex space-x-2'>
-          {label && <Badge variant='outline'>{label.label}</Badge>}
           <span className='max-w-32 truncate font-medium sm:max-w-72 md:max-w-[31rem]'>
-            {row.getValue('title')}
+            {row.getValue('name')}
           </span>
         </div>
       )
@@ -72,7 +69,7 @@ export const columns: ColumnDef<Task, Task>[] = [
         <div className='flex w-[100px] items-center'>
           {status.icon && (
             <status.icon className='mr-2 h-4 w-4 text-muted-foreground' />
-          )}
+          )}{' '}
           <span>{status.label}</span>
         </div>
       )
@@ -106,10 +103,7 @@ export const columns: ColumnDef<Task, Task>[] = [
       <DataTableColumnHeader column={column} title='Project' />
     ),
     cell: ({ row }) => {
-      const project = projects.find(
-        (project) => project.value === row.getValue('project')
-      )
-      return <div>{project?.label}</div>
+      return <div>{row.original.project.name}</div>
     },
     filterFn: (row, id, value) => value.includes(row.getValue(id)),
   },
@@ -119,23 +113,14 @@ export const columns: ColumnDef<Task, Task>[] = [
       <DataTableColumnHeader column={column} title='Assignee' />
     ),
     cell: ({ row }) => {
-      const assignee = assignees.find(
-        (assignee) => assignee.value === row.getValue('assignee')
-      )
+      const assignee = row.original.assignee
       return assignee ? (
-        <div className='flex items-center'>
-          <Avatar className='mr-2 h-8 w-8'>
-            <AvatarImage
-              src={`https://api.dicebear.com/6.x/initials/svg?seed=${assignee.label}`}
-            />
-            <AvatarFallback>
-              {assignee.label
-                .split(' ')
-                .map((n) => n[0])
-                .join('')}
-            </AvatarFallback>
-          </Avatar>
-          <span>{assignee.label}</span>
+        <div className='flex items-center gap-2'>
+          <EmployeAvatarName
+            profile_picture={`https://api.dicebear.com/6.x/initials/svg?seed=${assignee.avatar}`}
+          />
+
+          <span>{assignee.name}</span>
         </div>
       ) : (
         <div>Unassigned</div>
