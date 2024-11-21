@@ -38,7 +38,7 @@ export default function ExtraComponents() {
     <Layout>
       {/* ===== Top Heading ===== */}
       <Layout.Header>
-        <div className='ml-auto flex items-center space-x-4'>
+        <div className='ml-auto flex items-center space-x-2'>
           <Search />
           <ThemeSwitch />
           <UserNav />

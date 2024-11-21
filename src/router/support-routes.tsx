@@ -6,5 +6,10 @@ export const supportRoutes: RouteObject[] = [
         lazy: async () => ({
             Component: (await import('../pages/support/index')).default,
         }),
-    },
+    }, {
+        path: 'admin/support/tickets/:id',
+        lazy: async () => ({
+          Component: (await import('../pages/support/details')).default,
+        }),
+      },
 ]

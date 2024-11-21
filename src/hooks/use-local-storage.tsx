@@ -1,14 +1,8 @@
-import { AuthProps } from '@/@types/auth'
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { DataAuthProps, LocalStorageProps } from '@/@types/auth'
+import { AccountType } from '@/pages/auth/components/user-auth-form'
 import { useEffect, useState } from 'react'
-
-interface LocalStorageProps<T> {
-  key: string
-  defaultValue: T
-}
-
-interface DataAuthProps {
-  data: AuthProps
-}
+import { useNavigate } from 'react-router-dom'
 
 export default function useLocalStorage<T>({
   key,
@@ -83,4 +77,19 @@ localStorage.setItem = function (key, value) {
   const event = new Event('local-storage')
   originalSetItem.apply(this, [key, value])
   window.dispatchEvent(event)
+}
+
+export const useNotificationsView = () => {
+  const navigate = useNavigate()
+  const accountType = useLocalStorageString('accountType') as AccountType
+
+  const redirectToNotifications = () => {
+    if (accountType === AccountType.business) {
+      navigate('/notifications')
+    } else {
+      navigate('/client-portal/notifications')
+    }
+  }
+
+  return { redirectToNotifications }
 }

@@ -16,6 +16,8 @@ import {
   GetProjectsResponse,
   GetProjectsTeamResponse,
   ProjectDetails,
+  UnAssignOperationsManager,
+  UnAssignTeamLeader,
   UpdateProject,
 } from '@/@types/project'
 import { getCommonUrl } from '@/hooks/common/common-api-url'
@@ -248,6 +250,51 @@ export const projectApi = createApi({
       }),
       invalidatesTags: ['AppGalleries'],
     }),
+
+    // assigned
+    unassignTeamLeader: builder.mutation<void, UnAssignTeamLeader>({
+      query: ({ venue_short_code, projectId, team_leader_ids }) => ({
+        url: getCommonUrl({
+          queryString: `/projects/${projectId}/unassign-team-leader`,
+          query: `&venue_short_code=${venue_short_code}`,
+          params: staffAdminAppkeyParam,
+        }),
+        method: 'POST',
+        body: { team_leader_ids },
+      }),
+      invalidatesTags: ['Projects'],
+    }),
+
+    unassignProjectManager: builder.mutation<void, AssignProjectManager>({
+      query: ({ venue_short_code, projectId, employeeId }) => ({
+        url: getCommonUrl({
+          queryString: `/projects/${projectId}/unassign-project-manager`,
+          query: `&venue_short_code=${venue_short_code}`,
+          params: staffAdminAppkeyParam,
+        }),
+        method: 'POST',
+        body: { employee_id: employeeId },
+      }),
+      invalidatesTags: ['Projects'],
+    }),
+
+    unassignOperationsManager: builder.mutation<
+      void,
+      UnAssignOperationsManager
+    >({
+      query: ({ venue_short_code, projectId, operations_manager_ids }) => ({
+        url: getCommonUrl({
+          queryString: `/projects/${projectId}/unassign-operations-manager`,
+          query: `&venue_short_code=${venue_short_code}`,
+          params: staffAdminAppkeyParam,
+        }),
+        method: 'POST',
+        body: { operations_manager_ids },
+      }),
+      invalidatesTags: ['Projects'],
+    }),
+
+    // ... (keep existing endpoints)
   }),
 })
 
@@ -256,7 +303,6 @@ export const {
   useGetProjectsListQuery,
   useGetProjectsStatusListQuery,
   useGetProjectsTeamQuery,
-
   useDeleteProjectMutation,
   useCreateProjectMutation,
   useUpdateProjectMutation,
@@ -270,4 +316,7 @@ export const {
   useGetAppGalleriesQuery,
   useUploadAppGalleryItemMutation,
   useDeleteAppGalleryItemMutation,
+  useUnassignTeamLeaderMutation,
+  useUnassignProjectManagerMutation,
+  useUnassignOperationsManagerMutation,
 } = projectApi

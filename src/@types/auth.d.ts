@@ -72,3 +72,12 @@ export interface RolesResponse {
   attached_roles: Role[]
   available_roles: Role[]
 }
+
+export interface LocalStorageProps<T> {
+  key: string
+  defaultValue: T
+}
+
+export interface DataAuthProps {
+  data: AuthProps
+}

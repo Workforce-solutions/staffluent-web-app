@@ -43,6 +43,7 @@ export default function AppGalleries() {
     useUploadAppGalleryItemMutation()
   const [deleteAppGalleryItem] = useDeleteAppGalleryItemMutation()
 
+  // @ts-ignore
   const table = useReactTable({
     data: galleryData?.data || [],
     columns: [],

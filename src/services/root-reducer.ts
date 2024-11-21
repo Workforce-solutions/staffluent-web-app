@@ -14,11 +14,14 @@ import { servicesApi } from './servicesApi'
 import { invoiceApi } from './invoiceApi'
 import { tasksApi } from './tasksApi'
 import { projectApi } from './projectApi'
-import {scheduleApi} from "./scheduleApi";
-import {feedbackApi} from "./feedbackApi";
-import {auditLogsApi} from "./auditLogsApi";
-import {clientInvoicesApi} from "./clientInvoicesApi";
+import { scheduleApi } from './scheduleApi'
+import { feedbackApi } from './feedbackApi'
+import { auditLogsApi } from './auditLogsApi'
+import { clientInvoicesApi } from './clientInvoicesApi'
 import { serviceRequestApi } from './service-requestApi'
+import { adminAnalyticsApi } from './adminAnalyticsApi'
+import { clientTicketApi } from './clientTicketApi'
+import { adminTicketApi } from './adminTicketApi'
 
 const rootReducer = combineReducers({
   [vbAuthApi.reducerPath]: vbAuthApi.reducer,
@@ -41,6 +44,9 @@ const rootReducer = combineReducers({
   [serviceRequestApi.reducerPath]: serviceRequestApi.reducer,
   [auditLogsApi.reducerPath]: auditLogsApi.reducer,
   [clientInvoicesApi.reducerPath]: clientInvoicesApi.reducer,
+  [adminAnalyticsApi.reducerPath]: adminAnalyticsApi.reducer,
+  [clientTicketApi.reducerPath]: clientTicketApi.reducer,
+  [adminTicketApi.reducerPath]: adminTicketApi.reducer,
 })
 
 export default rootReducer

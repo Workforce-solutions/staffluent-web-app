@@ -28,6 +28,7 @@ import { AlertCircle, Calendar, Clock } from 'lucide-react'
 import { useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { ConnectProjectModal } from './connect-service-withproject'
+import ContactModal from './contact-modal'
 
 export default function ServiceRequestDetails() {
   const { id } = useParams()
@@ -35,6 +36,7 @@ export default function ServiceRequestDetails() {
   const [declineReason, setDeclineReason] = useState('')
   const [showDeclineDialog, setShowDeclineDialog] = useState(false)
   const [open, setOpen] = useState(false)
+  const [modalOpen, setModalOpen] = useState(false)
 
   const { data: request, isLoading } = useGetServiceRequestDetailsQuery({
     venue_short_code: shortCode,
@@ -79,6 +81,7 @@ export default function ServiceRequestDetails() {
           <UserNav />
         </div>
       </Layout.Header>
+
       <Layout.Header>
         <div className='flex items-center justify-between'>
           <div>
@@ -112,6 +115,9 @@ export default function ServiceRequestDetails() {
                 </Button>
               </>
             )}
+          </div>
+          <div className='ml-5'>
+            <ContactModal setOpen={setModalOpen} open={modalOpen} />
           </div>
         </div>
       </Layout.Header>

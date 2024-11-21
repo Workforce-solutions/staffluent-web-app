@@ -26,6 +26,10 @@ import {
   BarElement,
   ArcElement,
 } from 'chart.js'
+import { useGetClientAnalyticsQuery } from '@/services/adminAnalyticsApi'
+import { useShortCode } from '@/hooks/use-local-storage'
+import { DateRange } from 'react-day-picker'
+import EmptyState from '@/components/table/empty-state'
 
 ChartJS.register(
   CategoryScale,
@@ -40,44 +44,23 @@ ChartJS.register(
 )
 
 export default function ClientAnalytics() {
-  const [dateRange, setDateRange] = useState({ from: undefined, to: undefined })
+  const [dateRange, setDateRange] = useState<DateRange>()
+  const shortCode = useShortCode()
 
-  const clientGrowthData = {
-    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-    datasets: [
-      {
-        label: 'Total Clients',
-        data: [150, 180, 220, 280, 320, 350],
-        borderColor: 'rgb(75, 192, 192)',
-        tension: 0.1,
-      },
-    ],
-  }
+  const { data, isFetching, isError } = useGetClientAnalyticsQuery({
+    venue_short_code: shortCode,
+    date_from: dateRange?.from?.toISOString(),
+    date_to: dateRange?.to?.toISOString(),
+  })
 
-  const clientTypeData = {
-    labels: ['Corporate', 'Small Business', 'Individual'],
-    datasets: [
-      {
-        data: [45, 35, 20],
-        backgroundColor: [
-          'rgba(54, 162, 235, 0.8)',
-          'rgba(75, 192, 192, 0.8)',
-          'rgba(153, 102, 255, 0.8)',
-        ],
-      },
-    ],
+  if (isFetching) {
+    return <EmptyState isLoading={isFetching} isError={isError} />
+  } else if (!data) {
+    return <EmptyState isLoading={isFetching} isError={isError} />
   }
+  const stats = data?.stats
 
-  const clientActivityData = {
-    labels: ['Q1', 'Q2', 'Q3', 'Q4'],
-    datasets: [
-      {
-        label: 'Active Clients',
-        data: [250, 280, 310, 350],
-        backgroundColor: 'rgba(54, 162, 235, 0.5)',
-      },
-    ],
-  }
+  const charts = data?.charts
 
   return (
     <Layout>
@@ -109,18 +92,14 @@ export default function ClientAnalytics() {
                 <SelectItem value='thisYear'>This Year</SelectItem>
               </SelectContent>
             </Select>
-            <DateRangePicker
-              value={dateRange}
-              // @ts-ignore
-              onValueChange={setDateRange}
-            />
+            <DateRangePicker value={dateRange} onValueChange={setDateRange} />
             <Button variant='outline'>
               <Download className='mr-2 h-4 w-4' />
               Export
             </Button>
           </div>
         </div>
-        {/* Stats Overview */}
+
         <div className='grid gap-4 md:grid-cols-4'>
           <Card>
             <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
@@ -130,9 +109,10 @@ export default function ClientAnalytics() {
               <Users className='h-4 w-4 text-muted-foreground' />
             </CardHeader>
             <CardContent>
-              <div className='text-2xl font-bold'>1,432</div>
+              <div className='text-2xl font-bold'>{stats.total_clients}</div>
               <p className='text-xs text-muted-foreground'>
-                +8% from last month
+                {(stats?.monthly_comparison.change ?? 0) > 0 ? '+' : ''}
+                {stats?.monthly_comparison.change ?? 0}% from last month
               </p>
             </CardContent>
           </Card>
@@ -143,7 +123,7 @@ export default function ClientAnalytics() {
               <UserPlus className='h-4 w-4 text-muted-foreground' />
             </CardHeader>
             <CardContent>
-              <div className='text-2xl font-bold'>48</div>
+              <div className='text-2xl font-bold'>{stats.new_clients}</div>
               <p className='text-xs text-muted-foreground'>This month</p>
             </CardContent>
           </Card>
@@ -154,10 +134,8 @@ export default function ClientAnalytics() {
               <UserMinus className='h-4 w-4 text-muted-foreground' />
             </CardHeader>
             <CardContent>
-              <div className='text-2xl font-bold'>2.4%</div>
-              <p className='text-xs text-muted-foreground'>
-                -0.5% from last month
-              </p>
+              <div className='text-2xl font-bold'>{stats.churn_rate}%</div>
+              <p className='text-xs text-muted-foreground'>Current period</p>
             </CardContent>
           </Card>
 
@@ -169,15 +147,12 @@ export default function ClientAnalytics() {
               <TrendingUp className='h-4 w-4 text-muted-foreground' />
             </CardHeader>
             <CardContent>
-              <div className='text-2xl font-bold'>95%</div>
-              <p className='text-xs text-muted-foreground'>
-                +2% from last month
-              </p>
+              <div className='text-2xl font-bold'>{stats.retention_rate}%</div>
+              <p className='text-xs text-muted-foreground'>Current period</p>
             </CardContent>
           </Card>
         </div>
 
-        {/* Charts */}
         <div className='grid gap-4 md:grid-cols-2'>
           <Card>
             <CardHeader>
@@ -185,11 +160,11 @@ export default function ClientAnalytics() {
             </CardHeader>
             <CardContent>
               <Line
-                data={clientGrowthData}
+                data={charts.client_growth}
                 options={{
                   responsive: true,
                   maintainAspectRatio: false,
-                  // @ts-ignore
+                  //@ts-ignore
                   height: 300,
                 }}
               />
@@ -203,7 +178,7 @@ export default function ClientAnalytics() {
             <CardContent className='flex justify-center'>
               <div style={{ width: '300px', height: '300px' }}>
                 <Doughnut
-                  data={clientTypeData}
+                  data={charts.client_types}
                   options={{
                     responsive: true,
                     maintainAspectRatio: false,
@@ -220,11 +195,11 @@ export default function ClientAnalytics() {
           </CardHeader>
           <CardContent>
             <Bar
-              data={clientActivityData}
+              data={charts?.quarterly_activity}
               options={{
                 responsive: true,
                 maintainAspectRatio: false,
-                // @ts-ignore
+                //@ts-ignore
                 height: 300,
               }}
             />

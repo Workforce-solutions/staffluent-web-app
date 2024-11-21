@@ -58,11 +58,11 @@ export default function Sidebar({
             <div
               className={`flex flex-col justify-end truncate ${isCollapsed ? 'invisible w-0' : 'visible w-auto'}`}
             >
-              <span className='font-medium'>Electral</span>
+              <span className='font-medium'>Staffluent</span>
               <span className='text-xs'>
                 {accountType === AccountType.business
-                  ? 'Staffluent - Admin'
-                  : 'Staffluent - Client Portal'}
+                  ? 'Admin'
+                  : 'Client Portal'}
               </span>
             </div>
           </div>

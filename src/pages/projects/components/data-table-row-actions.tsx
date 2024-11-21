@@ -10,9 +10,9 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { useNavigate } from 'react-router-dom'
-import { Eye, Edit, Users, Check, Archive, RotateCw } from 'lucide-react'
+import { Eye, Edit, Users, Check, Archive, RotateCw, Trash2 } from 'lucide-react'
 import { useShortCode } from '@/hooks/use-local-storage'
-import { useUpdateProjectMutation } from '@/services/projectApi'
+import { useDeleteProjectMutation, useUpdateProjectMutation } from '@/services/projectApi'
 import { toast } from '@/components/ui/use-toast'
 
 interface Project {
@@ -30,6 +30,7 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
   const navigate = useNavigate()
   const short_code = useShortCode()
   const [updateProject] = useUpdateProjectMutation()
+  const [deleteProject] = useDeleteProjectMutation()
 
   const project = row.original
 
@@ -38,7 +39,7 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
       await updateProject({
         id: project.id,
         venue_short_code: short_code,
-
+        // @ts-ignore
         data: {
           status:
             project.status === 'in_progress' ? 'completed' : 'in_progress',
@@ -82,6 +83,10 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
     }
   }
 
+  const handleDeleteProject = (e: any) => {
+    deleteProject({ id: e.id, venue_short_code: short_code })
+  }
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -105,6 +110,12 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
         >
           <Edit className='mr-2 h-4 w-4' />
           Edit Project
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          onClick={() => handleDeleteProject(row.original)}
+        >
+          <Trash2 className='mr-2 h-4 w-4' />
+          Delete Project
         </DropdownMenuItem>
         <DropdownMenuItem
           onClick={() =>

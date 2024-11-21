@@ -98,6 +98,16 @@ export interface AssignProjectManager extends VenueShortCode {
   employeeId: number
 }
 
+export interface UnAssignTeamLeader extends VenueShortCode {
+  projectId: number
+  team_leader_ids: number[]
+}
+
+export interface UnAssignOperationsManager extends VenueShortCode {
+  projectId: number
+  operations_manager_ids: number[]
+}
+
 export interface ProjectEmployee {
   id: number
   name: string

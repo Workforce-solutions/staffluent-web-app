@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/table'
 import {
   Search,
-  Filter,
+  // Filter,
   Download,
   DollarSign,
   TrendingUp,
@@ -33,14 +33,91 @@ import {
 import ThemeSwitch from '../../components/theme-switch'
 import { UserNav } from '../../components/user-nav'
 import { useShortCode } from '@/hooks/use-local-storage'
-import { useGetInvoiceListQuery } from '@/services/invoiceApi'
+import {useGetInvoiceListQuery, useLazyDownloadInvoicePdfQuery} from '@/services/invoiceApi'
+import {toast} from "../../components/ui/use-toast";
 
 export default function AdminInvoices() {
-  const [searchTerm, setSearchTerm] = useState('')
   const navigate = useNavigate()
-
   const short_code = useShortCode()
-  const { data: invoice } = useGetInvoiceListQuery({ venue_short_code: short_code });
+  const [filters, setFilters] = useState({
+    search: '',
+    status: 'all',
+    page: 1,
+    per_page: 15
+  })
+
+
+  const { data: invoiceData, isLoading } = useGetInvoiceListQuery({
+    venue_short_code: short_code,
+    // @ts-ignore
+    query: `&search=${filters.search}&status=${filters.status !== 'all' ? filters.status : ''}&page=${filters.page}&per_page=${filters.per_page}`
+  });
+
+  const [triggerDownload] = useLazyDownloadInvoicePdfQuery();
+
+  const handleDownload = async (invoiceId: any) => {
+    try {
+      const response = await triggerDownload({
+        venue_short_code: short_code,
+        id: Number(invoiceId)
+      }).unwrap();
+
+      // Convert base64 to blob
+      // @ts-ignore
+      const byteCharacters = atob(response.data);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: 'application/pdf' });
+
+      // Create download link
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      // @ts-ignore
+      a.download = response.filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to download invoice',
+        variant: 'destructive'
+      });
+    }
+  };
+
+
+
+  //@ts-ignore
+  const handleSearch = (value: string) => {
+    setFilters(prev => ({
+      ...prev,
+      search: value,
+      page: 1
+    }))
+  }
+
+  const handleStatusChange = (value: string) => {
+    setFilters(prev => ({
+      ...prev,
+      status: value,
+      page: 1
+    }))
+  }
+
+  //@ts-ignore
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD'
+    }).format(amount)
+  }
 
   return (
     <Layout>
@@ -66,20 +143,19 @@ export default function AdminInvoices() {
             </Button>
           </div>
         </div>
+
         {/* Invoice Stats */}
         <div className='grid gap-4 md:grid-cols-4'>
           <Card>
             <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-              <CardTitle className='text-sm font-medium'>
-                Total Revenue
-              </CardTitle>
+              <CardTitle className='text-sm font-medium'>Total Revenue</CardTitle>
               <DollarSign className='h-4 w-4 text-muted-foreground' />
             </CardHeader>
             <CardContent>
-              <div className='text-2xl font-bold'>$24,856</div>
-              <p className='text-xs text-muted-foreground'>
-                +12% from last month
-              </p>
+              <div className='text-2xl font-bold'>
+                {/*//@ts-ignore*/}
+                {formatCurrency(invoiceData?.stats?.total_revenue || 0)}
+              </div>
             </CardContent>
           </Card>
 
@@ -89,23 +165,23 @@ export default function AdminInvoices() {
               <AlertCircle className='h-4 w-4 text-muted-foreground' />
             </CardHeader>
             <CardContent>
-              <div className='text-2xl font-bold'>$5,432</div>
-              <p className='text-xs text-muted-foreground'>
-                8 invoices pending
-              </p>
+              <div className='text-2xl font-bold'>
+                {/*//@ts-ignore*/}
+                {formatCurrency(invoiceData?.stats?.outstanding_amount || 0)}
+              </div>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-              <CardTitle className='text-sm font-medium'>
-                Paid This Month
-              </CardTitle>
+              <CardTitle className='text-sm font-medium'>Paid This Month</CardTitle>
               <TrendingUp className='h-4 w-4 text-muted-foreground' />
             </CardHeader>
             <CardContent>
-              <div className='text-2xl font-bold'>$18,245</div>
-              <p className='text-xs text-muted-foreground'>25 invoices</p>
+              <div className='text-2xl font-bold'>
+                {/*//@ts-ignore*/}
+                {formatCurrency(invoiceData?.stats?.paid_this_month || 0)}
+              </div>
             </CardContent>
           </Card>
 
@@ -115,10 +191,10 @@ export default function AdminInvoices() {
               <AlertCircle className='h-4 w-4 text-red-500' />
             </CardHeader>
             <CardContent>
-              <div className='text-2xl font-bold text-red-500'>$2,850</div>
-              <p className='text-xs text-muted-foreground'>
-                3 invoices overdue
-              </p>
+              <div className='text-2xl font-bold text-red-500'>
+                {/*//@ts-ignore*/}
+                {formatCurrency(invoiceData?.stats?.overdue_amount || 0)}
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -138,12 +214,15 @@ export default function AdminInvoices() {
                   <Search className='absolute left-2 top-2.5 h-4 w-4 text-muted-foreground' />
                   <Input
                     placeholder='Search invoices...'
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
+                    value={filters.search}
+                    onChange={(e) => handleSearch(e.target.value)}
                     className='w-[250px] pl-8'
                   />
                 </div>
-                <Select defaultValue='all'>
+                <Select 
+                  value={filters.status}
+                  onValueChange={handleStatusChange}
+                >
                   <SelectTrigger className='w-[180px]'>
                     <SelectValue placeholder='Filter by status' />
                   </SelectTrigger>
@@ -154,76 +233,73 @@ export default function AdminInvoices() {
                     <SelectItem value='overdue'>Overdue</SelectItem>
                   </SelectContent>
                 </Select>
-                <Button variant='outline' size='icon'>
-                  <Filter className='h-4 w-4' />
-                </Button>
               </div>
             </div>
           </CardHeader>
           <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Invoice #</TableHead>
-                  <TableHead>Client</TableHead>
-                  <TableHead>Service</TableHead>
-                  <TableHead>Amount</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Due Date</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {invoice?.invoices.data.map((invoiceData: any, i: any) => (
-                  <TableRow key={i}>
-                    <TableCell className='font-medium'>
-                      {invoiceData.number}
-                    </TableCell>
-                    <TableCell>{invoiceData.client}</TableCell>
-                    <TableCell>{invoiceData.service}</TableCell>
-                    <TableCell>${invoiceData.amount}</TableCell>
-                    <TableCell>{invoiceData.date} </TableCell>
-                    <TableCell>{invoiceData.due_date}</TableCell>
-                    <TableCell>
-                      <Badge
-                        variant={
-                          invoiceData.status === 'paid'
-                            ? 'success'
-                            : invoiceData.status === 'pending'
-                              ? 'warning'
-                              : invoiceData.status === 'overdue'
-                                ? 'destructive'
-                                : 'default'
-                        }
-                      >
-                        {
-                          invoiceData.status.charAt(0).toUpperCase() +
-                          invoiceData.status.slice(1)
-                        }
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div className='flex space-x-2'>
-                        <Button variant='ghost' size='icon'>
-                          <Download className='h-4 w-4' />
-                        </Button>
-                        <Button
-                          variant='ghost'
-                          size='icon'
-                          onClick={() =>
-                            navigate(`/admin/invoices/${invoiceData.id}`)
-                          }
-                        // onClick={() => { handleClick(invoiceData.id) }}
-                        >
-                          <Eye className='h-4 w-4' />
-                        </Button>
-                      </div>
-                    </TableCell>
+            {isLoading ? (
+              <div className="flex justify-center py-8">Loading...</div>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Invoice #</TableHead>
+                    <TableHead>Client</TableHead>
+                    <TableHead>Service</TableHead>
+                    <TableHead>Amount</TableHead>
+                    <TableHead>Date</TableHead>
+                    <TableHead>Due Date</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Actions</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {invoiceData?.invoices?.data?.map((invoice) => (
+                    <TableRow key={invoice.id}>
+                      <TableCell className='font-medium'>
+                        {invoice.number}
+                      </TableCell>
+                      <TableCell>{invoice.client}</TableCell>
+                      <TableCell>{invoice.service}</TableCell>
+                      <TableCell>
+                        {formatCurrency(invoice.amount)}
+                      </TableCell>
+                      <TableCell>{invoice.date}</TableCell>
+                      <TableCell>{invoice.due_date}</TableCell>
+                      <TableCell>
+                        <Badge
+                          variant={
+                            invoice.status === 'paid'
+                              ? 'success'
+                              : invoice.status === 'pending'
+                                ? 'warning'
+                                : invoice.status === 'overdue'
+                                  ? 'destructive'
+                                  : 'default'
+                          }
+                        >
+                          {invoice.status.charAt(0).toUpperCase() + invoice.status.slice(1)}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <div className='flex space-x-2'>
+                          <Button variant='ghost' size='icon' onClick={() => handleDownload(invoice.id)}>
+                            <Download className='h-4 w-4' />
+                          </Button>
+                          <Button
+                            variant='ghost'
+                            size='icon'
+                            onClick={() => navigate(`/admin/invoices/${invoice.id}`)}
+                          >
+                            <Eye className='h-4 w-4' />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
           </CardContent>
         </Card>
       </Layout.Body>

@@ -99,8 +99,7 @@ export default function ClientDashboard() {
             </CardHeader>
             <CardContent>
               <div className='text-2xl font-bold'>
-                0
-                {/*${clientData.stats?.pending_payments?.toFixed(2)}*/}
+                ${clientData.stats?.pending_payments}
               </div>
               <p className='text-xs text-muted-foreground'>
                 Outstanding balance
@@ -190,8 +189,7 @@ export default function ClientDashboard() {
                     </div>
                     <div className='text-right'>
                       <p className='text-sm font-medium'>
-                        0
-                        {/*${invoice.amount.toFixed(2)}*/}
+                        ${invoice.amount}
                       </p>
                       <Badge
                         variant={

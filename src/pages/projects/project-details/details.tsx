@@ -37,7 +37,7 @@ export default function ProjectDetails() {
   return (
     <Layout>
       <Layout.Header sticky>
-        <div className='ml-auto flex items-center space-x-4'>
+        <div className='ml-auto flex items-center space-x-2'>
           <ThemeSwitch />
           <UserNav />
         </div>

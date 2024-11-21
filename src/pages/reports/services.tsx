@@ -1,10 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Layout } from '@/components/custom/layout'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { DateRangePicker } from '@/components/ui/date-range-picker'
 import ThemeSwitch from '@/components/theme-switch'
-import { UserNav } from '@/components/user-nav'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { DateRangePicker } from '@/components/ui/date-range-picker'
 import {
   Select,
   SelectContent,
@@ -12,22 +11,28 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Download, TrendingUp, Users, Clock, Target } from 'lucide-react'
-import { useState } from 'react'
-import { Line, Bar, Pie } from 'react-chartjs-2'
+import { Skeleton } from '@/components/ui/skeleton'
+import { UserNav } from '@/components/user-nav'
+import { useShortCode } from '@/hooks/use-local-storage'
+import { useGetServiceAnalyticsQuery } from '@/services/adminAnalyticsApi'
+import { Clock, Download, Target, TrendingUp, Users } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Bar, Line, Pie } from 'react-chartjs-2'
+import { DateRange } from 'react-day-picker'
 import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
   PointElement,
   LineElement,
+  BarElement,
+  ArcElement,
   Title,
   Tooltip,
   Legend,
-  BarElement,
-  ArcElement,
 } from 'chart.js'
 
+// Register Chart.js components
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -40,50 +45,33 @@ ChartJS.register(
   Legend
 )
 
+// Simple wrapper component to handle chart cleanup
+
+const ChartWrapper = ({ children }: any) => {
+  useEffect(() => {
+    return () => {
+      if (children.props.id) {
+        const chart = ChartJS.getChart(children.props.id)
+        if (chart) {
+          chart.destroy()
+        }
+      }
+    }
+  }, [children])
+
+  return children
+}
+
 export default function ServiceAnalytics() {
-  const [dateRange, setDateRange] = useState<any>({
-    from: undefined,
-    to: undefined,
+  const shortCode = useShortCode()
+  const [period, setPeriod] = useState('thisMonth')
+  const [dateRange, setDateRange] = useState<DateRange>()
+
+  const { data, isLoading } = useGetServiceAnalyticsQuery({
+    venue_short_code: shortCode,
+    date_from: dateRange?.from?.toISOString(),
+    date_to: dateRange?.to?.toISOString(),
   })
-
-  // Sample data for charts
-  const serviceUsageData = {
-    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-    datasets: [
-      {
-        label: 'Service Usage',
-        data: [65, 78, 66, 84, 71, 89],
-        borderColor: 'rgb(75, 192, 192)',
-        tension: 0.1,
-      },
-    ],
-  }
-
-  const categoryDistributionData = {
-    labels: ['Maintenance', 'Repair', 'Installation', 'Consultation'],
-    datasets: [
-      {
-        data: [45, 25, 20, 10],
-        backgroundColor: [
-          'rgba(54, 162, 235, 0.8)',
-          'rgba(75, 192, 192, 0.8)',
-          'rgba(153, 102, 255, 0.8)',
-          'rgba(255, 159, 64, 0.8)',
-        ],
-      },
-    ],
-  }
-
-  const revenueByServiceData = {
-    labels: ['Service A', 'Service B', 'Service C', 'Service D', 'Service E'],
-    datasets: [
-      {
-        label: 'Revenue',
-        data: [12000, 19000, 15000, 21000, 16000],
-        backgroundColor: 'rgba(54, 162, 235, 0.5)',
-      },
-    ],
-  }
 
   return (
     <Layout>
@@ -94,7 +82,7 @@ export default function ServiceAnalytics() {
         </div>
       </Layout.Header>
 
-      <Layout.Body className='space-y-6 '>
+      <Layout.Body className='space-y-6'>
         <div className='flex items-center justify-between'>
           <div>
             <h2 className='text-2xl font-bold tracking-tight'>
@@ -105,7 +93,7 @@ export default function ServiceAnalytics() {
             </p>
           </div>
           <div className='flex items-center space-x-2'>
-            <Select defaultValue='thisMonth'>
+            <Select value={period} onValueChange={setPeriod}>
               <SelectTrigger className='w-[180px]'>
                 <SelectValue placeholder='Select period' />
               </SelectTrigger>
@@ -122,116 +110,177 @@ export default function ServiceAnalytics() {
             </Button>
           </div>
         </div>
+
         {/* Stats Overview */}
-        <div className='grid gap-4 md:grid-cols-4'>
-          <Card>
-            <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-              <CardTitle className='text-sm font-medium'>
-                Total Services
-              </CardTitle>
-              <Target className='h-4 w-4 text-muted-foreground' />
-            </CardHeader>
-            <CardContent>
-              <div className='text-2xl font-bold'>248</div>
-              <p className='text-xs text-muted-foreground'>
-                +12% from last month
-              </p>
-            </CardContent>
-          </Card>
+        {isLoading ? (
+          <div className='grid gap-4 md:grid-cols-4'>
+            {[1, 2, 3, 4].map((i) => (
+              <Card key={i}>
+                <CardHeader className='flex flex-row items-center justify-between pb-2'>
+                  <Skeleton className='h-5 w-[120px]' />
+                  <Skeleton className='h-4 w-4 rounded' />
+                </CardHeader>
+                <CardContent>
+                  <Skeleton className='h-8 w-[100px]' />
+                  <Skeleton className='mt-1 h-4 w-[140px]' />
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        ) : (
+          <div className='grid gap-4 md:grid-cols-4'>
+            <Card>
+              <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+                <CardTitle className='text-sm font-medium'>
+                  Total Services
+                </CardTitle>
+                <Target className='h-4 w-4 text-muted-foreground' />
+              </CardHeader>
+              <CardContent>
+                <div className='text-2xl font-bold'>
+                  {data?.stats.total_services}
+                </div>
+                <p className='text-xs text-muted-foreground'>
+                  +12% from last month
+                </p>
+              </CardContent>
+            </Card>
 
-          <Card>
-            <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-              <CardTitle className='text-sm font-medium'>
-                Active Clients
-              </CardTitle>
-              <Users className='h-4 w-4 text-muted-foreground' />
-            </CardHeader>
-            <CardContent>
-              <div className='text-2xl font-bold'>1,432</div>
-              <p className='text-xs text-muted-foreground'>
-                +8% from last month
-              </p>
-            </CardContent>
-          </Card>
+            <Card>
+              <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+                <CardTitle className='text-sm font-medium'>
+                  Active Clients
+                </CardTitle>
+                <Users className='h-4 w-4 text-muted-foreground' />
+              </CardHeader>
+              <CardContent>
+                <div className='text-2xl font-bold'>
+                  {data?.stats.active_clients}
+                </div>
+                <p className='text-xs text-muted-foreground'>
+                  +8% from last month
+                </p>
+              </CardContent>
+            </Card>
 
-          <Card>
-            <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-              <CardTitle className='text-sm font-medium'>
-                Avg Duration
-              </CardTitle>
-              <Clock className='h-4 w-4 text-muted-foreground' />
-            </CardHeader>
-            <CardContent>
-              <div className='text-2xl font-bold'>2.4h</div>
-              <p className='text-xs text-muted-foreground'>-15min from avg</p>
-            </CardContent>
-          </Card>
+            <Card>
+              <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+                <CardTitle className='text-sm font-medium'>
+                  Avg Duration
+                </CardTitle>
+                <Clock className='h-4 w-4 text-muted-foreground' />
+              </CardHeader>
+              <CardContent>
+                <div className='text-2xl font-bold'>
+                  {data?.stats.avg_duration}h
+                </div>
+                <p className='text-xs text-muted-foreground'>-15min from avg</p>
+              </CardContent>
+            </Card>
 
-          <Card>
-            <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-              <CardTitle className='text-sm font-medium'>Growth Rate</CardTitle>
-              <TrendingUp className='h-4 w-4 text-muted-foreground' />
-            </CardHeader>
-            <CardContent>
-              <div className='text-2xl font-bold'>+15%</div>
-              <p className='text-xs text-muted-foreground'>Year over year</p>
-            </CardContent>
-          </Card>
-        </div>
+            <Card>
+              <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+                <CardTitle className='text-sm font-medium'>
+                  Growth Rate
+                </CardTitle>
+                <TrendingUp className='h-4 w-4 text-muted-foreground' />
+              </CardHeader>
+              <CardContent>
+                <div className='text-2xl font-bold'>
+                  {data?.stats.growth_rate}%
+                </div>
+                <p className='text-xs text-muted-foreground'>Year over year</p>
+              </CardContent>
+            </Card>
+          </div>
+        )}
 
         {/* Charts */}
-        <div className='grid gap-4 md:grid-cols-2'>
-          <Card>
-            <CardHeader>
-              <CardTitle>Service Usage Trends</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Line
-                data={serviceUsageData}
-                options={{
-                  responsive: true,
-                  maintainAspectRatio: false,
-                  // @ts-ignore
-                  height: 300,
-                }}
-              />
-            </CardContent>
-          </Card>
+        {isLoading ? (
+          <div className='grid gap-4 md:grid-cols-2'>
+            <Card>
+              <CardHeader>
+                <Skeleton className='h-8 w-[200px]' />
+              </CardHeader>
+              <CardContent>
+                <Skeleton className='h-[300px] w-full' />
+              </CardContent>
+            </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Category Distribution</CardTitle>
-            </CardHeader>
-            <CardContent className='flex justify-center'>
-              <div style={{ width: '300px', height: '300px' }}>
-                <Pie
-                  data={categoryDistributionData}
-                  options={{
-                    responsive: true,
-                    maintainAspectRatio: false,
-                  }}
-                />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+            <Card>
+              <CardHeader>
+                <Skeleton className='h-8 w-[200px]' />
+              </CardHeader>
+              <CardContent className='flex justify-center'>
+                <Skeleton className='h-[300px] w-[300px] rounded-full' />
+              </CardContent>
+            </Card>
+          </div>
+        ) : (
+          <>
+            <div className='grid gap-4 md:grid-cols-2'>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Service Usage Trends</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ChartWrapper>
+                    <Line
+                      id='service-usage'
+                      data={data?.charts.service_usage as any}
+                      options={{
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        //@ts-ignore
+                        height: 300,
+                      }}
+                    />
+                  </ChartWrapper>
+                </CardContent>
+              </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Revenue by Service</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Bar
-              data={revenueByServiceData}
-              options={{
-                responsive: true,
-                maintainAspectRatio: false,
-                // @ts-ignore
-                height: 300,
-              }}
-            />
-          </CardContent>
-        </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Category Distribution</CardTitle>
+                </CardHeader>
+                <CardContent className='flex justify-center'>
+                  <div style={{ width: '300px', height: '300px' }}>
+                    <ChartWrapper>
+                      <Pie
+                        id='category-distribution'
+                        data={data?.charts.category_distribution as any}
+                        options={{
+                          responsive: true,
+                          maintainAspectRatio: false,
+                        }}
+                      />
+                    </ChartWrapper>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Revenue by Service</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ChartWrapper>
+                  <Bar
+                    id='revenue-service'
+                    data={data?.charts.revenue_by_service as any}
+                    options={{
+                      responsive: true,
+                      maintainAspectRatio: false,
+                      //@ts-ignore
+                      height: 300,
+                    }}
+                  />
+                </ChartWrapper>
+              </CardContent>
+            </Card>
+          </>
+        )}
       </Layout.Body>
     </Layout>
   )

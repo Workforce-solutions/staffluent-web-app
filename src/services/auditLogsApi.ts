@@ -59,13 +59,29 @@ export const auditLogsApi = createApi({
                 }),
             }),
             transformResponse: (response: any): AuditLogResponse => ({
-                ...response,
-                logs: Object.values(response.logs),
+                logs: response.logs.data.map((log: any) => ({
+                    id: log.id,
+                    action: log.action,
+                    user: log.user || '-',
+                    timestamp: log.timestamp,
+                    details: log.details,
+                    severity: log.severity,
+                    type: log.type
+                })),
+                summary: {
+                    total_logs: Number(response.summary.total_logs),
+                    unique_users: Number(response.summary.unique_users),
+                    actions_today: Number(response.summary.actions_today),
+                    critical_events: Number(response.summary.critical_events)
+                },
                 pagination: {
                     current_page: Number(response.pagination.current_page),
                     per_page: Number(response.pagination.per_page),
                     total: Number(response.pagination.total),
-                    total_pages: Number(response.pagination.total_pages),
+                    total_pages: Number(response.pagination.total_pages)
+                },
+                filters: {
+                    actions: response.filters.actions
                 }
             }),
             providesTags: ['AuditLogs'],

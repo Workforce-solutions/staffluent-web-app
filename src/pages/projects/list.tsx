@@ -27,7 +27,7 @@ export default function Projects() {
       <CreateEditProjectModal open={open} setOpen={setOpen} />
 
       <Layout.Header sticky>
-        <div className='ml-auto flex items-center space-x-4'>
+        <div className='ml-auto flex items-center space-x-2'>
           <ThemeSwitch />
           <UserNav />
         </div>

@@ -335,7 +335,9 @@ export const {
   useGetTeamByIdQuery,
   useGetDepartmentsByTeamQuery,
   useGetTeamleadersQuery,
+  useLazyGetTeamleadersQuery,
   useGetOperationsManagerQuery,
+  useLazyGetOperationsManagerQuery,
   //
   useGetEmployeeByIdQuery,
   useCreateTeamEmployeeMutation,

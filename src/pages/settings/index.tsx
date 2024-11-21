@@ -1,8 +1,8 @@
 import { Outlet } from 'react-router-dom'
 import {
-  IconBrowserCheck,
-  IconExclamationCircle,
-  IconNotification,
+  // IconBrowserCheck,
+  // IconExclamationCircle,
+  // IconNotification,
   IconPalette,
   IconTool,
   IconUser,
@@ -20,7 +20,7 @@ export default function Settings() {
       {/* ===== Top Heading ===== */}
       <Layout.Header>
         <Search />
-        <div className='ml-auto flex items-center space-x-4'>
+        <div className='ml-auto flex items-center space-x-2'>
           <ThemeSwitch />
           <UserNav />
         </div>
@@ -65,19 +65,19 @@ const sidebarNavItems = [
     icon: <IconPalette size={18} />,
     href: '/settings/appearance',
   },
-  {
-    title: 'Notifications',
-    icon: <IconNotification size={18} />,
-    href: '/settings/notifications',
-  },
-  {
-    title: 'Display',
-    icon: <IconBrowserCheck size={18} />,
-    href: '/settings/display',
-  },
-  {
-    title: 'Error Example',
-    icon: <IconExclamationCircle size={18} />,
-    href: '/settings/error-example',
-  },
+  // {
+  //   title: 'Notifications',
+  //   icon: <IconNotification size={18} />,
+  //   href: '/settings/notifications',
+  // },
+  // {
+  //   title: 'Display',
+  //   icon: <IconBrowserCheck size={18} />,
+  //   href: '/settings/display',
+  // },
+  // {
+  //   title: 'Error Example',
+  //   icon: <IconExclamationCircle size={18} />,
+  //   href: '/settings/error-example',
+  // },
 ]

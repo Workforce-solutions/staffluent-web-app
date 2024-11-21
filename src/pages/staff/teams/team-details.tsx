@@ -83,6 +83,7 @@ export default function TeamDetails() {
       name: team.operations_manager?.name || 'Unassigned',
       email: team.operations_manager?.email || 'No email provided',
     },
+    // @ts-ignore
     employees: Array.isArray(team.employees) ? team.employees : [],
   }
 

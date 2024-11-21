@@ -15,11 +15,14 @@ import { UserNav } from '@/components/user-nav'
 import { useShortCode } from '@/hooks/use-local-storage'
 import { useGetServiceDetailsQuery } from '@/services/servicesApi'
 import { format } from 'date-fns'
+import { useState } from 'react'
 import { useParams } from 'react-router-dom'
+import ContactModal from './contact-modal'
 
 export default function ServiceDetails() {
-  const { id } = useParams<{ id: string }>()
+  const { id } = useParams()
   const shortCode = useShortCode()
+  const [modalOpen, setModalOpen] = useState(false)
 
   const { data: service, isLoading } = useGetServiceDetailsQuery({
     venue_short_code: shortCode,
@@ -54,6 +57,9 @@ export default function ServiceDetails() {
       </Layout.Header>
 
       <Layout.Body>
+        <div className='mb-6 flex w-full justify-end'>
+          <ContactModal setOpen={setModalOpen} open={modalOpen} />
+        </div>
         <div className='grid gap-6 md:grid-cols-2'>
           <Card>
             <CardHeader>

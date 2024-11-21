@@ -15,10 +15,58 @@ export const projectsRoute: RouteObject[] = [
     }),
   },
   {
+    path: 'projects/details/:id/comments',
+    lazy: async () => ({
+      Component: (
+        await import('../pages/projects/project-details/comments/index.tsx')
+      ).default,
+    }),
+  },
+  {
     path: 'projects/details/:id/gallery',
     lazy: async () => ({
       Component: (
         await import('../pages/projects/project-details/project-galleries.tsx')
+      ).default,
+    }),
+  },
+  {
+    path: 'projects/details/:id/chat',
+    lazy: async () => ({
+      Component: (
+        await import('../pages/projects/project-details/chat/index.tsx')
+      ).default,
+    }),
+  },
+  {
+    path: 'projects/details/:id/issues',
+    lazy: async () => ({
+      Component: (
+        await import('../pages/projects/project-details/report-issues/index.tsx')
+      ).default,
+    }),
+  },
+  {
+    path: 'projects/details/:id/supplies',
+    lazy: async () => ({
+      Component: (
+        await import('../pages/projects/project-details/request-supplies/index.tsx')
+      ).default,
+    }),
+  },
+  {
+    path: 'projects/details/:id/work-orders',
+    lazy: async () => ({
+      Component: (
+        await import('../pages/projects/project-details/work-order/index.tsx')
+      ).default,
+    }),
+  },
+  {
+    path: 'projects/details/:id/inspections',
+    lazy: async () => ({
+      Component: (
+        await import('../pages/projects/project-details/quality-inspections/index.tsx')
       ).default,
     }),
   },

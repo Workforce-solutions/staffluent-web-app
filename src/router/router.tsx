@@ -169,6 +169,13 @@ const router = createBrowserRouter([
             .default,
         }),
       },
+      {
+        path: 'notifications',
+        lazy: async () => ({
+          Component: (await import('../pages/notifications/index.tsx'))
+              .default,
+        }),
+      },
       // Staff Overview route
       {
         path: 'teams',

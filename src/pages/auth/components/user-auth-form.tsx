@@ -70,6 +70,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
   }) => {
     try {
       const res = await vbLogin({ email, password }).unwrap()
+      console.log("🚀 ~ UserAuthForm ~ res:", res)
       if (res) {
         const accountType = AccountType.client
         localStorage.setItem('vbAuth', JSON.stringify(res))

@@ -20,6 +20,9 @@ import { feedbackApi } from './feedbackApi'
 import { auditLogsApi } from './auditLogsApi'
 import { serviceRequestApi } from './service-requestApi'
 import { clientInvoicesApi } from './clientInvoicesApi'
+import { adminAnalyticsApi } from './adminAnalyticsApi'
+import { clientTicketApi } from './clientTicketApi'
+import { adminTicketApi } from './adminTicketApi'
 
 const store = configureStore({
   reducer: rootReducer,
@@ -45,6 +48,9 @@ const store = configureStore({
       serviceRequestApi.middleware,
       auditLogsApi.middleware,
       clientInvoicesApi.middleware,
+      adminAnalyticsApi.middleware,
+      clientTicketApi.middleware,
+      adminTicketApi.middleware
     ),
 })
 

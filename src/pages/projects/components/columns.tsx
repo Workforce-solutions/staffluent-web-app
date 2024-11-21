@@ -114,6 +114,7 @@ export const columns: ColumnDef<ProjectsResponse>[] = [
   },
   {
     id: 'actions',
+    // @ts-ignore
     cell: ({ row }) => <DataTableRowActions row={row} />,
   },
 ]

@@ -24,19 +24,19 @@ export interface ClientService {
     base_amount: number
     currency: string
   }
-  service_info?: {
+  service_info: {
     id: number
     name: string
     description: string
     type: string
     start_date: string
   }
-  current_status?: {
+  current_status: {
     status: string
     next_scheduled_date: string
     latest_request_id: number
   }
-  service_history?: {
+  service_history: {
     total_completions: number
     first_request_date: string
     latest_completion_date: string
@@ -52,7 +52,8 @@ export interface ClientService {
     description: string
     decline_reason: string | null
     has_feedback: boolean // Add this
-    feedback_details?: { // Add this
+    feedback_details?: {
+      // Add this
       rating: number
       comment: string
       admin_response?: string
@@ -131,6 +132,12 @@ interface ServiceDetails {
   } | null
 }
 
+interface ServiceRequestApiProps {
+  page: number
+  size: number
+  search: string
+  status: string
+}
 interface ServiceRequest {
   id: number
   reference: string
@@ -149,7 +156,8 @@ interface ServiceRequest {
     performed_by: string
   }>
   has_feedback: boolean // add this
-  feedback_details?: { // add this
+  feedback_details?: {
+    // add this
     rating: number
     comment: string
     admin_response?: string

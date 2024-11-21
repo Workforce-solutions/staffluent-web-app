@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { ColumnDef } from '@tanstack/react-table'
-import { Clock, Filter, PlusIcon, Search } from 'lucide-react'
+import { Clock, PlusIcon, Search } from 'lucide-react'
 import { useState } from 'react'
 import { Layout } from '@/components/custom/layout'
 import { initialPage } from '@/components/table/data'
@@ -17,6 +17,14 @@ import { AlertDescription } from '@/components/ui/alerts/AlertDescription'
 import { ServiceRequest } from '@/@types/clientPortal'
 import { RequestServiceModal } from '@/components/client-portal/request-service-modal'
 import { useNavigate } from 'react-router-dom'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { useDebounce } from '@/pages/clients/client-projects'
 
 interface StatsCardProps {
   title: string
@@ -74,8 +82,20 @@ const ServiceRequests = () => {
   const [searchTerm, setSearchTerm] = useState('')
   const [paginationValues, setPaginationValues] = useState(initialPage)
   const [openRequestModal, setOpenRequestModal] = useState(false)
+  const [status, setStatus] = useState('all')
 
-  const { data: responseData, isLoading, isError } = useListMyRequestsQuery()
+  const debouncedSearch = useDebounce(searchTerm, 500)
+
+  const {
+    data: responseData,
+    isLoading,
+    isError,
+  } = useListMyRequestsQuery({
+    ...paginationValues,
+    search: debouncedSearch,
+    status,
+  })
+
   const navigate = useNavigate()
 
   const columns: ColumnDef<ServiceRequest>[] = [
@@ -161,6 +181,22 @@ const ServiceRequests = () => {
     )
   }
 
+  const handleSearch = (value: string) => {
+    setSearchTerm(value)
+    setPaginationValues((prev) => ({
+      ...prev,
+      page: 1,
+    }))
+  }
+
+  const handleStatus = (value: string) => {
+    setStatus(value)
+    setPaginationValues((prev) => ({
+      ...prev,
+      page: 1,
+    }))
+  }
+
   return (
     <Layout>
       <Layout.Header className='min-h-fit border-b'>
@@ -236,13 +272,22 @@ const ServiceRequests = () => {
                   <Input
                     placeholder='Search requests...'
                     value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onChange={(e) => handleSearch(e.target.value)}
                     className='w-[250px] pl-8'
                   />
                 </div>
-                <Button variant='outline' size='icon'>
-                  <Filter className='h-4 w-4' />
-                </Button>
+                <Select value={status} onValueChange={handleStatus}>
+                  <SelectTrigger className='w-[180px]'>
+                    <SelectValue placeholder='Filter by status' />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value='all'>All Requests</SelectItem>
+                    <SelectItem value='Scheduled'>Scheduled</SelectItem>
+                    <SelectItem value='Pending'>Pending</SelectItem>
+                    <SelectItem value='Completed'>Completed</SelectItem>
+                    <SelectItem value='Cancelled'>Cancelled</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           </CardHeader>
