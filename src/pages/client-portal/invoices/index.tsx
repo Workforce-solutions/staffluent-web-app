@@ -16,6 +16,22 @@ import {
   Search,
 } from 'lucide-react'
 import { useState } from 'react'
+import { PaymentModal } from '../../../components/client-portal/invoice-payment-modal'
+import {
+  useGetClientInvoicesQuery,
+  useLazyDownloadClientInvoicePdfQuery,
+} from '@/services/clientInvoicesApi'
+import { useShortCode } from '../../../hooks/use-local-storage'
+import { useDebounce } from '@/pages/clients/client-projects'
+import { toast } from '@/components/ui/use-toast'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { initialPage } from '@/components/table/data'
 
 interface Invoice {
   id: number
@@ -28,7 +44,25 @@ interface Invoice {
 }
 
 export default function Invoices() {
+  const [paginationValues, setPaginationValues] = useState(initialPage)
   const [searchTerm, setSearchTerm] = useState('')
+  const [statusFilter, setStatusFilter] = useState('all')
+  const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null)
+  const short_code = useShortCode()
+  const debouncedSearch = useDebounce(searchTerm, 500)
+
+  const {
+    data: invoicesData,
+    isLoading,
+    isError,
+  } = useGetClientInvoicesQuery({
+    venue_short_code: short_code,
+    ...paginationValues,
+    search: debouncedSearch,
+    status: statusFilter,
+  })
+
+  const [triggerDownload] = useLazyDownloadClientInvoicePdfQuery()
 
   const columns: ColumnDef<Invoice>[] = [
     {
@@ -60,7 +94,7 @@ export default function Invoices() {
     {
       accessorKey: 'amount',
       header: 'Amount',
-      cell: ({ row }) => <span>${row.original.amount.toFixed(2)}</span>,
+      cell: ({ row }) => <span> ${row.original.amount}</span>,
     },
     {
       accessorKey: 'status',
@@ -87,9 +121,17 @@ export default function Invoices() {
         <div className='flex justify-end space-x-2'>
           {(row.original.status === 'pending' ||
             row.original.status === 'overdue') && (
-            <Button size='sm'>Pay Now</Button>
+            <Button size='sm' onClick={() => setSelectedInvoice(row.original)}>
+              Pay Now
+            </Button>
           )}
-          <Button variant='ghost' size='sm'>
+          <Button
+            variant='ghost'
+            size='sm'
+            onClick={() => {
+              handleDownload(row.original.id)
+            }}
+          >
             <Download className='h-4 w-4' />
           </Button>
         </div>
@@ -97,46 +139,64 @@ export default function Invoices() {
     },
   ]
 
-  // Dummy data
-  const dummyInvoices: Invoice[] = [
-    {
-      id: 1,
-      number: 'INV-2024001',
-      service_name: 'Monthly Equipment Service',
-      date: new Date('2024-01-15'),
-      due_date: new Date('2024-02-15'),
-      amount: 299.99,
-      status: 'pending',
-    },
-    {
-      id: 2,
-      number: 'INV-2024002',
-      service_name: 'Maintenance Package',
-      date: new Date('2024-01-10'),
-      due_date: new Date('2024-02-10'),
-      amount: 499.99,
-      status: 'paid',
-    },
-    {
-      id: 3,
-      number: 'INV-2024003',
-      service_name: 'Service Contract - Jan',
-      date: new Date('2024-01-05'),
-      due_date: new Date('2024-01-20'),
-      amount: 799.99,
-      status: 'overdue',
-    },
-  ]
+  const handleDownload = async (invoiceId: any) => {
+    try {
+      const response = await triggerDownload({
+        venue_short_code: short_code,
+        id: Number(invoiceId),
+      }).unwrap()
 
-  const invoicesData = {
-    invoices: dummyInvoices,
-    total_count: dummyInvoices.length,
-    pending_amount: dummyInvoices
-      .filter((inv) => inv.status === 'pending' || inv.status === 'overdue')
-      .reduce((sum, inv) => sum + inv.amount, 0),
-    paid_this_month: dummyInvoices
-      .filter((inv) => inv.status === 'paid')
-      .reduce((sum, inv) => sum + inv.amount, 0),
+      // Convert base64 to blob
+      // @ts-ignore
+      const byteCharacters = atob(response.data)
+      const byteNumbers = new Array(byteCharacters.length)
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i)
+      }
+      const byteArray = new Uint8Array(byteNumbers)
+      const blob = new Blob([byteArray], { type: 'application/pdf' })
+
+      // Create download link
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      // @ts-ignore
+      a.download = response.filename
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      window.URL.revokeObjectURL(url)
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to download invoice',
+        variant: 'destructive',
+      })
+    }
+  }
+
+  const handleStatusChange = (value: string) => {
+    setStatusFilter(value)
+    setPaginationValues((prev) => ({
+      ...prev,
+      page: 1,
+    }))
+  }
+
+  const handleSearch = (value: string) => {
+    setSearchTerm(value)
+    setPaginationValues((prev) => ({
+      ...prev,
+      page: 1,
+    }))
+  }
+
+  if (isLoading) {
+    return <div>Loading...</div> // Simple loading state
+  }
+
+  if (isError) {
+    return <div>Error loading invoices</div> // Error state
   }
 
   return (
@@ -157,6 +217,7 @@ export default function Invoices() {
             </p>
           </div>
         </div>
+
         {/* Summary Cards */}
         <div className='grid gap-4 md:grid-cols-3'>
           <Card>
@@ -166,7 +227,7 @@ export default function Invoices() {
             </CardHeader>
             <CardContent>
               <div className='text-2xl font-bold'>
-                ${invoicesData.pending_amount.toFixed(2)}
+                ${invoicesData?.stats.due_now}
               </div>
               <p className='text-xs text-muted-foreground'>
                 Outstanding balance
@@ -183,7 +244,7 @@ export default function Invoices() {
             </CardHeader>
             <CardContent>
               <div className='text-2xl font-bold'>
-                ${invoicesData.paid_this_month.toFixed(2)}
+                ${invoicesData?.stats?.last_payment}
               </div>
               <p className='text-xs text-muted-foreground'>Last paid amount</p>
             </CardContent>
@@ -198,7 +259,7 @@ export default function Invoices() {
             </CardHeader>
             <CardContent>
               <div className='text-2xl font-bold'>
-                {invoicesData.total_count}
+                {invoicesData?.stats.total_count}
               </div>
               <p className='text-xs text-muted-foreground'>Total invoices</p>
             </CardContent>
@@ -221,24 +282,48 @@ export default function Invoices() {
                   <Input
                     placeholder='Search invoices...'
                     value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onChange={(e) => handleSearch(e.target.value)}
                     className='w-[250px] pl-8'
                   />
                 </div>
+                <Select value={statusFilter} onValueChange={handleStatusChange}>
+                  <SelectTrigger className='w-[180px]'>
+                    <SelectValue placeholder='Filter by status' />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value='all'>All Status</SelectItem>
+                    <SelectItem value='paid'>Paid</SelectItem>
+                    <SelectItem value='pending'>Pending</SelectItem>
+                    <SelectItem value='overdue'>Overdue</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           </CardHeader>
           <CardContent>
             <GenericTableWrapper
               columns={columns}
-              data={dummyInvoices}
-              isLoading={false}
-              isError={false}
+              // @ts-ignore
+              data={invoicesData?.invoices.data || []}
+              isLoading={isLoading}
+              isError={isError}
               showToolbar={false}
+              {...{ paginationValues, setPaginationValues }}
             />
           </CardContent>
         </Card>
       </Layout.Body>
+
+      {selectedInvoice && (
+        <PaymentModal
+          open={!!selectedInvoice}
+          onClose={() => setSelectedInvoice(null)}
+          invoice={selectedInvoice}
+          onPaymentComplete={() => {
+            // Handle any necessary actions after payment is complete
+          }}
+        />
+      )}
     </Layout>
   )
 }

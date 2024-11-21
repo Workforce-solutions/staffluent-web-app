@@ -121,7 +121,7 @@ export default function StaffDetails() {
   return (
     <Layout>
       <Layout.Header>
-        <div className='ml-auto flex items-center space-x-4'>
+        <div className='ml-auto flex items-center space-x-2'>
           <ThemeSwitch />
           <UserNav />
         </div>
@@ -362,7 +362,7 @@ export default function StaffDetails() {
   )
 }
 
-function InfoField({
+export function InfoField({
   label,
   value,
   icon,

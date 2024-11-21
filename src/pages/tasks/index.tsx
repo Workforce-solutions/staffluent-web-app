@@ -5,7 +5,6 @@ import { UserNav } from '@/components/user-nav'
 // @ts-ignore
 // import { DataTable } from './components/data-table'
 import { columns } from './components/columns'
-// import { tasks } from './data/tasks'
 
 export default function Tasks() {
   return (
@@ -13,7 +12,7 @@ export default function Tasks() {
       {/* ===== Top Heading ===== */}
       <Layout.Header sticky>
         <Search />
-        <div className='ml-auto flex items-center space-x-4'>
+        <div className='ml-auto flex items-center space-x-2'>
           <ThemeSwitch />
           <UserNav />
         </div>
@@ -34,4 +33,4 @@ export default function Tasks() {
       </Layout.Body>
     </Layout>
   )
-}
+} 

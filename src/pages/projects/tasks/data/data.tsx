@@ -36,7 +36,7 @@ export const statuses = [
     icon: CircleIcon,
   },
   {
-    value: 'in progress',
+    value: 'in_progress',
     label: 'In Progress',
     icon: StopwatchIcon,
   },
@@ -46,7 +46,7 @@ export const statuses = [
     icon: CheckCircledIcon,
   },
   {
-    value: 'canceled',
+    value: 'cancelled',
     label: 'Canceled',
     icon: CrossCircledIcon,
   },
@@ -70,6 +70,14 @@ export const priorities = [
   },
 ]
 
+
+export const projectStatuses = [
+ { value: 'cancelled', label: 'Cancelled', icon: CrossCircledIcon, },
+  { value: 'completed', label: 'Completed', icon: CheckCircledIcon, },
+  { value: 'in_progress', label: 'In Progress', icon: StopwatchIcon, },
+  { value: 'on_hold', label: 'On Hold', icon: CircleIcon, },
+  { value: 'planning', label: 'Planning', icon: QuestionMarkCircledIcon, },
+]
 // Add this to your mock data generation
 export const projects = [
   { value: 'project-1', label: 'Project Alpha' },

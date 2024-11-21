@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { ServiceProps } from '@/@types/services'
 import { Layout } from '@/components/custom/layout'
 import { initialPage } from '@/components/table/data'
@@ -32,6 +33,7 @@ import {
   Trash2,
 } from 'lucide-react'
 import { useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { ServiceModal } from './service-modal'
 
 export default function AdminServices() {
@@ -42,6 +44,7 @@ export default function AdminServices() {
   const { toast } = useToast()
   const venue_short_code = useShortCode()
   const [deleteService] = useDeleteServiceMutation()
+  const navigate = useNavigate()
 
   const [paginationValues, setPaginationValues] = useState(initialPage)
 
@@ -120,7 +123,7 @@ export default function AdminServices() {
       {
         id: 'actions',
         header: 'Actions',
-        cell: ({ row }) => (
+        cell: ({ row: { original } }) => (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant='ghost' size='icon'>
@@ -130,7 +133,15 @@ export default function AdminServices() {
             <DropdownMenuContent align='end'>
               <DropdownMenuItem
                 onClick={() => {
-                  setSelectedService(row.original)
+                  setSelectedService(original)
+                  navigate(`/admin/services/${original.id}`)
+                }}
+              >
+                Service details
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => {
+                  setSelectedService(original)
                   setModalOpen(true)
                 }}
               >
@@ -140,7 +151,7 @@ export default function AdminServices() {
               <DropdownMenuItem
                 className='text-destructive'
                 onClick={() => {
-                  setSelectedService(row.original)
+                  setSelectedService(original)
                   setDeleteOpen(true)
                 }}
               >

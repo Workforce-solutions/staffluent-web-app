@@ -476,7 +476,7 @@ export function AddClientModal({ open, setOpen }: AddClientModalProps) {
           <Button type='submit' form='create-client-form' disabled={isLoading}>
             {isLoading
               ? 'Creating...'
-              : `Create ${formData.isUser ? 'User' : 'Client'}`}
+              : `Create ${formData.isUser ? 'User' : 'client with user'}`}
           </Button>
         </DialogFooter>
       </DialogContent>

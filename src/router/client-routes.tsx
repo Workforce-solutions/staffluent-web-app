@@ -51,10 +51,38 @@ export const clientsRoute: RouteObject[] = [
         }),
       },
       {
+        path: 'invoices/confirmation',
+        lazy: async () => ({
+          Component: (await import('../pages/client-portal/invoices/confirmation'))
+              .default,
+        }),
+      },
+      {
+        path: 'invoices/fail',
+        lazy: async () => ({
+          Component: (await import('../pages/client-portal/invoices/fail.tsx'))
+              .default,
+        }),
+      },
+      {
+        path: 'invoices/success',
+        lazy: async () => ({
+          Component: (await import('../pages/client-portal/invoices/success'))
+              .default,
+        }),
+      },
+      {
         path: 'support',
         lazy: async () => ({
           Component: (await import('../pages/client-portal/support/index.tsx'))
             .default,
+        }),
+      },
+      {
+        path: 'support/tickets/:id',
+        lazy: async () => ({
+          Component: (await import('../pages/client-portal/support/details.tsx'))
+              .default,
         }),
       },
       {

@@ -13,11 +13,9 @@ import {
 } from '@/components/ui/table'
 import {
   Search,
-  Filter,
   Clock,
   CheckCircle2,
   AlertCircle,
-  MessageSquare,
   Users,
   Eye,
   MoreHorizontal,
@@ -39,11 +37,72 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { CreateTicketModal } from '@/components/client-portal/new-ticket-modal'
+import { useGetAdminTicketsQuery } from '@/services/adminTicketApi'
+import { useShortCode } from '@/hooks/use-local-storage'
+import { format } from 'date-fns'
+import { UpdateStatusModal } from './update-status'
+import { AddAsigneModal } from './add-assign-agent'
+import { UpdatePriorityModal } from './update-priority'
+import { useNavigate } from 'react-router-dom'
+
+const statusOptions = {
+  open: 'Open',
+  in_progress: 'In Progress',
+  closed: 'Closed',
+  resolved: 'Resolved',
+}
+
+const priorityOptions = {
+  low: 'Low',
+  medium: 'Medium',
+  high: 'High',
+  urgent: 'Urgent',
+}
 
 export default function SupportTickets() {
-  const [searchTerm, setSearchTerm] = useState('')
-  const [openNewTicket, setOpenNewTicket] = useState(false)
+
+  const navigate = useNavigate();
+  const [filters, setFilters] = useState({
+    status: 'all',
+    priority: 'all',
+    search: '',
+    page: 1,
+    per_page: 10
+  });
+  const [openUpdateStatusModal, setOpenUpdateStatusModal] = useState(false);
+  const [openAddAssignModal, setOpenAddAssignModal] = useState(false);
+  const [openUpdatePriorityModal, setOpenUpdatePriorityModal] = useState(false);
+  const [selectedTicketId, setSelectedTicketId] = useState<any | null>(null);
+  const venue_short_code = useShortCode();
+
+  const { data, isLoading } = useGetAdminTicketsQuery({
+    venue_short_code,
+    ...filters
+  });
+
+  const handleStatusChange = (status: string) => {
+    setFilters(prev => ({
+      ...prev,
+      status,
+      page: 1
+    }));
+  };
+
+  const handlePriorityChange = (priority: string) => {
+    setFilters(prev => ({
+      ...prev,
+      priority,
+      page: 1
+    }));
+  };
+
+  const handleSearch = (search: string) => {
+    setFilters(prev => ({
+      ...prev,
+      search,
+      page: 1
+    }));
+  };
 
   return (
     <Layout>
@@ -64,7 +123,7 @@ export default function SupportTickets() {
               Manage and respond to support tickets
             </p>
           </div>
-          <div className='flex space-x-2'>
+          {/* <div className='flex space-x-2'>
             <Button onClick={() => setOpenNewTicket(true)}>
               <MessageSquare className='mr-2 h-4 w-4' />
               Create Ticket
@@ -73,7 +132,7 @@ export default function SupportTickets() {
               open={openNewTicket}
               onOpenChange={setOpenNewTicket}
             />
-          </div>
+          </div> */}
         </div>
         {/* Stats Cards */}
         <div className='grid gap-4 md:grid-cols-4'>
@@ -82,12 +141,12 @@ export default function SupportTickets() {
               <CardTitle className='text-sm font-medium'>
                 Open Tickets
               </CardTitle>
-              <AlertCircle className='h-4 w-4 text-muted-foreground' />
+              <AlertCircle className='h-4 w-4 text-muted-foreground'/>
             </CardHeader>
             <CardContent>
-              <div className='text-2xl font-bold'>42</div>
+              <div className='text-2xl font-bold'>{data?.stats.open_tickets || 0}</div>
               <p className='text-xs text-muted-foreground'>
-                +8 since yesterday
+                Active support tickets
               </p>
             </CardContent>
           </Card>
@@ -97,11 +156,11 @@ export default function SupportTickets() {
               <CardTitle className='text-sm font-medium'>
                 Avg Response Time
               </CardTitle>
-              <Clock className='h-4 w-4 text-muted-foreground' />
+              <Clock className='h-4 w-4 text-muted-foreground'/>
             </CardHeader>
             <CardContent>
-              <div className='text-2xl font-bold'>2.4h</div>
-              <p className='text-xs text-muted-foreground'>-15min from avg</p>
+              <div className='text-2xl font-bold'>{data?.stats.avg_response_time || 'N/A'}</div>
+              <p className='text-xs text-muted-foreground'>Response time</p>
             </CardContent>
           </Card>
 
@@ -110,11 +169,11 @@ export default function SupportTickets() {
               <CardTitle className='text-sm font-medium'>
                 Resolution Rate
               </CardTitle>
-              <CheckCircle2 className='h-4 w-4 text-muted-foreground' />
+              <CheckCircle2 className='h-4 w-4 text-muted-foreground'/>
             </CardHeader>
             <CardContent>
-              <div className='text-2xl font-bold'>94%</div>
-              <p className='text-xs text-muted-foreground'>+2% this week</p>
+              <div className='text-2xl font-bold'>{data?.stats.resolution_rate || '0%'}</div>
+              <p className='text-xs text-muted-foreground'>Last 30 days</p>
             </CardContent>
           </Card>
 
@@ -123,10 +182,10 @@ export default function SupportTickets() {
               <CardTitle className='text-sm font-medium'>
                 Active Agents
               </CardTitle>
-              <Users className='h-4 w-4 text-muted-foreground' />
+              <Users className='h-4 w-4 text-muted-foreground'/>
             </CardHeader>
             <CardContent>
-              <div className='text-2xl font-bold'>8</div>
+              <div className='text-2xl font-bold'>{data?.stats.active_agents || 0}</div>
               <p className='text-xs text-muted-foreground'>Handling tickets</p>
             </CardContent>
           </Card>
@@ -146,110 +205,171 @@ export default function SupportTickets() {
                 <div className='relative'>
                   <Search className='absolute left-2 top-2.5 h-4 w-4 text-muted-foreground' />
                   <Input
-                    placeholder='Search tickets...'
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className='w-[250px] pl-8'
+                      placeholder='Search tickets...'
+                      value={filters.search}
+                      onChange={(e) => handleSearch(e.target.value)}
+                      className='w-[250px] pl-8'
                   />
                 </div>
-                <Select defaultValue='all'>
+                <Select
+                    value={filters.priority}
+                    onValueChange={handlePriorityChange}
+                >
                   <SelectTrigger className='w-[180px]'>
-                    <SelectValue placeholder='Filter by status' />
+                    <SelectValue placeholder='Filter by priority' />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value='all'>All Status</SelectItem>
-                    <SelectItem value='open'>Open</SelectItem>
-                    <SelectItem value='in-progress'>In Progress</SelectItem>
-                    <SelectItem value='resolved'>Resolved</SelectItem>
+                    <SelectItem value='all'>All Priorities</SelectItem>
+                    {Object.entries(priorityOptions).map(([value, label]) => (
+                        <SelectItem key={value} value={value}>{label}</SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
-                <Button variant='outline' size='icon'>
-                  <Filter className='h-4 w-4' />
-                </Button>
               </div>
             </div>
           </CardHeader>
           <CardContent>
-            <Tabs defaultValue='all' className='space-y-4'>
+            <Tabs value={filters.status} onValueChange={handleStatusChange}>
               <TabsList>
                 <TabsTrigger value='all'>All Tickets</TabsTrigger>
                 <TabsTrigger value='open'>Open</TabsTrigger>
-                <TabsTrigger value='in-progress'>In Progress</TabsTrigger>
+                <TabsTrigger value='in_progress'>In Progress</TabsTrigger>
                 <TabsTrigger value='resolved'>Resolved</TabsTrigger>
               </TabsList>
 
-              <TabsContent value='all'>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Ticket ID</TableHead>
-                      <TableHead>Subject</TableHead>
-                      <TableHead>Client</TableHead>
-                      <TableHead>Priority</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Assigned To</TableHead>
-                      <TableHead>Created</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <TableRow key={i}>
-                        <TableCell className='font-medium'>
-                          TK-{1001 + i}
-                        </TableCell>
-                        <TableCell>Equipment maintenance issue</TableCell>
-                        <TableCell>Client {i + 1}</TableCell>
-                        <TableCell>
-                          <Badge
-                            variant={
-                              i === 0
-                                ? 'destructive'
-                                : i === 1
-                                  ? 'warning'
-                                  : 'default'
-                            }
-                          >
-                            {i === 0 ? 'High' : i === 1 ? 'Medium' : 'Low'}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant='secondary'>
-                            {i === 0
-                              ? 'Open'
-                              : i === 1
-                                ? 'In Progress'
-                                : 'Resolved'}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>Agent {i + 1}</TableCell>
-                        <TableCell>{new Date().toLocaleDateString()}</TableCell>
-                        <TableCell>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant='ghost' size='icon'>
-                                <MoreHorizontal className='h-4 w-4' />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align='end'>
-                              <DropdownMenuItem>
-                                <Eye className='mr-2 h-4 w-4' />
-                                View Details
-                              </DropdownMenuItem>
-                              <DropdownMenuItem>Assign Agent</DropdownMenuItem>
-                              <DropdownMenuItem>Update Status</DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+              <TabsContent value={filters.status}>
+                {isLoading ? (
+                    <div className="flex justify-center py-8">Loading...</div>
+                ) : (
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Ticket ID</TableHead>
+                          <TableHead>Subject</TableHead>
+                          <TableHead>Client</TableHead>
+                          <TableHead>Priority</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead>Assigned To</TableHead>
+                          <TableHead>Created</TableHead>
+                          <TableHead>Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {data?.tickets.data.length === 0 ? (
+                            <TableRow>
+                              <TableCell colSpan={8} className="text-center">
+                                No tickets found
+                              </TableCell>
+                            </TableRow>
+                        ) : (
+                            data?.tickets.data.map((ticket) => (
+                                <TableRow key={ticket.id}>
+                                  <TableCell className='font-medium'>
+                                    {ticket.number}
+                                  </TableCell>
+                                  <TableCell>{ticket.subject}</TableCell>
+                                  <TableCell>{ticket.client?.name}</TableCell>
+                                  <TableCell>
+                                    <Badge
+                                        variant={
+                                          ticket.priority === 'urgent' || ticket.priority === 'high'
+                                              ? 'destructive'
+                                              : ticket.priority === 'medium'
+                                                  ? 'warning'
+                                                  : 'default'
+                                        }
+                                    >
+                                      {priorityOptions[ticket.priority]}
+                                    </Badge>
+                                  </TableCell>
+                                  <TableCell>
+                                    <Badge
+                                        variant={
+                                          ticket.status === 'open'
+                                              ? 'destructive'
+                                              : ticket.status === 'in_progress'
+                                                  ? 'warning'
+                                                  : 'success'
+                                        }
+                                    >
+                                      {statusOptions[ticket.status]}
+                                    </Badge>
+                                  </TableCell>
+                                  <TableCell>{ticket.assigned_to?.name || 'Unassigned'}</TableCell>
+                                  <TableCell>{format(new Date(ticket.created_at), 'MMM dd, yyyy')}</TableCell>
+                                  <TableCell>
+                                    <DropdownMenu>
+                                      <DropdownMenuTrigger asChild>
+                                        <Button variant='ghost' size='icon'>
+                                          <MoreHorizontal className='h-4 w-4' />
+                                        </Button>
+                                      </DropdownMenuTrigger>
+                                      <DropdownMenuContent align='end'>
+                                        <DropdownMenuItem onClick={() => navigate(`/admin/support/tickets/${ticket.id}`)}>
+                                          <Eye className='mr-2 h-4 w-4' />
+                                          View Details
+                                        </DropdownMenuItem>
+                                        {!ticket.assigned_to && (
+                                            <DropdownMenuItem
+                                                onClick={(e) => {
+                                                  e.stopPropagation();
+                                                  setSelectedTicketId(ticket);
+                                                  setOpenAddAssignModal(true);
+                                                }}
+                                            >
+                                              Assign Agent
+                                            </DropdownMenuItem>
+                                        )}
+                                        <DropdownMenuItem
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              setSelectedTicketId(ticket);
+                                              setOpenUpdateStatusModal(true);
+                                            }}
+                                        >
+                                          Update Status
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              setSelectedTicketId(ticket);
+                                              setOpenUpdatePriorityModal(true);
+                                            }}
+                                        >
+                                          Update Priority
+                                        </DropdownMenuItem>
+                                      </DropdownMenuContent>
+                                    </DropdownMenu>
+                                  </TableCell>
+                                </TableRow>
+                            ))
+                        )}
+                      </TableBody>
+                    </Table>
+                )}
               </TabsContent>
             </Tabs>
           </CardContent>
         </Card>
       </Layout.Body>
+
+      {/* Modals */}
+      <UpdateStatusModal
+          open={openUpdateStatusModal}
+          setOpen={setOpenUpdateStatusModal}
+          ticket={selectedTicketId}
+      />
+      <AddAsigneModal
+          open={openAddAssignModal}
+          setOpen={setOpenAddAssignModal}
+          ticket={selectedTicketId}
+      />
+      <UpdatePriorityModal
+          open={openUpdatePriorityModal}
+          setOpen={setOpenUpdatePriorityModal}
+          ticket={selectedTicketId}
+      />
     </Layout>
-  )
+  );
 }
+

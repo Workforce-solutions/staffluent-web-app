@@ -6,97 +6,70 @@ import { UserNav } from '@/components/user-nav'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
 import { MessageSquare, PlusCircle, Clock, CheckCircle2 } from 'lucide-react'
-import { CreateTicketModal } from '@/components/client-portal/new-ticket-modal'
 import { useState } from 'react'
 import { format } from 'date-fns'
+import { useGetClientTicketsQuery } from '@/services/clientTicketApi'
+import { Input } from '@/components/ui/input'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select'
+import { useNavigate } from 'react-router-dom'
+import { CreateTicketModal } from '@/components/client-portal/new-ticket-modal-client'
 
 interface Ticket {
   id: number
   number: string
   subject: string
   description: string
-  status: 'Open' | 'In Progress' | 'Resolved'
+  status: 'open' | 'in_progress' | 'resolved' | 'success'
   updated_at: Date
   created_at: Date
-  priority: 'High' | 'Medium' | 'Low'
+  priority: 'high' | 'medium' | 'low'
 }
 
 export default function Support() {
+  const navigate = useNavigate()
   const [openNewTicket, setOpenNewTicket] = useState(false)
+  const [filters, setFilters] = useState({
+    status: 'active' as 'active' | 'resolved' | 'all',
+    priority: 'all',
+    search: '',
+    page: 1,
+    per_page: 10
+  });
 
-  // Dummy data
-  const supportData = {
-    active_count: 3,
-    resolved_count: 12,
-    avg_response_time: '2.4h',
-    active_tickets: [
-      {
-        id: 1,
-        number: 'TK-2024001',
-        subject: 'Equipment Malfunction',
-        description:
-          'Main cooking equipment not maintaining proper temperature',
-        status: 'Open',
-        priority: 'High',
-        updated_at: new Date('2024-01-20'),
-        created_at: new Date('2024-01-20'),
-      },
-      {
-        id: 2,
-        number: 'TK-2024002',
-        subject: 'Software Issue',
-        description: 'POS system showing errors during peak hours',
-        status: 'In Progress',
-        priority: 'Medium',
-        updated_at: new Date('2024-01-19'),
-        created_at: new Date('2024-01-18'),
-      },
-    ],
-    resolved_tickets: [
-      {
-        id: 3,
-        number: 'TK-2024003',
-        subject: 'Training Request',
-        description: 'Need training session for new staff on equipment usage',
-        status: 'Resolved',
-        priority: 'Low',
-        updated_at: new Date('2024-01-15'),
-        created_at: new Date('2024-01-10'),
-      },
-    ],
-    all_tickets: [
-      {
-        id: 1,
-        number: 'TK-2024001',
-        subject: 'Equipment Malfunction',
-        description:
-          'Main cooking equipment not maintaining proper temperature',
-        status: 'Open',
-        priority: 'High',
-        updated_at: new Date('2024-01-20'),
-        created_at: new Date('2024-01-20'),
-      },
-      {
-        id: 2,
-        number: 'TK-2024002',
-        subject: 'Software Issue',
-        description: 'POS system showing errors during peak hours',
-        status: 'In Progress',
-        priority: 'Medium',
-        updated_at: new Date('2024-01-19'),
-        created_at: new Date('2024-01-18'),
-      },
-      {
-        id: 3,
-        number: 'TK-2024003',
-        subject: 'Training Request',
-        description: 'Need training session for new staff on equipment usage',
-        status: 'Resolved',
-        priority: 'Low',
-        updated_at: new Date('2024-01-15'),
-        created_at: new Date('2024-01-10'),
-      },
-    ],
+  // Update query to pass all filters
+  const { data, isLoading } = useGetClientTicketsQuery(filters);
+
+  // @ts-ignore
+  const handleStatusChange = (status: string) => {
+    // @ts-ignore
+    setFilters(prev => ({
+      // @ts-ignore
+      ...prev,
+      status,
+      page: 1
+    }))
+  }
+
+  const handlePriorityChange = (priority: string) => {
+    setFilters(prev => ({
+      ...prev,
+      priority,
+      page: 1
+    }))
+  }
+
+  const handleSearch = (search: string) => {
+    setFilters(prev => ({
+      ...prev,
+      search,
+      page: 1
+    }))
   }
 
   // @ts-ignore
@@ -122,22 +95,17 @@ export default function Support() {
             New Support Ticket
           </Button>
         </div>
+
         {/* Stats Cards */}
         <div className='grid gap-4 md:grid-cols-3'>
           <Card>
             <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-              <CardTitle className='text-sm font-medium'>
-                Active Tickets
-              </CardTitle>
+              <CardTitle className='text-sm font-medium'>Active Tickets</CardTitle>
               <Clock className='h-4 w-4 text-muted-foreground' />
             </CardHeader>
             <CardContent>
-              <div className='text-2xl font-bold'>
-                {supportData.active_count}
-              </div>
-              <p className='text-xs text-muted-foreground'>
-                Open support requests
-              </p>
+              <div className='text-2xl font-bold'>{data?.stats.active_count}</div>
+              <p className='text-xs text-muted-foreground'>Open support requests</p>
             </CardContent>
           </Card>
 
@@ -147,26 +115,18 @@ export default function Support() {
               <CheckCircle2 className='h-4 w-4 text-muted-foreground' />
             </CardHeader>
             <CardContent>
-              <div className='text-2xl font-bold'>
-                {supportData.resolved_count}
-              </div>
-              <p className='text-xs text-muted-foreground'>
-                Total resolved tickets
-              </p>
+              <div className='text-2xl font-bold'>{data?.stats.resolved_count}</div>
+              <p className='text-xs text-muted-foreground'>Total resolved tickets</p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-              <CardTitle className='text-sm font-medium'>
-                Average Response
-              </CardTitle>
+              <CardTitle className='text-sm font-medium'>Average Response</CardTitle>
               <Clock className='h-4 w-4 text-muted-foreground' />
             </CardHeader>
             <CardContent>
-              <div className='text-2xl font-bold'>
-                {supportData.avg_response_time}
-              </div>
+              <div className='text-2xl font-bold'>{data?.stats.avg_response_time}</div>
               <p className='text-xs text-muted-foreground'>Response time</p>
             </CardContent>
           </Card>
@@ -175,54 +135,64 @@ export default function Support() {
         {/* Tickets List */}
         <Card>
           <CardHeader>
-            <div className='space-y-1'>
-              <CardTitle>Support Tickets</CardTitle>
-              <p className='text-sm text-muted-foreground'>
-                View and manage your support requests
-              </p>
+            <div className='flex items-center justify-between'>
+              <div className='space-y-1'>
+                <CardTitle>Support Tickets</CardTitle>
+                <p className='text-sm text-muted-foreground'>
+                  View and manage your support requests
+                </p>
+              </div>
+              <div className='flex space-x-2'>
+                <Input
+                  placeholder="Search tickets..."
+                  value={filters.search}
+                  onChange={(e) => handleSearch(e.target.value)}
+                  className="w-[200px]"
+                />
+                <Select
+                  value={filters.priority}
+                  onValueChange={handlePriorityChange}
+                >
+                  <SelectTrigger className="w-[150px]">
+                    <SelectValue placeholder="Priority" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Priorities</SelectItem>
+                    <SelectItem value="high">High</SelectItem>
+                    <SelectItem value="medium">Medium</SelectItem>
+                    <SelectItem value="low">Low</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </CardHeader>
           <CardContent>
-            <Tabs defaultValue='active' className='space-y-4'>
+            <Tabs value={filters.status} onValueChange={handleStatusChange}>
               <TabsList>
                 <TabsTrigger value='active'>Active</TabsTrigger>
                 <TabsTrigger value='resolved'>Resolved</TabsTrigger>
                 <TabsTrigger value='all'>All Tickets</TabsTrigger>
               </TabsList>
 
-              <TabsContent value='active' className='space-y-4'>
-                {supportData.active_tickets.map((ticket) => (
-                  // @ts-ignore
-                  <TicketCard key={ticket.id} ticket={ticket} />
-                ))}
-                {supportData.active_tickets.length === 0 && (
-                  <p className='py-8 text-center text-muted-foreground'>
-                    No active tickets found
-                  </p>
-                )}
-              </TabsContent>
-
-              <TabsContent value='resolved' className='space-y-4'>
-                {supportData.resolved_tickets.map((ticket) => (
-                  // @ts-ignore
-                  <TicketCard key={ticket.id} ticket={ticket} />
-                ))}
-                {supportData.resolved_tickets.length === 0 && (
-                  <p className='py-8 text-center text-muted-foreground'>
-                    No resolved tickets found
-                  </p>
-                )}
-              </TabsContent>
-
-              <TabsContent value='all' className='space-y-4'>
-                {supportData.all_tickets.map((ticket) => (
-                  // @ts-ignore
-                  <TicketCard key={ticket.id} ticket={ticket} />
-                ))}
-                {supportData.all_tickets.length === 0 && (
-                  <p className='py-8 text-center text-muted-foreground'>
-                    No tickets found
-                  </p>
+              <TabsContent value={filters.status} className='space-y-4'>
+                {isLoading ? (
+                  <div className="flex justify-center py-8">Loading...</div>
+                ) : (
+                  <>
+                    {data?.tickets.data.map((ticket) => (
+                      <TicketCard
+                        key={ticket.id}
+                        // @ts-ignore
+                        ticket={ticket}
+                        onView={() => navigate(`/client-portal/support/tickets/${ticket.id}`)}
+                      />
+                    ))}
+                    {data?.tickets.data.length === 0 && (
+                      <p className='py-8 text-center text-muted-foreground'>
+                        No tickets found
+                      </p>
+                    )}
+                  </>
                 )}
               </TabsContent>
             </Tabs>
@@ -235,7 +205,7 @@ export default function Support() {
   )
 }
 
-function TicketCard({ ticket }: { ticket: Ticket }) {
+function TicketCard({ ticket, onView }: { ticket: Ticket; onView: () => void }) {
   return (
     <Card>
       <CardContent className='p-6'>
@@ -245,35 +215,33 @@ function TicketCard({ ticket }: { ticket: Ticket }) {
               #{ticket.number} - {ticket.subject}
             </h3>
             <p className='text-sm text-muted-foreground'>
-              Last updated {format(ticket.updated_at, 'MMM dd, yyyy')}
+              Last updated {format(new Date(ticket.updated_at), 'MMM dd, yyyy')}
             </p>
           </div>
           <Badge
             variant={
-              ticket.status === 'Open'
+              ticket?.status == 'open'
                 ? 'warning'
-                : ticket.status === 'In Progress'
+                : ticket?.status == 'in_progress'
                   ? 'default'
                   : 'success'
             }
           >
-            {ticket.status}
+            {ticket.status?.toUpperCase()}
           </Badge>
         </div>
         <p className='mt-2 text-sm'>{ticket.description}</p>
         <div className='mt-4 flex items-center justify-between'>
-          <Badge
-            variant={
-              ticket.priority === 'High'
-                ? 'destructive'
-                : ticket.priority === 'Medium'
-                  ? 'warning'
-                  : 'default'
-            }
-          >
-            {ticket.priority} Priority
+          <Badge variant={
+            ticket?.priority == 'high'
+              ? 'destructive'
+              : ticket?.priority == 'medium'
+                ? 'warning'
+                : 'default'
+          }>
+            {ticket.priority?.toUpperCase()}
           </Badge>
-          <Button variant='outline' className='space-x-2'>
+          <Button variant='outline' className='space-x-2' onClick={onView}>
             <MessageSquare className='h-4 w-4' />
             <span>View Conversation</span>
           </Button>

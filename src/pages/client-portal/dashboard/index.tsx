@@ -5,101 +5,51 @@ import { UserNav } from '@/components/user-nav'
 import { Badge } from '@/components/ui/badge'
 import { Building2, Calendar, Receipt, AlertCircle } from 'lucide-react'
 import { format } from 'date-fns'
-
-interface Service {
-  id: number
-  name: string
-  description: string
-  status: string
-}
-
-interface Invoice {
-  id: number
-  number: string
-  date: Date
-  amount: number
-  status: 'paid' | 'pending'
-}
-
-interface Activity {
-  id: number
-  description: string
-  date: Date
-  type: string
-}
+import { useGetDashboardDataQuery } from '@/services/clientPortalApi'
+import { Skeleton } from '@/components/ui/skeleton'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 
 export default function ClientDashboard() {
-  // Dummy data
-  const clientData = {
-    stats: {
-      active_services: 3,
-      pending_payments: 599.98,
-      total_invoices: 5,
-    },
-    next_service_date: format(new Date('2024-02-15'), 'MMM dd, yyyy'),
-    active_services: [
-      {
-        id: 1,
-        name: 'Monthly Equipment Maintenance',
-        description: 'Regular maintenance and inspection',
-        status: 'Active',
-      },
-      {
-        id: 2,
-        name: 'Emergency Support',
-        description: '24/7 emergency technical support',
-        status: 'Active',
-      },
-      {
-        id: 3,
-        name: 'Parts Replacement Service',
-        description: 'Quarterly parts check and replacement',
-        status: 'Scheduled',
-      },
-    ] as Service[],
-    recent_invoices: [
-      {
-        id: 1,
-        number: 'INV-2024001',
-        date: new Date('2024-01-15'),
-        amount: 299.99,
-        status: 'pending',
-      },
-      {
-        id: 2,
-        number: 'INV-2024002',
-        date: new Date('2024-01-10'),
-        amount: 499.99,
-        status: 'paid',
-      },
-      {
-        id: 3,
-        number: 'INV-2024003',
-        date: new Date('2024-01-05'),
-        amount: 299.99,
-        status: 'pending',
-      },
-    ] as Invoice[],
-    activity: [
-      {
-        id: 1,
-        description: 'Monthly maintenance completed',
-        date: new Date('2024-01-20'),
-        type: 'service',
-      },
-      {
-        id: 2,
-        description: 'New invoice generated',
-        date: new Date('2024-01-15'),
-        type: 'invoice',
-      },
-      {
-        id: 3,
-        description: 'Service request submitted',
-        date: new Date('2024-01-10'),
-        type: 'request',
-      },
-    ] as Activity[],
+  const { data: clientData, isLoading, isError } = useGetDashboardDataQuery()
+
+  if (isLoading) {
+    return (
+      <Layout>
+        <Layout.Header>
+          <div className='ml-auto flex items-center space-x-2 sm:space-x-4'>
+            <ThemeSwitch />
+            <UserNav />
+          </div>
+        </Layout.Header>
+        <Layout.Body className='space-y-6'>
+          <div className='grid gap-4 md:grid-cols-3'>
+            {[1, 2, 3].map((i) => (
+              <Card key={i}>
+                <CardHeader>
+                  <Skeleton className='h-4 w-[150px]' />
+                </CardHeader>
+                <CardContent>
+                  <Skeleton className='h-8 w-[100px]' />
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </Layout.Body>
+      </Layout>
+    )
+  }
+
+  if (isError || !clientData) {
+    return (
+      <Layout>
+        <Layout.Body className='p-6'>
+          <Alert variant='destructive'>
+            <AlertCircle className='h-4 w-4' />
+            <AlertDescription>Failed to load dashboard data</AlertDescription>
+          </Alert>
+        </Layout.Body>
+      </Layout>
+    )
   }
 
   return (
@@ -120,6 +70,7 @@ export default function ClientDashboard() {
             </p>
           </div>
         </div>
+
         {/* Stats Overview */}
         <div className='grid gap-4 md:grid-cols-3'>
           <Card>
@@ -148,7 +99,7 @@ export default function ClientDashboard() {
             </CardHeader>
             <CardContent>
               <div className='text-2xl font-bold'>
-                ${clientData.stats.pending_payments}
+                ${clientData.stats?.pending_payments}
               </div>
               <p className='text-xs text-muted-foreground'>
                 Outstanding balance
@@ -165,7 +116,12 @@ export default function ClientDashboard() {
             </CardHeader>
             <CardContent>
               <div className='text-2xl font-bold'>
-                {clientData.next_service_date || 'No upcoming'}
+                {clientData.next_service_date
+                  ? format(
+                      new Date(clientData.next_service_date),
+                      'MMM dd, yyyy'
+                    )
+                  : 'No upcoming'}
               </div>
               <p className='text-xs text-muted-foreground'>
                 Scheduled maintenance
@@ -202,6 +158,12 @@ export default function ClientDashboard() {
                     </Badge>
                   </div>
                 ))}
+
+                {clientData.active_services.length === 0 && (
+                  <p className='py-4 text-center text-sm text-muted-foreground'>
+                    No active services
+                  </p>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -222,11 +184,13 @@ export default function ClientDashboard() {
                         Invoice #{invoice.number}
                       </p>
                       <p className='text-sm text-muted-foreground'>
-                        {format(invoice.date, 'MMM dd, yyyy')}
+                        {format(new Date(invoice.date), 'MMM dd, yyyy')}
                       </p>
                     </div>
                     <div className='text-right'>
-                      <p className='text-sm font-medium'>${invoice.amount}</p>
+                      <p className='text-sm font-medium'>
+                        ${invoice.amount}
+                      </p>
                       <Badge
                         variant={
                           invoice.status === 'paid' ? 'success' : 'warning'
@@ -238,12 +202,18 @@ export default function ClientDashboard() {
                     </div>
                   </div>
                 ))}
+
+                {clientData.recent_invoices.length === 0 && (
+                  <p className='py-4 text-center text-sm text-muted-foreground'>
+                    No recent invoices
+                  </p>
+                )}
               </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Activity & Notifications */}
+        {/* Activity Log */}
         <Card>
           <CardHeader>
             <CardTitle>Recent Activity</CardTitle>
@@ -256,11 +226,17 @@ export default function ClientDashboard() {
                   <div className='space-y-1'>
                     <p className='text-sm font-medium'>{item.description}</p>
                     <p className='text-sm text-muted-foreground'>
-                      {format(item.date, 'MMM dd, yyyy')}
+                      {format(new Date(item.date), 'MMM dd, yyyy')}
                     </p>
                   </div>
                 </div>
               ))}
+
+              {clientData.activity.length === 0 && (
+                <p className='py-4 text-center text-sm text-muted-foreground'>
+                  No recent activity
+                </p>
+              )}
             </div>
           </CardContent>
         </Card>

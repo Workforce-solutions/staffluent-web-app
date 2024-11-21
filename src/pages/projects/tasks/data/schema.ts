@@ -10,12 +10,12 @@ const timeEntrySchema = z.object({
 
 export const taskSchema = z.object({
   id: z.string(),
-  title: z.string(),
+  name: z.string(),
   status: z.string(),
   label: z.string(),
   priority: z.string(),
-  project: z.string(),
-  assignee: z.string().nullable(),
+  // project: z.string(),
+  // assignee: z.string().nullable(),
   timeEntries: z.array(timeEntrySchema).optional(),
 })
 

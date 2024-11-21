@@ -70,6 +70,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
   }) => {
     try {
       const res = await vbLogin({ email, password }).unwrap()
+      console.log("🚀 ~ UserAuthForm ~ res:", res)
       if (res) {
         const accountType = AccountType.client
         localStorage.setItem('vbAuth', JSON.stringify(res))
@@ -80,7 +81,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
         navigate('/client-portal/dashboard')
       }
     } catch (err) {
-      setError('Login failed. Please try again.')
+      setError('Invalid login credentials from Supabase. Trying fallback...')
     }
   }
 
@@ -97,33 +98,35 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
 
     const loginError = loginData?.error
 
-    if (loginError) {
-      setError('Invalid login credentials from Supabase. Trying fallback...')
-
-      handleVbLogin({ email, password })
-    } else {
-      try {
-        const res = await checkConnection({
-          email: loginData?.data?.user?.email ?? '',
-          supabase_id: loginData?.data?.user?.id ?? '',
-        })
-
-        if (res) {
-          const accountType = res?.data?.account_type ?? AccountType.business
-          localStorage.setItem('vbAuth', JSON.stringify(res))
-          localStorage.setItem('adminToken', res?.data?.token ?? '')
-          localStorage.setItem('refreshToken', res?.data?.refresh_token ?? '')
-          localStorage.setItem('accountType', accountType)
-
-          navigate(
-            accountType === AccountType.business
-              ? '/'
-              : '/client-portal/dashboard'
-          )
-        }
-      } catch (error) {
+    try {
+      if (loginError) {
         handleVbLogin({ email, password })
+      } else {
+        try {
+          const res = await checkConnection({
+            email: loginData?.data?.user?.email ?? '',
+            supabase_id: loginData?.data?.user?.id ?? '',
+          })
+
+          if (res) {
+            const accountType = res?.data?.account_type ?? AccountType.business
+            localStorage.setItem('vbAuth', JSON.stringify(res))
+            localStorage.setItem('adminToken', res?.data?.token ?? '')
+            localStorage.setItem('refreshToken', res?.data?.refresh_token ?? '')
+            localStorage.setItem('accountType', accountType)
+
+            navigate(
+              accountType === AccountType.business
+                ? '/'
+                : '/client-portal/dashboard'
+            )
+          }
+        } catch (error) {
+          handleVbLogin({ email, password })
+        }
       }
+    } catch {
+      setError('Invalid login credentials from Supabase. Trying fallback...')
     }
     setIsLoading(false)
   }

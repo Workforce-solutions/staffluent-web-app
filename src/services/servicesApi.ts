@@ -2,6 +2,7 @@ import { ServiceCategoriesResponse } from '@/@types/clientPortal'
 import { PaginationProps, VenueShortCode } from '@/@types/common'
 import {
   CreateServicePayload,
+  Service,
   ServiceRequestsParams,
   ServiceRequestsResponse,
   ServicesReponse,
@@ -100,15 +101,16 @@ export const servicesApi = createApi({
     }),
     approveServiceRequest: builder.mutation<
       void,
-      { id: number; venue_short_code: string }
+      { id: number; venue_short_code: string; scheduled_date: string }
     >({
-      query: ({ id, venue_short_code }) => ({
+      query: ({ id, venue_short_code, scheduled_date }) => ({
         url: getCommonUrl({
           queryString: `/service-requests/${id}/approve`,
           query: `&venue_short_code=${venue_short_code}`,
           params: staffAdminAppkeyParam,
         }),
         method: 'POST',
+        body: { scheduled_date },
       }),
       invalidatesTags: ['AdminServices'],
     }),
@@ -185,6 +187,16 @@ export const servicesApi = createApi({
       }),
       invalidatesTags: ['AdminCategories'],
     }),
+
+    getServiceDetails: builder.query<Service, VenueShortCode & { id: number }>({
+      query: ({ venue_short_code, id }) => ({
+        url: getCommonUrl({
+          queryString: `/services/${id}`,
+          query: `&venue_short_code=${venue_short_code}`,
+          params: staffAdminAppkeyParam,
+        }),
+      }),
+    }),
   }),
 })
 
@@ -192,6 +204,9 @@ export const {
   useGetServiceRequestsQuery,
   useGetServiceCategoriesQuery,
   useGetServicesQuery,
+  useLazyGetServicesQuery,
+  useGetServiceDetailsQuery,
+
   useUpdateServiceCategorieMutation,
   useCreateServiceCategorieMutation,
   useDeleteServiceCategorieMutation,

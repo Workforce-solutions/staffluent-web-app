@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { PaginatedResponse } from "./common"
+import { PaginatedResponse } from './common'
 
 // @/@types/clientPortal.ts
 export interface ClientService {
@@ -24,19 +24,19 @@ export interface ClientService {
     base_amount: number
     currency: string
   }
-  service_info?: {
+  service_info: {
     id: number
     name: string
     description: string
     type: string
     start_date: string
   }
-  current_status?: {
+  current_status: {
     status: string
     next_scheduled_date: string
     latest_request_id: number
   }
-  service_history?: {
+  service_history: {
     total_completions: number
     first_request_date: string
     latest_completion_date: string
@@ -51,6 +51,13 @@ export interface ClientService {
     scheduled_date: string
     description: string
     decline_reason: string | null
+    has_feedback: boolean // Add this
+    feedback_details?: {
+      // Add this
+      rating: number
+      comment: string
+      admin_response?: string
+    }
     progress_updates: Array<{
       id: number
       type: string
@@ -125,14 +132,22 @@ interface ServiceDetails {
   } | null
 }
 
+interface ServiceRequestApiProps {
+  page: number
+  size: number
+  search: string
+  status: string
+}
 interface ServiceRequest {
   id: number
   reference: string
   status: string
   priority: string
   requested_date: string
-  scheduled_date: string | null
+  preferred_date: string
+  scheduled_date: string
   description: string
+  decline_reason: string | null
   progress_updates: Array<{
     id: number
     type: string
@@ -140,7 +155,13 @@ interface ServiceRequest {
     date: string
     performed_by: string
   }>
-  preferred_date?: string
+  has_feedback: boolean // add this
+  feedback_details?: {
+    // add this
+    rating: number
+    comment: string
+    admin_response?: string
+  }
 }
 
 export interface ServiceRequestStats {
@@ -194,6 +215,34 @@ export type ServiceData = {
 }
 
 export interface ServiceCategoriesResponse {
-  stats: Record<string,string|number>;
-  categories: PaginatedResponse<ServiceData>;
+  stats: Record<string, string | number>
+  categories: PaginatedResponse<ServiceData>
+}
+
+export interface DashboardData {
+  stats: {
+    active_services: number
+    pending_payments: number
+    total_invoices: number
+  }
+  next_service_date: string | null
+  active_services: Array<{
+    id: number
+    name: string
+    description: string
+    status: string
+  }>
+  recent_invoices: Array<{
+    id: number
+    number: string
+    date: string
+    amount: number
+    status: string
+  }>
+  activity: Array<{
+    id: number
+    description: string
+    date: string
+    type: string
+  }>
 }

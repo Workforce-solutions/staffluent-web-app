@@ -1,9 +1,11 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+'use client'
+
 import { Layout } from '@/components/custom/layout'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { DateRangePicker } from '@/components/ui/date-range-picker'
 import ThemeSwitch from '@/components/theme-switch'
-import { UserNav } from '@/components/user-nav'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { DateRangePicker } from '@/components/ui/date-range-picker'
 import {
   Select,
   SelectContent,
@@ -11,27 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import {
-  Download,
-  DollarSign,
-  TrendingUp,
-  ChevronUp,
-  ChevronDown,
-  CreditCard,
-} from 'lucide-react'
-import { useState } from 'react'
-import { Line, Bar } from 'react-chartjs-2'
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-  BarElement,
-} from 'chart.js'
+import { Skeleton } from '@/components/ui/skeleton'
 import {
   Table,
   TableBody,
@@ -40,7 +22,33 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { UserNav } from '@/components/user-nav'
+import { useShortCode } from '@/hooks/use-local-storage'
+import { useGetRevenueAnalyticsQuery } from '@/services/adminAnalyticsApi'
+import {
+  BarElement,
+  CategoryScale,
+  Chart as ChartJS,
+  Legend,
+  LinearScale,
+  LineElement,
+  PointElement,
+  Title,
+  Tooltip,
+} from 'chart.js'
+import {
+  ChevronDown,
+  ChevronUp,
+  CreditCard,
+  DollarSign,
+  TrendingUp,
+} from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
+import { Bar, Line } from 'react-chartjs-2'
+import { DateRange } from 'react-day-picker'
+import ExportComponent from './export-component'
 
+// Register ChartJS components
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -53,51 +61,53 @@ ChartJS.register(
 )
 
 export default function RevenueReport() {
-  const [dateRange, setDateRange] = useState({ from: undefined, to: undefined })
+  const shortCode = useShortCode()
+  const [period, setPeriod] = useState('thisMonth')
+  const [dateRange, setDateRange] = useState<DateRange>()
 
-  const revenueData = {
-    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-    datasets: [
-      {
-        label: 'Revenue',
-        data: [65000, 78000, 86000, 94000, 91000, 99000],
-        borderColor: 'rgb(75, 192, 192)',
-        tension: 0.1,
+  // Refs for chart instances
+  const lineChartRef: any = useRef<ChartJS | null>(null)
+  const barChartRef: any = useRef<ChartJS | null>(null)
+
+  const { data, isFetching } = useGetRevenueAnalyticsQuery({
+    venue_short_code: shortCode,
+    date_from: dateRange?.from?.toISOString(),
+    date_to: dateRange?.to?.toISOString(),
+  })
+
+  // Clean up chart instances on unmount
+  useEffect(() => {
+    return () => {
+      if (lineChartRef.current) {
+        lineChartRef.current.destroy()
+      }
+      if (barChartRef.current) {
+        barChartRef.current.destroy()
+      }
+    }
+  }, [])
+
+  const lineOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    height: 400,
+    plugins: {
+      legend: {
+        position: 'top' as const,
       },
-      {
-        label: 'Target',
-        data: [70000, 75000, 80000, 85000, 90000, 95000],
-        borderColor: 'rgba(255, 99, 132, 0.5)',
-        borderDash: [5, 5],
-        tension: 0.1,
-      },
-    ],
+    },
   }
 
-  const revenueByServiceData = {
-    labels: [
-      'Equipment Maintenance',
-      'Repairs',
-      'Installation',
-      'Consultation',
-      'Training',
-    ],
-    datasets: [
-      {
-        label: 'Revenue by Service',
-        data: [45000, 35000, 28000, 22000, 18000],
-        backgroundColor: 'rgba(54, 162, 235, 0.5)',
+  const barOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    height: 300,
+    plugins: {
+      legend: {
+        position: 'top' as const,
       },
-    ],
+    },
   }
-
-  const topServices = [
-    { service: 'Equipment Maintenance', revenue: 45000, growth: 12.5 },
-    { service: 'Emergency Repairs', revenue: 35000, growth: 8.2 },
-    { service: 'Installation Services', revenue: 28000, growth: -2.3 },
-    { service: 'Technical Consultation', revenue: 22000, growth: 15.7 },
-    { service: 'Staff Training', revenue: 18000, growth: 5.1 },
-  ]
 
   return (
     <Layout>
@@ -108,7 +118,7 @@ export default function RevenueReport() {
         </div>
       </Layout.Header>
 
-      <Layout.Body className='space-y-6 '>
+      <Layout.Body className='space-y-6'>
         <div className='flex items-center justify-between'>
           <div>
             <h2 className='text-2xl font-bold tracking-tight'>
@@ -119,7 +129,7 @@ export default function RevenueReport() {
             </p>
           </div>
           <div className='flex items-center space-x-2'>
-            <Select defaultValue='thisMonth'>
+            <Select value={period} onValueChange={setPeriod}>
               <SelectTrigger className='w-[180px]'>
                 <SelectValue placeholder='Select period' />
               </SelectTrigger>
@@ -129,155 +139,251 @@ export default function RevenueReport() {
                 <SelectItem value='thisYear'>This Year</SelectItem>
               </SelectContent>
             </Select>
-            <DateRangePicker
-              value={dateRange}
-              // @ts-ignore
-              onValueChange={setDateRange}
-            />
-            <Button variant='outline'>
-              <Download className='mr-2 h-4 w-4' />
-              Export
-            </Button>
+            <DateRangePicker value={dateRange} onValueChange={setDateRange} />
+            <ExportComponent type='revenue' venue_short_code={shortCode} />
           </div>
         </div>
-        {/* Stats Overview */}
-        <div className='grid gap-4 md:grid-cols-4'>
-          <Card>
-            <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-              <CardTitle className='text-sm font-medium'>
-                Total Revenue
-              </CardTitle>
-              <DollarSign className='h-4 w-4 text-muted-foreground' />
-            </CardHeader>
-            <CardContent>
-              <div className='text-2xl font-bold'>$148,000</div>
-              <p className='text-xs text-muted-foreground'>
-                +12% from last month
-              </p>
-            </CardContent>
-          </Card>
 
-          <Card>
-            <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-              <CardTitle className='text-sm font-medium'>
-                Average Order Value
-              </CardTitle>
-              <CreditCard className='h-4 w-4 text-muted-foreground' />
-            </CardHeader>
-            <CardContent>
-              <div className='text-2xl font-bold'>$1,248</div>
-              <p className='text-xs text-muted-foreground'>
-                +5% from last month
-              </p>
-            </CardContent>
-          </Card>
+        {isFetching ? (
+          <div className='grid gap-4 md:grid-cols-4'>
+            {[1, 2, 3, 4].map((i) => (
+              <Card key={i}>
+                <CardHeader className='flex flex-row items-center justify-between pb-2'>
+                  <Skeleton className='h-5 w-[120px]' />
+                  <Skeleton className='h-4 w-4 rounded' />
+                </CardHeader>
+                <CardContent>
+                  <Skeleton className='h-8 w-[100px]' />
+                  <Skeleton className='mt-1 h-4 w-[140px]' />
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        ) : (
+          <div className='grid gap-4 md:grid-cols-4'>
+            <Card>
+              <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+                <CardTitle className='text-sm font-medium'>
+                  Total Revenue
+                </CardTitle>
+                <DollarSign className='h-4 w-4 text-muted-foreground' />
+              </CardHeader>
+              <CardContent>
+                <div className='text-2xl font-bold'>
+                  $
+                  {parseFloat(data?.stats.total_revenue ?? '').toLocaleString()}
+                </div>
+                <p className='text-xs text-muted-foreground'>
+                  {(data?.stats.monthly_comparison.change ?? 0) > 0 ? '+' : ''}
+                  {data?.stats.monthly_comparison.change}% from last month
+                </p>
+              </CardContent>
+            </Card>
 
-          <Card>
-            <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-              <CardTitle className='text-sm font-medium'>
-                Revenue Target
-              </CardTitle>
-              <TrendingUp className='h-4 w-4 text-muted-foreground' />
-            </CardHeader>
-            <CardContent>
-              <div className='text-2xl font-bold'>95%</div>
-              <p className='text-xs text-muted-foreground'>Of monthly goal</p>
-            </CardContent>
-          </Card>
+            <Card>
+              <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+                <CardTitle className='text-sm font-medium'>
+                  Average Order Value
+                </CardTitle>
+                <CreditCard className='h-4 w-4 text-muted-foreground' />
+              </CardHeader>
+              <CardContent>
+                <div className='text-2xl font-bold'>
+                  ${data?.stats.avg_order_value.toLocaleString()}
+                </div>
+                <p className='text-xs text-muted-foreground'>
+                  Average per service
+                </p>
+              </CardContent>
+            </Card>
 
-          <Card>
-            <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-              <CardTitle className='text-sm font-medium'>Year Growth</CardTitle>
-              <TrendingUp className='h-4 w-4 text-muted-foreground' />
-            </CardHeader>
-            <CardContent>
-              <div className='text-2xl font-bold'>18.2%</div>
-              <p className='text-xs text-muted-foreground'>Year over year</p>
-            </CardContent>
-          </Card>
-        </div>
+            <Card>
+              <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+                <CardTitle className='text-sm font-medium'>
+                  Revenue Growth
+                </CardTitle>
+                <TrendingUp className='h-4 w-4 text-muted-foreground' />
+              </CardHeader>
+              <CardContent>
+                <div className='text-2xl font-bold'>
+                  {data?.stats.revenue_growth}%
+                </div>
+                <p className='text-xs text-muted-foreground'>
+                  Month over month
+                </p>
+              </CardContent>
+            </Card>
 
-        {/* Revenue Trends Chart */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Revenue Trends</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Line
-              data={revenueData}
-              options={{
-                responsive: true,
-                maintainAspectRatio: false,
-                // @ts-ignore
-                height: 400,
-              }}
-            />
-          </CardContent>
-        </Card>
+            <Card>
+              <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+                <CardTitle className='text-sm font-medium'>
+                  Projected Revenue
+                </CardTitle>
+                <TrendingUp className='h-4 w-4 text-muted-foreground' />
+              </CardHeader>
+              <CardContent>
+                <div className='text-2xl font-bold'>
+                  ${data?.stats.projected_revenue.toLocaleString()}
+                </div>
+                <p className='text-xs text-muted-foreground'>For next month</p>
+              </CardContent>
+            </Card>
+          </div>
+        )}
 
-        <div className='grid gap-4 md:grid-cols-2'>
-          {/* Revenue by Service */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Revenue by Service</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Bar
-                data={revenueByServiceData}
-                options={{
-                  responsive: true,
-                  maintainAspectRatio: false,
-                  // @ts-ignore
-                  height: 300,
-                }}
-              />
-            </CardContent>
-          </Card>
+        {isFetching ? (
+          <div className='space-y-4'>
+            <Card>
+              <CardHeader>
+                <Skeleton className='h-8 w-[200px]' />
+              </CardHeader>
+              <CardContent className='h-[400px]'>
+                <Skeleton className='h-full w-full' />
+              </CardContent>
+            </Card>
 
-          {/* Top Performing Services */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Top Performing Services</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Service</TableHead>
-                    <TableHead className='text-right'>Revenue</TableHead>
-                    <TableHead className='text-right'>Growth</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {topServices.map((service) => (
-                    <TableRow key={service.service}>
-                      <TableCell>{service.service}</TableCell>
-                      <TableCell className='text-right'>
-                        ${service.revenue.toLocaleString()}
-                      </TableCell>
-                      <TableCell className='text-right'>
-                        <span
-                          className={`flex items-center justify-end ${
-                            service.growth > 0
-                              ? 'text-green-600'
-                              : 'text-red-600'
-                          }`}
-                        >
-                          {service.growth > 0 ? (
-                            <ChevronUp className='mr-1 h-4 w-4' />
-                          ) : (
-                            <ChevronDown className='mr-1 h-4 w-4' />
-                          )}
-                          {Math.abs(service.growth)}%
-                        </span>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        </div>
+            <div className='grid gap-4 md:grid-cols-2'>
+              <Card>
+                <CardHeader>
+                  <Skeleton className='h-8 w-[200px]' />
+                </CardHeader>
+                <CardContent className='h-[300px]'>
+                  <Skeleton className='h-full w-full' />
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <Skeleton className='h-8 w-[200px]' />
+                </CardHeader>
+                <CardContent>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>
+                          <Skeleton className='h-4 w-[100px]' />
+                        </TableHead>
+                        <TableHead>
+                          <Skeleton className='h-4 w-[100px]' />
+                        </TableHead>
+                        <TableHead>
+                          <Skeleton className='h-4 w-[80px]' />
+                        </TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {[1, 2, 3, 4, 5].map((i) => (
+                        <TableRow key={i}>
+                          <TableCell>
+                            <Skeleton className='h-4 w-[150px]' />
+                          </TableCell>
+                          <TableCell>
+                            <Skeleton className='h-4 w-[100px]' />
+                          </TableCell>
+                          <TableCell>
+                            <Skeleton className='h-4 w-[80px]' />
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        ) : (
+          <>
+            <Card>
+              <CardHeader>
+                <CardTitle>Revenue Trends</CardTitle>
+              </CardHeader>
+              <CardContent className='h-[400px]'>
+                {data?.charts.revenue_trends ? (
+                  <Line
+                    ref={lineChartRef}
+                    data={data.charts.revenue_trends}
+                    options={lineOptions}
+                  />
+                ) : (
+                  <p>No revenue trend data available</p>
+                )}
+              </CardContent>
+            </Card>
+
+            <div className='grid gap-4 md:grid-cols-2'>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Revenue by Category</CardTitle>
+                </CardHeader>
+                <CardContent className='h-[300px]'>
+                  {data?.charts.revenue_by_category ? (
+                    <Bar
+                      ref={barChartRef}
+                      data={data.charts.revenue_by_category}
+                      options={barOptions}
+                    />
+                  ) : (
+                    <p>No revenue by category data available</p>
+                  )}
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Top Performing Services</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Service</TableHead>
+                        <TableHead className='text-right'>Revenue</TableHead>
+                        <TableHead className='text-right'>Bookings</TableHead>
+                        <TableHead className='text-right'>Avg Price</TableHead>
+                        <TableHead className='text-right'>Growth</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {data?.charts.top_services?.map((service) => (
+                        <TableRow key={service.name}>
+                          <TableCell>{service.name}</TableCell>
+                          <TableCell className='text-right'>
+                            $
+                            {parseFloat(
+                              service.revenue as string
+                            ).toLocaleString()}
+                          </TableCell>
+                          <TableCell className='text-right'>
+                            {service.bookings}
+                          </TableCell>
+                          <TableCell className='text-right'>
+                            ${parseFloat(service.avg_price).toLocaleString()}
+                          </TableCell>
+                          <TableCell className='text-right'>
+                            <span
+                              className={`flex items-center justify-end ${
+                                service.growth > 0
+                                  ? 'text-green-600'
+                                  : 'text-red-600'
+                              }`}
+                            >
+                              {service.growth > 0 ? (
+                                <ChevronUp className='mr-1 h-4 w-4' />
+                              ) : (
+                                <ChevronDown className='mr-1 h-4 w-4' />
+                              )}
+                              {Math.abs(service.growth)}%
+                            </span>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+            </div>
+          </>
+        )}
       </Layout.Body>
     </Layout>
   )

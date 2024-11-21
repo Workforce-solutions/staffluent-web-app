@@ -8,7 +8,9 @@ import {
 import {
   AvailableService,
   ClientService,
+  DashboardData,
   ServiceRequest,
+  ServiceRequestApiProps,
   SupportTicket,
 } from '@/@types/clientPortal' // Adjust the import path as necessary
 import { PaginatedResponse } from '@/@types/common'
@@ -22,10 +24,11 @@ export const clientPortalApi = createApi({
   tagTypes: ['Services', 'ServiceRequests', 'SupportTickets'],
   endpoints: (builder) => ({
     // Fetch all services
-    getClientServices: builder.query<ClientService[], void>({
-      query: () => ({
+    getClientServices: builder.query<ClientService[], { search: string }>({
+      query: ({ search }) => ({
         url: getCommonUrl({
-          queryString: '/cp-services',
+          queryString: `/cp-services`,
+          query: `&search=${search}`,
           params: staffClientPortalkeyParam,
         }),
       }),
@@ -57,10 +60,14 @@ export const clientPortalApi = createApi({
     }),
 
     // Fetch user's service requests
-    listMyRequests: builder.query<PaginatedResponse<ServiceRequest>, void>({
-      query: () => ({
+    listMyRequests: builder.query<
+      PaginatedResponse<ServiceRequest>,
+      ServiceRequestApiProps
+    >({
+      query: ({ page = 1, size = 10, search, status }) => ({
         url: getCommonUrl({
           queryString: '/cp-service-requests/my-requests',
+          query: `&page=${page}&per_page=${size}&search=${search}&status=${status !== 'all' ? status : ''}`,
           params: staffClientPortalkeyParam,
         }),
       }),
@@ -103,6 +110,41 @@ export const clientPortalApi = createApi({
       }),
       providesTags: ['Services'],
     }),
+    submitFeedback: builder.mutation<
+      void,
+      { id: string; data: { rating: number; comment: string } }
+    >({
+      query: ({ id, data }) => ({
+        url: getCommonUrl({
+          queryString: `/cp-service-requests/${id}/feedback`,
+          params: staffClientPortalkeyParam,
+        }),
+        method: 'POST',
+        body: data,
+      }),
+      invalidatesTags: ['ServiceRequests', 'Services'],
+    }),
+    getFeedback: builder.query<
+      { rating: number; comment: string; admin_response?: string },
+      string
+    >({
+      query: (id) => ({
+        url: getCommonUrl({
+          queryString: `/cp-service-requests/${id}/feedback`,
+          params: staffClientPortalkeyParam,
+        }),
+      }),
+    }),
+
+    // dashboard
+    getDashboardData: builder.query<DashboardData, void>({
+      query: () => ({
+        url: getCommonUrl({
+          queryString: '/cp-dashboard',
+          params: staffClientPortalkeyParam,
+        }),
+      }),
+    }),
   }),
 })
 
@@ -113,5 +155,8 @@ export const {
   useListMyRequestsQuery,
   useGetRequestDetailsQuery,
   useGetAvailableServicesQuery,
+  useGetDashboardDataQuery,
   useCreateSupportTicketMutation,
+  useSubmitFeedbackMutation,
+  useGetFeedbackQuery,
 } = clientPortalApi

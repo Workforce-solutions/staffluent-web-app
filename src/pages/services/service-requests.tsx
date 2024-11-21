@@ -62,10 +62,15 @@ export default function ServiceRequests() {
   const { toast } = useToast()
   const [approveRequest] = useApproveServiceRequestMutation()
   const [declineRequest] = useDeclineServiceRequestMutation()
+  const [scheduledDate, setScheduledDate] = useState('')
 
   const handleApprove = async (id: number) => {
     try {
-      await approveRequest({ id, venue_short_code }).unwrap()
+      await approveRequest({
+        id,
+        venue_short_code,
+        scheduled_date: scheduledDate,
+      }).unwrap()
       toast({
         title: 'Success',
         description: 'Service request approved successfully',
@@ -158,13 +163,16 @@ export default function ServiceRequests() {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align='end'>
-            <DropdownMenuItem
-              onClick={() =>
-                navigate(`/admin/services/requests/${row.original.id}`)
-              }
-            >
-              <Eye className='mr-2 h-4 w-4' />
-              View Details
+            <DropdownMenuItem>
+              <div
+                className='flex cursor-pointer items-center gap-2'
+                onClick={() =>
+                  navigate(`/admin/services/requests/${row.original.id}`)
+                }
+              >
+                <Eye className='mr-2 h-4 w-4' />
+                View Details
+              </div>
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => {
@@ -219,10 +227,19 @@ export default function ServiceRequests() {
               handleDelete={handleApprove}
               id={selectedRequest?.id}
               title='Approve Service Request'
-              description='Are you sure you want to approve this service request?'
+              description='Please select a schedule date for this service request'
               label='Approve'
               labelLoading='Approving...'
               variant='default'
+              extraType='date'
+              extraContent={
+                <Input
+                  type='datetime-local'
+                  min={new Date().toISOString().slice(0, 16)}
+                  value={scheduledDate}
+                  onChange={(e) => setScheduledDate(e.target.value)}
+                />
+              }
             />
           )}
 

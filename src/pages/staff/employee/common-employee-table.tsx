@@ -2,7 +2,6 @@ import { EmployeeResponse } from '@/@types/staff'
 import { Button } from '@/components/custom/button'
 import { Layout } from '@/components/custom/layout'
 import ThemeSwitch from '@/components/theme-switch'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -25,6 +24,7 @@ import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ROLES } from '../teams/team-employees/add-team-leader'
 import { AddEditEmployeeModal } from './add-edit-employee'
+import EmployeAvatarName from './employe-avatar-name'
 import { StaffProfile } from './staff-profile'
 
 interface EmployeeTableProps {
@@ -68,16 +68,7 @@ export default function EmployeeTable({
         header: 'Name',
         cell: ({ row }) => (
           <div className='flex items-center space-x-2'>
-            <Avatar className='h-8 w-8'>
-              {row.original.profile_picture.length <= 2 ? (
-                <AvatarFallback>{row.original.profile_picture}</AvatarFallback>
-              ) : (
-                <AvatarImage
-                  src={row.original.profile_picture}
-                  alt={row.original.name}
-                />
-              )}
-            </Avatar>
+            <EmployeAvatarName profile_picture={row.original.profile_picture} />
             <div className='flex flex-col'>
               <span className='font-medium'>{row.original.name}</span>
               <span className='text-xs text-muted-foreground'>
@@ -243,7 +234,7 @@ export default function EmployeeTable({
         employeeToEdit={selectedRow}
       />
       <Layout.Header>
-        <div className='ml-auto flex items-center space-x-4'>
+        <div className='ml-auto flex items-center space-x-2'>
           <ThemeSwitch />
           <UserNav />
         </div>

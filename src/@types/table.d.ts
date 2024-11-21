@@ -9,6 +9,7 @@ export interface DataTableProps<TData, TValue> {
   rowsSelected?: boolean
   total_pages?: number
   showToolbar?: boolean
+  isFetching?: boolean
 }
 
 export interface LoaderProps {

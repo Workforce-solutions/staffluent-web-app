@@ -1,5 +1,4 @@
-import { OpenModalProps, PaginatedResponse } from './common'
-
+// Types
 export interface AddressPayload {
   address_line1: string
   city_id: number
@@ -88,7 +87,7 @@ export interface CreateUser extends CreateClientPayload {
   password?: string
 }
 
-export type UpdateClientPayload = {
+export interface UpdateClientPayload {
   id: number
   name: string
   type: 'homeowner' | 'company'
@@ -105,3 +104,44 @@ export interface UpdateClientModalProps extends OpenModalProps {
 }
 
 export type ClientType = 'homeowner' | 'company'
+
+// Project related types
+interface ClientProject {
+  id: number;
+  project_name: string;
+  client: string;
+  client_id?: number; // Add this field
+  start_date: string;
+  due_date: string;
+  progress: number;
+  status: 'Active' | 'Completed' | 'Pending' | 'On Hold';
+  contact_person: string;
+  type: 'company' | 'individual';
+  email?: string;
+  phone?: string;
+  full_address?: string;
+}
+
+export interface ProjectStats {
+  active_projects: number
+  total_clients: number
+  due_this_month: number
+  previous_month_active: number
+}
+
+// In your types file
+export interface ClientProjectsResponse {
+  projects: Array<ClientProject & { client_id?: number }>;
+  stats: {
+    active_projects: number;
+    total_clients: number;
+    due_this_month: number;
+    previous_month_active: number;
+  };
+  pagination: {
+    current_page: number;
+    per_page: number;
+    total: number;
+    total_pages: number;
+  };
+}

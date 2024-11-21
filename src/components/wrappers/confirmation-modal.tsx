@@ -28,6 +28,7 @@ interface ConfirmationModalProps<T> extends OpenModalProps {
     | null
     | undefined
   extraContent?: React.ReactNode
+  extraType?: 'date' | 'text'
 }
 
 const ConfirmationModal = <T,>({

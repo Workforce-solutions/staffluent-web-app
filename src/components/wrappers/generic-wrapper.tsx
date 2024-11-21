@@ -5,10 +5,11 @@ import { DataTable } from '../table/data-table'
 const GenericTableWrapper = <TData, TValue>({
   isError,
   isLoading,
+  isFetching,
   ...rest
 }: GenericTableProps<TData, TValue>) => {
-  if (isError || isLoading) {
-    return <EmptyState {...{ isError, isLoading }} />
+  if (isError || isLoading || isFetching) {
+    return <EmptyState isLoading={isLoading || isFetching} isError={isError} />
   }
   return <DataTable {...rest} />
 }
