@@ -28,6 +28,7 @@ import { useCreateTimeEntryMutation } from '@/services/time-entryApi'
 import { format } from 'date-fns'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
+import {toast} from "../../../components/ui/use-toast";
 
 const CreateTimeEntry = ({
   open,
@@ -35,6 +36,7 @@ const CreateTimeEntry = ({
   project_id,
   employees,
   tasks,
+  onSuccess
 }: CreateTimeEntryProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const short_code = useShortCode()
@@ -75,9 +77,15 @@ const CreateTimeEntry = ({
         },
       }).unwrap()
 
+      onSuccess?.() // Call the onSuccess callback if provided
       setOpen(false)
       form.reset()
     } catch (error) {
+        toast({
+            title: 'Error',
+            description: 'Failed to create time entry',
+            variant: 'destructive',
+        })
       console.error('Failed to create time entry:', error)
     } finally {
       setIsSubmitting(false)
@@ -91,7 +99,10 @@ const CreateTimeEntry = ({
           <DialogTitle>Add Time Entry</DialogTitle>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>
+          <form  onSubmit={(e) => {
+              e.preventDefault() // Add this
+              form.handleSubmit(onSubmit)(e)
+          }}  className='space-y-4'>
             <FormField
               control={form.control}
               name='employee_id'

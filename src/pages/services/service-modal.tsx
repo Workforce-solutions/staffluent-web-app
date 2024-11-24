@@ -34,6 +34,7 @@ import {
 import { useShortCode } from '@/hooks/use-local-storage'
 import type { ServiceModalProps } from '@/@types/services'
 import { useEffect } from 'react'
+import ServiceCategoriesDropdown from '@/components/staff/service-categories-dropdown'
 
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -154,21 +155,11 @@ export function ServiceModal({ open, setOpen, service }: ServiceModalProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Category</FormLabel>
-                  <Select
-                    onValueChange={(value) => field.onChange(parseInt(value))}
-                    value={field.value.toString()}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder='Select category' />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value='1'>Regular Service</SelectItem>
-                      <SelectItem value='2'>Maintenance</SelectItem>
-                      <SelectItem value='3'>Repair</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <ServiceCategoriesDropdown
+                    className='w-full'
+                    id={field.value}
+                    onChange={(value) => field.onChange(parseInt(value))}
+                  />
                   <FormMessage />
                 </FormItem>
               )}
@@ -205,13 +196,11 @@ export function ServiceModal({ open, setOpen, service }: ServiceModalProps) {
                   <FormLabel>Base Price</FormLabel>
                   <FormControl>
                     <Input
-                      type='number'
+                      type='text'
                       step='0.01'
                       placeholder='Enter base price'
                       {...field}
-                      onChange={(e) =>
-                        field.onChange(parseFloat(e.target.value))
-                      }
+                      onChange={(e) => field.onChange(e.target.value)}
                     />
                   </FormControl>
                   <FormMessage />

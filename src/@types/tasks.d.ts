@@ -10,7 +10,9 @@ export interface TasksResponse {
   status: string
   project: Project
   due_date: string
-  notes: string
+  start_date: string
+  is_overdue: boolean
+  description: string
   assigned_employee_ids: [string]
 }
 export interface Project {

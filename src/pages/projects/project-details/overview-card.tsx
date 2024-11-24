@@ -1,5 +1,4 @@
-import { ProjectDetails } from '@/@types/project'
-import { TasksResponse } from '@/@types/tasks'
+import {ProjectDetails, ProjectTask} from '@/@types/project'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -25,14 +24,16 @@ import { columnsProjectDetail } from '../tasks/components/columns-project-detail
 import CreateEditTask from '../tasks/components/createTask'
 import CreateTimeEntry from './create-time-entry'
 import { TeamMembersTab } from './manage-team-tab'
+import EmptyBlock from "../../../components/cards/empty-block";
 
 interface OverviewProps {
   project: ProjectDetails
-  tasks?: TasksResponse[]
-  isFetching?: boolean
+  tasks?: ProjectTask[]
+  isFetching?: boolean,
+  onSuccess?: () => void
 }
 
-const OverviewCard = ({ project, tasks = [], isFetching }: OverviewProps) => {
+const OverviewCard = ({ project, tasks = [], isFetching, onSuccess }: OverviewProps) => {
   const [openAddEditTaskModal, setOpenAddEditTaskModal] = useState(false)
   const { id } = useParams<{ id: string }>()
   const [openTimeEntry, setOpenTimeEntry] = useState(false)
@@ -175,23 +176,34 @@ const OverviewCard = ({ project, tasks = [], isFetching }: OverviewProps) => {
         </TabsList>
 
         <TabsContent value='tasks'>
-          <Card>
-            <CardHeader>
-              <div className='flex items-center justify-between'>
-                <CardTitle>Tasks</CardTitle>
-                <Button onClick={() => setOpenAddEditTaskModal(true)}>
-                  Add Task
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <GenericTableWrapper
-                data={tasks}
-                columns={columnsProjectDetail}
-                isLoading={isFetching}
+          {!tasks?.length ? (
+              // @ts-ignore
+              <EmptyBlock
+                  onClick={() => setOpenAddEditTaskModal(true)}
+                  title='Add Task'
+                  description='No tasks have been created for this project yet.'
+                  topDescription='No tasks available'
               />
-            </CardContent>
-          </Card>
+          ) : (
+              <Card>
+                <CardHeader>
+                  <div className='flex items-center justify-between'>
+                    <CardTitle>Tasks</CardTitle>
+                    <Button onClick={() => setOpenAddEditTaskModal(true)}>
+                      Add Task
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <GenericTableWrapper
+                      // @ts-ignore
+                      data={tasks}
+                      columns={columnsProjectDetail}
+                      isLoading={isFetching}
+                  />
+                </CardContent>
+              </Card>
+          )}
         </TabsContent>
 
         <TeamMembersTab project={project} />
@@ -298,6 +310,7 @@ const OverviewCard = ({ project, tasks = [], isFetching }: OverviewProps) => {
         tasks={project?.tasks ?? []}
         employees={project.assigned_employees}
         project_id={Number(id)}
+        onSuccess={onSuccess}
       />
 
       <CreateEditTask

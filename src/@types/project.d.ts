@@ -139,6 +139,10 @@ export interface ProjectTask {
     name: string
   }
   time_entries?: TimeEntry[]
+  due_date: string
+  start_date: string
+  is_overdue: boolean,
+  description: string
 }
 
 export interface ProjectService {

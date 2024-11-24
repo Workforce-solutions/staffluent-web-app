@@ -84,10 +84,21 @@ export const useNotificationsView = () => {
   const accountType = useLocalStorageString('accountType') as AccountType
 
   const redirectToNotifications = () => {
-    if (accountType === AccountType.business) {
-      navigate('/notifications')
-    } else {
-      navigate('/client-portal/notifications')
+    switch (accountType) {
+      case AccountType.business:
+        navigate('/notifications')
+        break
+      case AccountType.client:
+        navigate('/client-portal/notifications')
+        break
+      case AccountType.business_team_leader:
+        navigate('/team-leader/notifications')
+        break
+      case AccountType.business_operations_managers:
+        navigate('/operations-manager/notifications')
+        break
+      default:
+        navigate('/notifications')
     }
   }
 

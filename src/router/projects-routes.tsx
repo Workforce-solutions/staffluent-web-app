@@ -31,6 +31,14 @@ export const projectsRoute: RouteObject[] = [
     }),
   },
   {
+    path: 'projects/details/:id/checklist',
+    lazy: async () => ({
+      Component: (
+        await import('../pages/projects/project-details/checklist/index.tsx')
+      ).default,
+    }),
+  },
+  {
     path: 'projects/details/:id/chat',
     lazy: async () => ({
       Component: (
@@ -81,6 +89,12 @@ export const projectsRoute: RouteObject[] = [
     path: 'projects/tasks',
     lazy: async () => ({
       Component: (await import('../pages/projects/tasks/index.tsx')).default,
+    }),
+  },
+  {
+    path: 'projects/time-entries',
+    lazy: async () => ({
+      Component: (await import('../pages/projects/time-entries/index.tsx')).default,
     }),
   },
   {

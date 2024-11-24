@@ -18,7 +18,7 @@ import {
   IconUsers,
   IconReportAnalytics,
   IconDeviceDesktopAnalytics,
-  IconAlignBoxCenterTop
+  IconAlignBoxCenterTop, IconCalendarEvent, IconClock, IconFileSpreadsheet, IconClockPause,
 } from '@tabler/icons-react'
 import {
   Briefcase,
@@ -75,6 +75,12 @@ export const sidelinks: SideLink[] = [
         href: '/projects/tasks',
         icon: <IconHexagonNumber2 size={18} />,
       },
+      {
+        title: 'Time Entries',
+        label: '',
+        href: '/projects/time-entries',
+        icon: <IconChecklist size={18} />,
+      }
     ],
   },
   {
@@ -172,12 +178,42 @@ export const sidelinks: SideLink[] = [
         href: '/teams',
         icon: <Users size={18} />,
       },
+      {
+        title: 'Shifts',
+        label: '',
+        href: '/shifts/list',
+        icon: <IconCalendarEvent size={18} />,
+      },
+      {
+        title: 'Attendance records',
+        label: '',
+        href: '/shifts/attendance-record',
+        icon: <IconClock size={18} />,
+      },
+      {
+        title: 'Time Sheets',
+        label: '',
+        href: '/shifts/time-sheets',
+        icon: <IconFileSpreadsheet size={18} />,
+      },
+      {
+        title: 'Breaks',
+        label: '',
+        href: '/shifts/breaks',
+        icon: <IconClockPause size={18} />,
+      },
     ],
   },
   {
     title: 'Performance Metrics',
     label: '',
     href: '/performance-metrics',
+    icon: <IconChartHistogram size={18} />,
+  },
+  {
+    title: 'Compliance',
+    label: '',
+    href: '/compliance',
     icon: <IconChartHistogram size={18} />,
   },
   {

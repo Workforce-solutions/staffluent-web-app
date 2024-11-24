@@ -8,7 +8,7 @@ import { UserNav } from '@/components/user-nav'
 import { useShortCode } from '@/hooks/use-local-storage'
 import { useGetProjectQuery } from '@/services/projectApi'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { ChevronLeft, Reply, Trash2 } from 'lucide-react'
+import { ChevronLeft, MessageCircle, Reply, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useNavigate, useParams } from 'react-router-dom'
@@ -176,6 +176,12 @@ const Comments = () => {
                                     </div>
                                 </div>
                             ))}
+                            {comments.length === 0 && (
+                                <div className="flex flex-col items-center text-center text-muted-foreground">
+                                    <MessageCircle className="h-8 w-8" />
+                                    No comments yet. Be the first to add one!
+                                </div>
+                            )}
                         </div>
                     </CardContent>
                 </Card>

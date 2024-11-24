@@ -27,6 +27,8 @@ import { useNavigate } from 'react-router-dom'
 export enum AccountType {
   client = 'client',
   business = 'business',
+  business_team_leader = 'business_team_leader',
+  business_operations_managers = 'business_operations_managers',
 }
 
 interface UserAuthFormProps extends HTMLAttributes<HTMLDivElement> {}
@@ -70,15 +72,22 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
   }) => {
     try {
       const res = await vbLogin({ email, password }).unwrap()
-      console.log("🚀 ~ UserAuthForm ~ res:", res)
       if (res) {
-        const accountType = AccountType.client
+        const accountType = res.account_type;
         localStorage.setItem('vbAuth', JSON.stringify(res))
         localStorage.setItem('adminToken', res?.access_token ?? '')
         localStorage.setItem('refreshToken', res?.refresh_token ?? '')
         localStorage.setItem('accountType', accountType)
 
-        navigate('/client-portal/dashboard')
+        // Manage redirection based on accountType
+        const redirectMap = {
+          [AccountType.client]: '/client-portal/dashboard',
+          [AccountType.business]: '/',
+          [AccountType.business_team_leader]: '/team-leader/dashboard',
+          [AccountType.business_operations_managers]: '/operations-manager/dashboard'
+        }
+
+        navigate(redirectMap[accountType])
       }
     } catch (err) {
       setError('Invalid login credentials from Supabase. Trying fallback...')
@@ -115,11 +124,15 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
             localStorage.setItem('refreshToken', res?.data?.refresh_token ?? '')
             localStorage.setItem('accountType', accountType)
 
-            navigate(
-              accountType === AccountType.business
-                ? '/'
-                : '/client-portal/dashboard'
-            )
+            // Use same redirect map for consistency
+            const redirectMap = {
+              [AccountType.client]: '/client-portal/dashboard',
+              [AccountType.business]: '/',
+              [AccountType.business_team_leader]: '/team-leader/dashboard',
+              [AccountType.business_operations_managers]: '/operations-manager/dashboard'
+            }
+
+            navigate(redirectMap[accountType])
           }
         } catch (error) {
           handleVbLogin({ email, password })

@@ -197,7 +197,7 @@ export const projectApi = createApi({
     >({
       query: ({ venue_short_code, project_id, service_id }) => ({
         url: getCommonUrl({
-          queryString: `/projects/${project_id}/connect-with-service`,
+          queryString: `/service-requests/${project_id}/connect-project`,
           query: `&venue_short_code=${venue_short_code}`,
           params: staffAdminAppkeyParam,
         }),
@@ -293,8 +293,16 @@ export const projectApi = createApi({
       }),
       invalidatesTags: ['Projects'],
     }),
-
-    // ... (keep existing endpoints)
+    allTimeEntries: builder.query<any, VenueShortCode>({
+      query: ({ venue_short_code }) => ({
+        url: getCommonUrl({
+          queryString: '/projects/time-entries',
+          query: `&venue_short_code=${venue_short_code}`,
+          params: staffAdminAppkeyParam,
+        }),
+      }),
+      providesTags: ['Projects'],
+    }),
   }),
 })
 
@@ -302,6 +310,7 @@ export const {
   useGetProjectQuery,
   useGetProjectsListQuery,
   useGetProjectsStatusListQuery,
+    useAllTimeEntriesQuery,
   useGetProjectsTeamQuery,
   useDeleteProjectMutation,
   useCreateProjectMutation,

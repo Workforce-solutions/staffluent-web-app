@@ -87,4 +87,5 @@ export interface MultiselectDropdownProps {
   value: FieldValueProps[]
   setValue: (value: FieldValueProps[]) => void
   multiSelectorPlaceholder?: string
+  isSingleSelect?: boolean
 }

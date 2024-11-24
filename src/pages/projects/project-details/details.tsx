@@ -4,7 +4,6 @@ import ThemeSwitch from '@/components/theme-switch'
 import { UserNav } from '@/components/user-nav'
 import { useShortCode } from '@/hooks/use-local-storage'
 import { useGetProjectQuery } from '@/services/projectApi'
-import { useGetTasksListQuery } from '@/services/tasksApi'
 import { ChevronLeft } from 'lucide-react'
 import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
@@ -19,11 +18,10 @@ export default function ProjectDetails() {
   const navigate = useNavigate()
   const short_code = useShortCode()
 
-  const { data: project, isFetching } = useGetProjectQuery({
+  const { data: project, isFetching, refetch } = useGetProjectQuery({
     id: Number(id),
     venue_short_code: short_code,
   })
-  const { data: tasks } = useGetTasksListQuery({ venue_short_code: short_code })
   const [openConnectServiceModal, setOpenConnectServiceModal] = useState(false)
 
   if (isFetching) {
@@ -63,8 +61,10 @@ export default function ProjectDetails() {
           <div className='space-y-6 md:col-span-5'>
             <OverviewCard
               project={project}
-              tasks={tasks?.tasks}
+              tasks={project?.tasks}
               isFetching={isFetching}
+              // @ts-ignore
+              onSuccess={refetch}
             />
 
             {project.service === null && (

@@ -28,6 +28,7 @@ export interface CreateTimeEntryProps extends OpenModalProps {
   tasks: ProjectTask[]
   project_id: number
   employees?: Assigned_employees[]
+  onSuccess?: () => void
 }
 
 export interface EntryFormData {

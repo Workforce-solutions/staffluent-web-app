@@ -8,11 +8,44 @@ import { Button } from './custom/button'
 import { Layout } from './custom/layout'
 import Nav from './nav'
 import { useLocalStorageString } from '@/hooks/use-local-storage'
+import { teamLeaderLinks } from '@/data/team-leader-links'
+import { operationsManagersLinks } from '@/data/operations-managers-links'
 
 interface SidebarProps extends HTMLAttributes<HTMLElement> {
   isCollapsed: boolean
   setIsCollapsed: React.Dispatch<React.SetStateAction<boolean>>
 }
+
+
+export const getSidebarLinks = (accountType: AccountType) => {
+  switch (accountType) {
+    case AccountType.business:
+      return sidelinks
+    case AccountType.client:
+      return clientLinks
+    case AccountType.business_team_leader:
+      return teamLeaderLinks
+    case AccountType.business_operations_managers:
+      return operationsManagersLinks
+    default:
+      return []
+  }
+}
+export const getSidebarText = (accountType: AccountType) => {
+  switch (accountType) {
+    case AccountType.business:
+      return 'Admin'
+    case AccountType.client:
+      return 'Client Portal'
+    case AccountType.business_team_leader:
+      return 'Team Leader'
+    case AccountType.business_operations_managers:
+      return 'Operations Manager'
+    default:
+      return []
+  }
+}
+
 
 export default function Sidebar({
   className,
@@ -22,6 +55,7 @@ export default function Sidebar({
   const [navOpened, setNavOpened] = useState(false)
 
   const accountType = useLocalStorageString('accountType') as AccountType
+  const sidebarLinks = getSidebarLinks(accountType)
 
   /* Make body not scrollable when navBar is opened */
   useEffect(() => {
@@ -60,9 +94,7 @@ export default function Sidebar({
             >
               <span className='font-medium'>Staffluent</span>
               <span className='text-xs'>
-                {accountType === AccountType.business
-                  ? 'Admin'
-                  : 'Client Portal'}
+                {getSidebarText(accountType)}
               </span>
             </div>
           </div>
@@ -85,7 +117,7 @@ export default function Sidebar({
           className={`z-40 h-full flex-1 overflow-auto ${navOpened ? 'max-h-screen' : 'max-h-0 py-0 md:max-h-screen md:py-2'}`}
           closeNav={() => setNavOpened(false)}
           isCollapsed={isCollapsed}
-          links={accountType === AccountType.business ? sidelinks : clientLinks}
+          links={sidebarLinks}
         />
 
         {/* Scrollbar width toggle button */}

@@ -10,9 +10,13 @@ import AppShell from '../components/app-shell.tsx'
 import { servicesRoute } from './services-routes.tsx'
 import { invoicesRoute } from './invoices-routes.tsx'
 import { clientsRoute } from './client-routes.tsx'
+import { teamLeaderRoute } from './tleader-routes.tsx'
+import { omanagersRoutes } from './omanagers-routes.tsx'
 import { serviceAnalyticsRoute } from './services-analytics-routes'
 import { supportRoutes } from './support-routes.tsx'
 import { projectsRoute } from './projects-routes.tsx'
+import { shiftsRoute } from './shifts-routes.tsx'
+import { compliancesRoute } from './compliance-routes.tsx'
 // import Login from "./pages/auth/login";
 
 const router = createBrowserRouter([
@@ -60,10 +64,14 @@ const router = createBrowserRouter([
     children: [
       ...servicesRoute,
       ...clientsRoute,
+      ...teamLeaderRoute,
+      ...omanagersRoutes,
       ...invoicesRoute,
       ...supportRoutes,
       ...serviceAnalyticsRoute,
       ...projectsRoute,
+      ...shiftsRoute,
+      ...compliancesRoute,
       {
         index: true,
         lazy: async () => ({
@@ -173,7 +181,7 @@ const router = createBrowserRouter([
         path: 'notifications',
         lazy: async () => ({
           Component: (await import('../pages/notifications/index.tsx'))
-              .default,
+            .default,
         }),
       },
       // Staff Overview route
