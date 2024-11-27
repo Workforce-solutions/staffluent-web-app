@@ -33,6 +33,8 @@ export interface ServiceRequestsResponse {
   recent_activities: RecentActivities[]
   requests: PaginatedResponse<ServiceRequestsProps>
   stats: StatsProps
+  services: ServiceProps[]
+  total_pages: number | string
 }
 
 export interface ServiceRequestsParams extends PaginationProps, VenueShortCode {
@@ -64,9 +66,11 @@ export interface ServiceProps {
     updated_at: string
     deleted_at: string | null
   }
+  total_pages: number | string
 }
 
 export interface ServicesReponse {
+  requests: PaginatedResponse<ServiceProps>
   services: PaginatedResponse<ServiceProps>
 }
 
@@ -149,7 +153,22 @@ export interface ServiceRequestProps {
   }
 }
 
-export interface ServiceRequestResponse {
-  requests: ServiceRequestProps[]
-  total: number
+interface ServiceRequestResponse {
+  stats: {
+    new_requests: number
+    in_progress: number
+    completed_today: number
+    avg_response_time: string
+  }
+  requests: {
+    data: ServiceRequestsProps[]
+    current_page: number
+    per_page: number
+    total: number
+    total_pages: number
+  }
+  recent_activities: {
+    description: string
+    time_ago: string
+  }[]
 }

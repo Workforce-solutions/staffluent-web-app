@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { UserNav } from '@/components/user-nav'
 import { useShortCode } from '@/hooks/use-local-storage'
-import { useGetDashboardQuery } from '@/services/dashboardApi'
+import {useExportDashboardMutation, useGetDashboardQuery} from '@/services/dashboardApi'
 import { format } from 'date-fns'
 import { Download, Loader2 } from 'lucide-react'
 import { useState } from 'react'
@@ -27,6 +27,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts'
+import {toast} from "../../components/ui/use-toast";
 
 export default function Dashboard() {
   const short_code = useShortCode()
@@ -38,6 +39,40 @@ export default function Dashboard() {
     venue_short_code: short_code,
     time_frame: timeFrame,
   })
+
+  const [exportDashboard, { isLoading: isExporting }] = useExportDashboardMutation()
+  const handleExport = async () => {
+    try {
+      const blob = await exportDashboard({
+        venue_short_code: short_code,
+        time_frame: timeFrame
+      }).unwrap()
+
+      // Create and trigger download
+      const url = window.URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `dashboard-report-${timeFrame}-${format(new Date(), 'yyyy-MM-dd')}.xlsx`
+
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      window.URL.revokeObjectURL(url)
+
+      toast({
+        title: "Export Successful",
+        description: "Your dashboard report has been downloaded.",
+      })
+    } catch (error) {
+      console.error('Export failed:', error)
+      toast({
+        title: "Export Failed",
+        description: "Failed to generate the dashboard report. Please try again.",
+        variant: "destructive",
+      })
+    }
+  }
+
 
   if (isLoading) {
     return (
@@ -81,9 +116,22 @@ export default function Dashboard() {
           </div>
           <div className='flex flex-col space-y-2 sm:flex-row sm:space-x-2 sm:space-y-0'>
             <SelectTimeFrame {...{ setTimeFrame, timeFrame }} />
-            <Button className='w-full sm:w-auto'>
-              <Download className='mr-2 h-4 w-4' />
-              Export Data
+            <Button
+                className='w-full sm:w-auto'
+                onClick={handleExport}
+                disabled={isExporting}
+            >
+              {isExporting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Exporting...
+                  </>
+              ) : (
+                  <>
+                    <Download className='mr-2 h-4 w-4' />
+                    Export Data
+                  </>
+              )}
             </Button>
           </div>
         </div>

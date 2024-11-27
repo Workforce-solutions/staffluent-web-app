@@ -1,5 +1,5 @@
-import { clientLinks } from '@/data/client-links'
-import { sidelinks } from '@/data/sidelinks'
+/* eslint-disable react-refresh/only-export-components */
+import { useLocalStorageString } from '@/hooks/use-local-storage'
 import { cn } from '@/lib/utils'
 import { AccountType } from '@/pages/auth/components/user-auth-form'
 import { IconChevronsLeft, IconMenu2, IconX } from '@tabler/icons-react'
@@ -7,45 +7,15 @@ import { HTMLAttributes, useEffect, useState } from 'react'
 import { Button } from './custom/button'
 import { Layout } from './custom/layout'
 import Nav from './nav'
-import { useLocalStorageString } from '@/hooks/use-local-storage'
-import { teamLeaderLinks } from '@/data/team-leader-links'
-import { operationsManagersLinks } from '@/data/operations-managers-links'
+import {
+  getSidebarLinks,
+  getSidebarText,
+} from '@/hooks/common/common-functions'
 
 interface SidebarProps extends HTMLAttributes<HTMLElement> {
   isCollapsed: boolean
   setIsCollapsed: React.Dispatch<React.SetStateAction<boolean>>
 }
-
-
-export const getSidebarLinks = (accountType: AccountType) => {
-  switch (accountType) {
-    case AccountType.business:
-      return sidelinks
-    case AccountType.client:
-      return clientLinks
-    case AccountType.business_team_leader:
-      return teamLeaderLinks
-    case AccountType.business_operations_managers:
-      return operationsManagersLinks
-    default:
-      return []
-  }
-}
-export const getSidebarText = (accountType: AccountType) => {
-  switch (accountType) {
-    case AccountType.business:
-      return 'Admin'
-    case AccountType.client:
-      return 'Client Portal'
-    case AccountType.business_team_leader:
-      return 'Team Leader'
-    case AccountType.business_operations_managers:
-      return 'Operations Manager'
-    default:
-      return []
-  }
-}
-
 
 export default function Sidebar({
   className,
@@ -93,9 +63,7 @@ export default function Sidebar({
               className={`flex flex-col justify-end truncate ${isCollapsed ? 'invisible w-0' : 'visible w-auto'}`}
             >
               <span className='font-medium'>Staffluent</span>
-              <span className='text-xs'>
-                {getSidebarText(accountType)}
-              </span>
+              <span className='text-xs'>{getSidebarText(accountType)}</span>
             </div>
           </div>
 

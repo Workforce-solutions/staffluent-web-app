@@ -19,7 +19,6 @@ import { Textarea } from '@/components/ui/textarea'
 import { UserNav } from '@/components/user-nav'
 import { useShortCode } from '@/hooks/use-local-storage'
 import {
-  useApproveServiceRequestMutation,
   useDeclineServiceRequestMutation,
   useGetServiceRequestDetailsQuery,
 } from '@/services/service-requestApi'
@@ -29,6 +28,7 @@ import { useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { ConnectProjectModal } from './connect-service-withproject'
 import ContactModal from './contact-modal'
+import ApproveModal from './approve-modal'
 
 export default function ServiceRequestDetails() {
   const { id } = useParams()
@@ -37,29 +37,20 @@ export default function ServiceRequestDetails() {
   const [showDeclineDialog, setShowDeclineDialog] = useState(false)
   const [open, setOpen] = useState(false)
   const [modalOpen, setModalOpen] = useState(false)
+  const [approveModalOpen, setApproveModalOpen] = useState(false)
 
   const { data: request, isLoading } = useGetServiceRequestDetailsQuery({
     venue_short_code: shortCode,
     id: Number(id),
   })
 
-  const [approveRequest] = useApproveServiceRequestMutation()
+  // const [approveRequest] = useApproveServiceRequestMutation()
   const [declineRequest] = useDeclineServiceRequestMutation()
 
   if (isLoading) return <ServiceRequestDetailsSkeleton />
   if (!request) return <div>Service request not found</div>
 
-  const handleApprove = async () => {
-    try {
-      await approveRequest({
-        venue_short_code: shortCode,
-        id: Number(id),
-      }).unwrap()
-    } catch (error) {
-      console.error('Failed to approve request:', error)
-    }
-  }
-
+  
   const handleDecline = async () => {
     try {
       await declineRequest({
@@ -83,30 +74,41 @@ export default function ServiceRequestDetails() {
       </Layout.Header>
 
       <Layout.Header>
-        <div className='flex items-center justify-between'>
-          <div>
-            <h2 className='text-3xl font-bold tracking-tight'>
-              Service Request #{request.reference}
-            </h2>
+        <div className='flex w-full items-center justify-between'>
+          <div className='flex w-full flex-col items-start'>
+            <div className='flex items-center gap-4'>
+              <h2 className='text-nowrap text-3xl font-bold tracking-tight'>
+                Service Request #{request.reference}
+              </h2>
+              <Badge
+                variant={
+                  request.status === 'Completed'
+                    ? 'success'
+                    : request.status === 'Cancelled'
+                      ? 'destructive'
+                      : request.status === 'In Progress' || 'Pending'
+                        ? 'warning'
+                        : 'default'
+                }
+              >
+                {request.status}
+              </Badge>
+            </div>
             <p className='text-muted-foreground'>Service Request Details</p>
           </div>
+
           <div className='flex items-center gap-4'>
-            <Badge
-              variant={
-                request.status === 'Completed'
-                  ? 'success'
-                  : request.status === 'Cancelled'
-                    ? 'destructive'
-                    : request.status === 'In Progress'
-                      ? 'warning'
-                      : 'default'
-              }
-            >
-              {request.status}
-            </Badge>
             {request.status === 'Pending' && (
               <>
-                <Button onClick={handleApprove}>Approve</Button>
+                {/* <Button
+                  // onClick={handleApprove}
+                  onClick={() => setApproveModalOpen(true)}
+                >
+                  Approve
+                </Button> */}
+                <div className='ml-5'>
+                  <ApproveModal setOpen={setApproveModalOpen} open={approveModalOpen} requested_date={request.requested_date} />
+                </div>
                 <Button
                   variant='destructive'
                   onClick={() => setShowDeclineDialog(true)}

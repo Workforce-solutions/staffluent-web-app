@@ -20,8 +20,16 @@ import 'react-big-calendar/lib/addons/dragAndDrop/styles.css'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
 import { useShortCode } from '@/hooks/use-local-storage'
 import { useGetEmployeesQuery } from '@/services/staffApi'
-import { useGetCalendarEventsQuery, useCreateScheduleMutation } from '@/services/scheduleApi'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import {
+  useGetCalendarEventsQuery,
+  useCreateScheduleMutation,
+} from '@/services/scheduleApi'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { useToast } from '@/components/ui/use-toast'
 
@@ -33,9 +41,17 @@ interface CreateShiftDialog {
   onOpenChange: (open: boolean) => void
   selectedSlot?: { start: Date; end: Date }
   onSuccess: () => void
+  setSelectedSlot: (slot: { start: Date; end: Date }) => void
 }
 
-function CreateShiftDialog({ open, onOpenChange, selectedSlot, onSuccess }: CreateShiftDialog) {
+function CreateShiftDialog({
+  open,
+  onOpenChange,
+  selectedSlot,
+  setSelectedSlot,
+  onSuccess,
+}: CreateShiftDialog) {
+  console.log('🚀 ~ CreateShiftDialog ~ selectedSlot:', selectedSlot)
   const { toast } = useToast()
   const venue_short_code = useShortCode()
   const { data: employees = [] } = useGetEmployeesQuery(venue_short_code)
@@ -63,13 +79,13 @@ function CreateShiftDialog({ open, onOpenChange, selectedSlot, onSuccess }: Crea
           date: moment(selectedSlot.start).format('YYYY-MM-DD'),
           start_time: moment(selectedSlot.start).format('HH:mm:ss'),
           end_time: moment(selectedSlot.end).format('HH:mm:ss'),
-          schedule_type: 'shift'
-        }
+          schedule_type: 'shift',
+        },
       }).unwrap()
 
       toast({
         title: 'Success',
-        description: 'Shift created successfully'
+        description: 'Shift created successfully',
       })
       onSuccess()
       onOpenChange(false)
@@ -77,7 +93,7 @@ function CreateShiftDialog({ open, onOpenChange, selectedSlot, onSuccess }: Crea
       toast({
         title: 'Error',
         description: error?.data?.message || 'Failed to create shift',
-        variant: 'destructive'
+        variant: 'destructive',
       })
     } finally {
       setIsSubmitting(false)
@@ -85,67 +101,93 @@ function CreateShiftDialog({ open, onOpenChange, selectedSlot, onSuccess }: Crea
   }
 
   return (
-      <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Create New Shift</DialogTitle>
-          </DialogHeader>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Create New Shift</DialogTitle>
+        </DialogHeader>
 
-          <form onSubmit={handleSubmit} className="space-y-4 mt-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Employee</label>
-              <Select value={employeeId} onValueChange={setEmployeeId}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select employee" />
-                </SelectTrigger>
-                <SelectContent>
-                  {employees?.map(emp => (
-                      <SelectItem key={emp.id} value={emp.id.toString()}>
-                        {emp.name}
-                      </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+        <form onSubmit={handleSubmit} className='mt-4 space-y-4'>
+          <div className='space-y-2'>
+            <label className='text-sm font-medium'>Employee</label>
+            <Select value={employeeId} onValueChange={setEmployeeId}>
+              <SelectTrigger>
+                <SelectValue placeholder='Select employee' />
+              </SelectTrigger>
+              <SelectContent>
+                {employees?.map((emp) => (
+                  <SelectItem key={emp.id} value={emp.id.toString()}>
+                    {emp.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Time</label>
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <label className="text-xs text-muted-foreground">Start</label>
-                  <Input
-                      type="text"
-                      value={selectedSlot ? moment(selectedSlot.start).format('HH:mm') : ''}
-                      disabled
-                  />
-                </div>
-                <div>
-                  <label className="text-xs text-muted-foreground">End</label>
-                  <Input
-                      type="text"
-                      value={selectedSlot ? moment(selectedSlot.end).format('HH:mm') : ''}
-                      disabled
-                  />
-                </div>
+          <div className='space-y-2'>
+            <label className='text-sm font-medium'>Time</label>
+            <div className='grid grid-cols-2 gap-2'>
+              <div>
+                <label className='text-xs text-muted-foreground'>Start</label>
+                <Input
+                  type='time'
+                  defaultValue={
+                    selectedSlot
+                      ? moment(selectedSlot.start).format('HH:mm')
+                      : ''
+                  }
+                  onChange={(e) => {
+                    if (!selectedSlot) return
+                    const [hours, minutes] = e.target.value.split(':')
+                    const newDate = new Date(selectedSlot.start)
+                    newDate.setHours(parseInt(hours), parseInt(minutes))
+                    setSelectedSlot({
+                      ...selectedSlot,
+                      start: newDate,
+                    })
+                  }}
+                  // disabled
+                />
+              </div>
+              <div>
+                <label className='text-xs text-muted-foreground'>End</label>
+                <Input
+                  type='time'
+                  defaultValue={
+                    selectedSlot ? moment(selectedSlot.end).format('HH:mm') : ''
+                  }
+                  onChange={(e) => {
+                    if (!selectedSlot) return
+                    const [hours, minutes] = e.target.value.split(':')
+                    const newDate = new Date(selectedSlot.end)
+                    newDate.setHours(parseInt(hours), parseInt(minutes))
+                    setSelectedSlot({
+                      ...selectedSlot,
+                      end: newDate,
+                    })
+                  }}
+                  // disabled
+                />
               </div>
             </div>
+          </div>
 
-            <div className="flex justify-end space-x-2">
-              <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => onOpenChange(false)}
-                  disabled={isSubmitting}
-              >
-                Cancel
-              </Button>
-              <Button type="submit" disabled={isSubmitting || !employeeId}>
-                {isSubmitting ? 'Creating...' : 'Create Shift'}
-              </Button>
-            </div>
-          </form>
-        </DialogContent>
-      </Dialog>
+          <div className='flex justify-end space-x-2'>
+            <Button
+              type='button'
+              variant='outline'
+              onClick={() => onOpenChange(false)}
+              disabled={isSubmitting}
+            >
+              Cancel
+            </Button>
+            <Button type='submit' disabled={isSubmitting || !employeeId}>
+              {isSubmitting ? 'Creating...' : 'Create Shift'}
+            </Button>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
   )
 }
 
@@ -156,119 +198,129 @@ export default function Schedule() {
   const [selectedSlot, setSelectedSlot] = useState<{ start: Date; end: Date }>()
   const [dateRange, setDateRange] = useState({
     start: moment().startOf('week').format('YYYY-MM-DD'),
-    end: moment().endOf('week').format('YYYY-MM-DD')
+    end: moment().endOf('week').format('YYYY-MM-DD'),
   })
 
   const { data: employees = [] } = useGetEmployeesQuery(venue_short_code)
-  // @ts-ignore
-  const { data: events = [], refetch: refetchEvents } = useGetCalendarEventsQuery({
-    venue_short_code,
-    ...dateRange
-  })
+  const { data: events = [], refetch: refetchEvents } =
+    // @ts-ignore
+    useGetCalendarEventsQuery({
+      venue_short_code,
+      ...dateRange,
+    })
 
-  const handleRangeChange = useCallback((range: Date[] | { start: Date; end: Date }) => {
-    if (Array.isArray(range)) {
-      setDateRange({
-        start: moment(range[0]).format('YYYY-MM-DD'),
-        end: moment(range[range.length - 1]).format('YYYY-MM-DD')
-      })
-    } else {
-      setDateRange({
-        start: moment(range.start).format('YYYY-MM-DD'),
-        end: moment(range.end).format('YYYY-MM-DD')
-      })
-    }
-  }, [])
+  const handleRangeChange = useCallback(
+    (range: Date[] | { start: Date; end: Date }) => {
+      if (Array.isArray(range)) {
+        setDateRange({
+          start: moment(range[0]).format('YYYY-MM-DD'),
+          end: moment(range[range.length - 1]).format('YYYY-MM-DD'),
+        })
+      } else {
+        setDateRange({
+          start: moment(range.start).format('YYYY-MM-DD'),
+          end: moment(range.end).format('YYYY-MM-DD'),
+        })
+      }
+    },
+    []
+  )
 
-  const handleSelectSlot = useCallback(({ start, end }: { start: Date; end: Date }) => {
-    // Don't allow creating shifts in the past
-    if (moment(start).isBefore(moment(), 'day')) {
-      return
-    }
-    setSelectedSlot({ start, end })
-    setCreateDialogOpen(true)
-  }, [])
+  const handleSelectSlot = useCallback(
+    ({ start, end }: { start: Date; end: Date }) => {
+      // Don't allow creating shifts in the past
+      if (moment(start).isBefore(moment(), 'day')) {
+        return
+      }
+      setSelectedSlot({ start, end })
+      setCreateDialogOpen(true)
+    },
+    []
+  )
 
-  const filteredEvents = selectedStaff === 'all'
+  const filteredEvents =
+    selectedStaff === 'all'
       ? events
-      : events?.filter(event => event.employee.id === Number(selectedStaff))
+      : events?.filter((event) => event.employee.id === Number(selectedStaff))
 
-  const formattedEvents = filteredEvents?.map(event => ({
-    ...event,
-    start: new Date(event.start),
-    end: new Date(event.end)
-  })) ?? []
+  const formattedEvents =
+    filteredEvents?.map((event) => ({
+      ...event,
+      start: new Date(event.start),
+      end: new Date(event.end),
+    })) ?? []
 
   return (
-      <Layout>
-        <Layout.Header>
-          <Search />
-          <div className='ml-auto flex items-center space-x-2'>
-            <ThemeSwitch />
-            <UserNav />
-          </div>
-        </Layout.Header>
+    <Layout>
+      <Layout.Header>
+        <Search />
+        <div className='ml-auto flex items-center space-x-2'>
+          <ThemeSwitch />
+          <UserNav />
+        </div>
+      </Layout.Header>
 
-        <Layout.Body className='space-y-4'>
-          <div className='flex items-center justify-between space-y-2'>
-            <h1 className='text-2xl font-bold tracking-tight md:text-3xl'>
-              Schedule Management
-            </h1>
-          </div>
+      <Layout.Body className='space-y-4'>
+        <div className='flex items-center justify-between space-y-2'>
+          <h1 className='text-2xl font-bold tracking-tight md:text-3xl'>
+            Schedule Management
+          </h1>
+        </div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Staff Schedule</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className='mb-4 flex items-center justify-between'>
-                <Select value={selectedStaff} onValueChange={setSelectedStaff}>
-                  <SelectTrigger className='w-[200px]'>
-                    <SelectValue placeholder='Filter by staff' />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value='all'>All Staff</SelectItem>
-                    {employees?.map((emp) => (
-                        <SelectItem key={emp.id} value={emp.id.toString()}>
-                          {emp.name}
-                        </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>Staff Schedule</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className='mb-4 flex items-center justify-between'>
+              <Select value={selectedStaff} onValueChange={setSelectedStaff}>
+                <SelectTrigger className='w-[200px]'>
+                  <SelectValue placeholder='Filter by staff' />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value='all'>All Staff</SelectItem>
+                  {employees?.map((emp) => (
+                    <SelectItem key={emp.id} value={emp.id.toString()}>
+                      {emp.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
-              <div className='h-[600px] bg-background'>
-                <DnDCalendar
-                    localizer={localizer}
-                    events={formattedEvents}
-                    onSelectSlot={handleSelectSlot}
-                    onRangeChange={handleRangeChange}
-                    selectable
-                    resizable
-                    defaultView={Views.WEEK}
-                    views={[Views.DAY, Views.WEEK, Views.MONTH]}
-                    min={moment().set('hours', 6).toDate()} // Start at 6 AM
-                    max={moment().set('hours', 23).set('minutes', 59).toDate()} // End at midnight
-                    step={30} // 30 minute intervals
-                    timeslots={2} // Show 2 slots per step (15 minutes each)
-                    // @ts-ignore
-                    eventPropGetter={(event) => ({
-                      style: {
-                        backgroundColor: event.backgroundColor
-                      }
-                    })}
-                />
-              </div>
-            </CardContent>
-          </Card>
+            <div className='h-[600px] bg-background'>
+              <DnDCalendar
+                localizer={localizer}
+                events={formattedEvents}
+                onSelectSlot={handleSelectSlot}
+                onRangeChange={handleRangeChange}
+                selectable
+                resizable
+                defaultView={Views.WEEK}
+                views={[Views.DAY, Views.WEEK, Views.MONTH]}
+                min={moment().set('hours', 6).toDate()} // Start at 6 AM
+                max={moment().set('hours', 23).set('minutes', 59).toDate()} // End at midnight
+                step={30} // 30 minute intervals
+                timeslots={2} // Show 2 slots per step (15 minutes each)
+                // @ts-ignore
+                eventPropGetter={(event) => ({
+                  style: {
+                    backgroundColor: event.backgroundColor,
+                  },
+                })}
+              />
+            </div>
+          </CardContent>
+        </Card>
 
-          <CreateShiftDialog
-              open={createDialogOpen}
-              onOpenChange={setCreateDialogOpen}
-              selectedSlot={selectedSlot}
-              onSuccess={refetchEvents}
-          />
-        </Layout.Body>
-      </Layout>
+        <CreateShiftDialog
+          open={createDialogOpen}
+          onOpenChange={setCreateDialogOpen}
+          selectedSlot={selectedSlot}
+          setSelectedSlot={setSelectedSlot}
+          onSuccess={refetchEvents}
+        />
+      </Layout.Body>
+    </Layout>
   )
 }

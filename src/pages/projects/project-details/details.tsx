@@ -18,7 +18,11 @@ export default function ProjectDetails() {
   const navigate = useNavigate()
   const short_code = useShortCode()
 
-  const { data: project, isFetching, refetch } = useGetProjectQuery({
+  const {
+    data: project,
+    isFetching,
+    refetch,
+  } = useGetProjectQuery({
     id: Number(id),
     venue_short_code: short_code,
   })
@@ -63,16 +67,15 @@ export default function ProjectDetails() {
               project={project}
               tasks={project?.tasks}
               isFetching={isFetching}
-              // @ts-ignore
               onSuccess={refetch}
             />
 
             {project.service === null && (
               <EmptyBlock
                 onClick={() => setOpenConnectServiceModal(true)}
-                title='Add Service'
-                description='There is no active job service connected with this project. Please connect one.'
-                topDescription='No active job service'
+                title='Add Service Request'
+                description='There is no active job service request connected with this project. Please connect one.'
+                topDescription='No active job service request'
               >
                 <ConnectProjectService
                   setOpen={setOpenConnectServiceModal}

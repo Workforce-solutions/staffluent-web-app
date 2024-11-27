@@ -41,15 +41,16 @@ export const serviceRequestApi = createApi({
     }),
     approveServiceRequest: builder.mutation<
       void,
-      VenueShortCode & { id: number }
+      VenueShortCode & { id: number; scheduled_date: string }
     >({
-      query: ({ venue_short_code, id }) => ({
+      query: ({ venue_short_code, id, scheduled_date }) => ({
         url: getCommonUrl({
           queryString: `/service-requests/${id}/approve`,
           query: `&venue_short_code=${venue_short_code}`,
           params: staffAdminAppkeyParam,
         }),
         method: 'POST',
+        body: { scheduled_date },
       }),
       invalidatesTags: ['ServiceRequests'],
     }),

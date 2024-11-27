@@ -16,7 +16,7 @@ import { useParams } from 'react-router-dom'
 import * as z from 'zod'
 
 const formSchema = z.object({
-  service_id: z.string().min(1, 'Please select a service'),
+  service_request_id: z.string().min(1, 'Please select a service'),
 })
 
 const ConnectProjectService = ({ setOpen, open }: OpenModalProps) => {
@@ -24,7 +24,7 @@ const ConnectProjectService = ({ setOpen, open }: OpenModalProps) => {
   const venue_short_code = useShortCode()
   const { toast } = useToast()
 
-  const [service_id, setServiceId] = useState<string>('')
+  const [service_request_id, setServiceId] = useState<string>('')
 
   const [connectProjectWithService, { isLoading: isConnecting }] =
     useConnectProjectWithServiceMutation()
@@ -34,17 +34,17 @@ const ConnectProjectService = ({ setOpen, open }: OpenModalProps) => {
       await connectProjectWithService({
         venue_short_code,
         project_id: Number(project_id),
-        service_id: Number(values.service_id),
+        service_request_id: Number(values.service_request_id),
       }).unwrap()
       toast({
         title: 'Success',
-        description: 'Project connected with service successfully',
+        description: 'Project connected with service request successfully',
       })
       setOpen(false)
     } catch (error) {
       toast({
         title: 'Error',
-        description: 'Failed to connect project with service',
+        description: 'Failed to connect project with service request',
         variant: 'destructive',
       })
     }
@@ -54,21 +54,21 @@ const ConnectProjectService = ({ setOpen, open }: OpenModalProps) => {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Connect project with service</DialogTitle>
+          <DialogTitle>Connect project with service request</DialogTitle>
         </DialogHeader>
 
         <ServicesDropdown
-          id={service_id === '' ? undefined : Number(service_id)}
+          id={service_request_id === '' ? undefined : Number(service_request_id)}
           onChange={setServiceId}
           className='w-full'
         />
         <DialogFooter>
           <Button
-            onClick={() => onSubmit({ service_id })}
+            onClick={() => onSubmit({ service_request_id })}
             type='submit'
             disabled={isConnecting}
           >
-            {isConnecting ? 'Connecting...' : 'Connect Service'}
+            {isConnecting ? 'Connecting...' : 'Connect Service Request'}
           </Button>
         </DialogFooter>
       </DialogContent>

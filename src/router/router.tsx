@@ -17,6 +17,8 @@ import { supportRoutes } from './support-routes.tsx'
 import { projectsRoute } from './projects-routes.tsx'
 import { shiftsRoute } from './shifts-routes.tsx'
 import { compliancesRoute } from './compliance-routes.tsx'
+import { leaveManagementRoutes } from './leave-managment-routes.tsx'
+import { overtimeRoutes } from './overtime-routes.tsx'
 // import Login from "./pages/auth/login";
 
 const router = createBrowserRouter([
@@ -72,6 +74,8 @@ const router = createBrowserRouter([
       ...projectsRoute,
       ...shiftsRoute,
       ...compliancesRoute,
+      ...leaveManagementRoutes,
+      ...overtimeRoutes,
       {
         index: true,
         lazy: async () => ({
@@ -180,8 +184,7 @@ const router = createBrowserRouter([
       {
         path: 'notifications',
         lazy: async () => ({
-          Component: (await import('../pages/notifications/index.tsx'))
-            .default,
+          Component: (await import('../pages/notifications/index.tsx')).default,
         }),
       },
       // Staff Overview route
@@ -290,7 +293,7 @@ const router = createBrowserRouter([
       {
         path: 'configuration/messages',
         lazy: async () => ({
-          Component: (await import('../pages/configuration/messages/index.tsx'))
+          Component: (await import('../pages/configuration/chat/index.tsx'))
             .default,
         }),
       },

@@ -195,14 +195,14 @@ export const projectApi = createApi({
       void,
       ConnectProjectWithService
     >({
-      query: ({ venue_short_code, project_id, service_id }) => ({
+      query: ({ venue_short_code, project_id, service_request_id }) => ({
         url: getCommonUrl({
-          queryString: `/service-requests/${project_id}/connect-project`,
+          queryString: `/service-requests/${service_request_id}/connect-project`,
           query: `&venue_short_code=${venue_short_code}`,
           params: staffAdminAppkeyParam,
         }),
         method: 'POST',
-        body: { project_id, service_id },
+        body: { project_id },
       }),
       invalidatesTags: ['Projects'],
     }),

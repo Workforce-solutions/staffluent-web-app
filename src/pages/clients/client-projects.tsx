@@ -75,13 +75,13 @@ export default function ClientProjects() {
 
   const handleViewProject = useCallback(
     (projectId: number) => {
-      navigate(`/projects/${projectId}`)
+      navigate(`/projects/details/${projectId}`)
     },
     [navigate]
   )
 
   const handleCreateProject = useCallback(() => {
-    navigate('/projects')
+    navigate('/projects/list')
   }, [navigate])
 
   // Calculate the difference between current and previous month's active projects
@@ -142,7 +142,7 @@ export default function ClientProjects() {
           const statusVariant =
             {
               Active: 'success',
-              Completed: 'default',
+              Completed: 'completed',
               Pending: 'warning',
               'On Hold': 'secondary',
             }[row.original.status] || 'default'

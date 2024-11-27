@@ -1,4 +1,9 @@
 import { HeaderProps } from '@/@types/common'
+import { clientLinks } from '@/data/client-links'
+import { operationsManagersLinks } from '@/data/operations-managers-links'
+import { sidelinks } from '@/data/sidelinks'
+import { teamLeaderLinks } from '@/data/team-leader-links'
+import { AccountType } from '@/pages/auth/components/user-auth-form'
 
 export const getPrepareHeaders = ({
   headers,
@@ -100,30 +105,66 @@ export const getStatusVariant = (
   | 'outline'
   | 'success'
   | 'warning'
+  | 'completed'
+  | 'info'
   | null
   | undefined => {
-  switch (status.toLocaleLowerCase()) {
-    case 'active':
-      return 'success'
-    case 'pending':
-      return 'default'
-    case 'scheduled':
-      return 'secondary'
-    case 'inProgres':
-      return 'warning'
-    case 'completed':
-      return 'success'
-    case 'cancelled':
-      return 'destructive'
-    default:
-      return 'default'
+  const statusLowerCase = status.toLowerCase()
+
+  if (statusLowerCase.includes('active')) {
+    return 'success'
+  } else if (statusLowerCase.includes('pending')) {
+    return 'warning'
+  } else if (statusLowerCase.includes('scheduled')) {
+    return 'secondary'
+  } else if (statusLowerCase.includes('progress')) {
+    return 'info'
+  } else if (statusLowerCase.includes('completed')) {
+    return 'success'
+  } else if (statusLowerCase.includes('cancelled')) {
+    return 'destructive'
+  } else if (statusLowerCase.includes('open')) {
+    return 'outline'
+  } else if (statusLowerCase.includes('closed')) {
+    return 'destructive'
+  } else {
+    return 'default'
   }
 }
 
 export const statusColorMap: Record<string, string> = {
   in_progress: 'bg-green-500',
-  completed: 'bg-blue-500',
+  completed: 'bg-green-500',
   on_hold: 'bg-yellow-500',
   planning: 'bg-purple-500',
   cancelled: 'bg-red-500',
+}
+
+export const getSidebarLinks = (accountType: AccountType) => {
+  switch (accountType) {
+    case AccountType.business:
+      return sidelinks
+    case AccountType.client:
+      return clientLinks
+    case AccountType.business_team_leader:
+      return teamLeaderLinks
+    case AccountType.business_operations_managers:
+      return operationsManagersLinks
+    default:
+      return []
+  }
+}
+export const getSidebarText = (accountType: AccountType) => {
+  switch (accountType) {
+    case AccountType.business:
+      return 'Admin'
+    case AccountType.client:
+      return 'Client Portal'
+    case AccountType.business_team_leader:
+      return 'Team Leader'
+    case AccountType.business_operations_managers:
+      return 'Operations Manager'
+    default:
+      return []
+  }
 }

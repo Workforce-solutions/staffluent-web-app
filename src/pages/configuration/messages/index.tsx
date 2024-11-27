@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { Layout } from '@/components/custom/layout'
-import { Search } from '@/components/search'
 import ThemeSwitch from '@/components/theme-switch'
 import { UserNav } from '@/components/user-nav'
 import { Button } from '@/components/custom/button'
@@ -74,7 +73,6 @@ export default function Messages() {
   return (
     <Layout>
       <Layout.Header>
-        <Search />
         <div className='ml-auto flex items-center space-x-2'>
           <ThemeSwitch />
           <UserNav />

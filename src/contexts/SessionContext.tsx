@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react-refresh/only-export-components */
 import { useShortCode } from '@/hooks/use-local-storage.js'
 import { useAuthRefreshMutation } from '@/services/authApi.js'
@@ -28,53 +29,76 @@ interface SessionProviderProps {
 
 export const SessionProvider = ({ children }: SessionProviderProps) => {
   const [session, setSession] = useState<Session | null>(null)
-  const [loading, setLoading] = useState<boolean>(true)
+  const [loading, setLoading] = useState(true)
   const [authRefresh] = useAuthRefreshMutation()
 
   const venue_short_code = useShortCode()
+  const expires_at = localStorage.getItem('expires_at')
+  const newExpiresAt = expires_at ? Number(expires_at) : 0
+
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut()
+      localStorage.removeItem('adminToken')
+      localStorage.removeItem('vbAuth')
+      localStorage.removeItem('accountType')
+      localStorage.removeItem('refreshToken')
+    } catch (error) {
+      console.error('Error logging out:', error)
+    }
+  }
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session)
+      if (session) {
+        setSession({ ...session, expires_at: newExpiresAt })
+      }
       setLoading(false)
     })
 
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      if (session) {
-        const expiresAt = session.expires_at
-          ? Number(session.expires_at) * 1000
-          : 0
-        if (Date.now() > expiresAt) {
-          authRefresh({
-            venue_short_code,
-          })
-            .unwrap()
-            .then((res) => {
+    if (newExpiresAt > 0) {
+      const {
+        data: { subscription },
+      } = supabase.auth.onAuthStateChange(async (_event, session) => {
+        if (session) {
+          const currentTime = Math.floor(Date.now() / 1000)
+          const bufferTime = 300
+
+          if (currentTime >= newExpiresAt - bufferTime) {
+            const newExpiresAt = Math.floor(Date.now() / 1000) + 60 * 60
+
+            try {
+              const res = await authRefresh({
+                venue_short_code,
+              }).unwrap()
+
               setSession({
                 ...session,
                 access_token: res.access_token,
                 refresh_token: res.refresh_token,
-                expires_at: Math.floor(Date.now() / 1000) + 3600,
+                expires_at: newExpiresAt,
               })
+
               localStorage.setItem('refreshToken', res.refresh_token)
               localStorage.setItem('adminToken', res.access_token ?? res.token)
-            })
-            .catch(() => {
+              localStorage.setItem('expires_at', String(newExpiresAt))
+            } catch {
               supabase.auth.signOut()
               setSession(null)
-            })
+            }
+          } else {
+            setSession({ ...session, expires_at: newExpiresAt })
+          }
         } else {
-          setSession(session)
+          setSession(null)
         }
-      } else {
-        setSession(null)
-      }
-    })
+      })
 
-    return () => subscription.unsubscribe()
-  }, [authRefresh, venue_short_code])
+      return () => subscription.unsubscribe()
+    } else {
+      handleLogout()
+    }
+  }, [authRefresh, venue_short_code, newExpiresAt])
 
   return (
     <SessionContext.Provider value={{ session, loading }}>

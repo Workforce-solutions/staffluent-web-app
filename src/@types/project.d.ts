@@ -202,7 +202,7 @@ export interface ProjectDetails {
 export interface ConnectProjectWithService {
   venue_short_code: string
   project_id: number
-  service_id: number
+  service_request_id: number
 }
 
 export interface GalleryResponse {

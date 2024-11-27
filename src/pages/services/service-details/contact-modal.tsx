@@ -8,8 +8,12 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
+import { useNavigate } from 'react-router-dom'
 
 const ContactModal = ({ setOpen, open }: OpenModalProps) => {
+
+  const navigate = useNavigate();
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -25,13 +29,16 @@ const ContactModal = ({ setOpen, open }: OpenModalProps) => {
         <div className='mt-4 flex justify-end space-x-2'>
           <Button
             variant='outline'
+            className='w-48'
             onClick={() => {
               setOpen(false)
+              navigate(`/support/tickets`)
             }}
           >
-            Create support Ticket
+            Redirect to support Ticket
           </Button>
           <Button
+            className='w-48'
             onClick={() => {
               // Logic to start a chat
               console.log('Start chat clicked')

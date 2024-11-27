@@ -1,106 +1,352 @@
-import { Outlet } from 'react-router-dom'
-import {
-  // IconBrowserCheck,
-  // IconExclamationCircle,
-  // IconNotification,
-  IconPalette,
-  IconTool,
-  IconUser,
-} from '@tabler/icons-react'
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+import { AuthProps } from '@/@types/auth'
 import { Layout } from '@/components/custom/layout'
-import { Search } from '@/components/search'
-import { Separator } from '@/components/ui/separator'
 import ThemeSwitch from '@/components/theme-switch'
+import { Card, CardContent, CardTitle } from '@/components/ui/card'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { Switch } from '@/components/ui/switch'
 import { UserNav } from '@/components/user-nav'
-import SidebarNav from './components/sidebar-nav'
 import { useLocalStorageString } from '@/hooks/use-local-storage'
 import { AccountType } from '../auth/components/user-auth-form'
+import { Button } from '@/components/ui/button'
+import { Pencil } from 'lucide-react'
+import { useRef } from 'react'
 
 export default function Settings() {
   const accountType = useLocalStorageString('accountType') as AccountType
+  const userData = JSON.parse(
+    useLocalStorageString('vbAuth')
+  ) as unknown as AuthProps
 
-  const getProfilePath = () => {
-    switch (accountType) {
-      case AccountType.business:
-        return ''
-      case AccountType.client:
-        return '/client-portal'
-      case AccountType.business_team_leader:
-        return '/team-leader'
-      case AccountType.business_operations_managers:
-        return '/operations-manager'
-      default:
-        return ''
+
+  function getInitials(fullName: string) {
+    return fullName
+      ?.split(' ')
+      .map((word) => word[0].toUpperCase())
+      .join('')
+  }
+
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const handlePencilClick = () => {
+    fileInputRef.current?.click()
+  }
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (file) {
+      // TODO: Implement file upload logic here
+      console.log('Selected file:', file)
     }
   }
+
   return (
     <Layout fixed>
-      {/* ===== Top Heading ===== */}
       <Layout.Header>
-        <Search />
         <div className='ml-auto flex items-center space-x-2'>
           <ThemeSwitch />
           <UserNav />
         </div>
       </Layout.Header>
 
-      <Layout.Body className='flex flex-col'>
-        <div className='space-y-0.5'>
-          <h1 className='text-2xl font-bold tracking-tight md:text-3xl'>
-            Settings
-          </h1>
-          <p className='text-muted-foreground'>
-            Manage your account settings and set e-mail preferences.
-          </p>
-        </div>
-        <Separator className='my-4 lg:my-6' />
-        <div className='flex flex-1 flex-col space-y-8 md:space-y-2 md:overflow-hidden lg:flex-row lg:space-x-12 lg:space-y-0'>
-          <aside className='top-0 lg:sticky lg:w-1/5'>
-            <SidebarNav
-              items={sidebarNavItems.map((item) => ({
-                ...item,
-                href: getProfilePath() + item.href,
-              }))}
-            />
-          </aside>
-          <div className='flex w-full p-1 pr-4 md:overflow-y-hidden'>
-            <Outlet />
+      <Layout.Body className='flex h-full flex-col gap-6 !overflow-y-auto'>
+        <div className='flex w-full justify-center'>
+          <div className='flex flex-col items-center justify-center gap-4 relative'>
+            <div className='flex h-28 w-28 items-center justify-center rounded-full bg-[#0F172A] text-[26px] font-bold text-white'>
+              {/* ... existing initials code ... */}
+              <div
+                className='absolute bottom-20 right-0 bg-white rounded-full p-2 cursor-pointer hover:bg-gray-100'
+                onClick={handlePencilClick}
+              >
+                <Pencil className='w-4 h-4' color='black' />
+              </div>
+              <input
+                type="file"
+                ref={fileInputRef}
+                className="hidden"
+                accept="image/*"
+                onChange={handleFileChange}
+              />
+              {/* ... existing initials code ... */}
+              {getInitials(userData?.data?.user?.name ?? userData?.data?.user?.name)}
+            </div>
           </div>
         </div>
+
+        {accountType === 'client' ? (
+          <ClientFields />
+        ) : (
+          <>
+            <CardTitle>Personal Information</CardTitle>
+            <Card>
+              <CardContent>
+                <div className='mt-6 grid grid-cols-[1fr_2fr] items-center gap-4'>
+                  <Label htmlFor='fullName'>Full name</Label>
+                  <Input id='fullName' defaultValue={userData?.data?.user?.name} />
+
+                  <Label htmlFor='email'>Email</Label>
+                  <Input id='email' defaultValue={userData?.data?.user?.email} />
+
+                  <Label htmlFor='phone'>Phone</Label>
+                  <Input id='phone' defaultValue='123-456-78901' />
+                </div>
+              </CardContent>
+            </Card>
+
+            <EmploymentDetailsSection />
+            <CommunicationPreferencesSection />
+          </>
+        )}
+
+        <Button
+          className='w-fit mx-auto'
+        >
+          Edit Profile
+        </Button>
       </Layout.Body>
     </Layout>
   )
 }
 
-const sidebarNavItems = [
-  {
-    title: 'Profile',
-    icon: <IconUser size={18} />,
-    href: '/settings',
-  },
-  {
-    title: 'Account',
-    icon: <IconTool size={18} />,
-    href: '/settings/account',
-  },
-  {
-    title: 'Appearance',
-    icon: <IconPalette size={18} />,
-    href: '/settings/appearance',
-  },
-  // {
-  //   title: 'Notifications',
-  //   icon: <IconNotification size={18} />,
-  //   href: '/settings/notifications',
-  // },
-  // {
-  //   title: 'Display',
-  //   icon: <IconBrowserCheck size={18} />,
-  //   href: '/settings/display',
-  // },
-  // {
-  //   title: 'Error Example',
-  //   icon: <IconExclamationCircle size={18} />,
-  //   href: '/settings/error-example',
-  // },
-]
+const EmploymentDetailsSection = () => {
+  return (
+    <>
+      <CardTitle>Employment Details</CardTitle>
+      <Card>
+        <CardContent>
+          <div className='mt-6 grid grid-cols-[1fr_2fr] items-center gap-4'>
+            <Label htmlFor='email'>Email</Label>
+            <Input id='email' defaultValue='john.doe@company.com' />
+
+            <Label htmlFor='phone'>Phone</Label>
+            <Input id='phone' defaultValue='098-765-4321' />
+
+            <Label htmlFor='position'>Position</Label>
+            <Input id='position' defaultValue='Office Manager' />
+
+            <Label htmlFor='department'>Department</Label>
+            <Input id='department' defaultValue='Technology' />
+
+            <Label htmlFor='employeeId'>Employee ID</Label>
+            <Input id='employeeId' defaultValue='#34023342' />
+
+            <Label htmlFor='startDate'>Start Date</Label>
+            <Input id='startDate' defaultValue='2024-10-19' />
+          </div>
+        </CardContent>
+      </Card>
+    </>
+  )
+}
+
+const CommunicationPreferencesSection = () => {
+  return (
+    <>
+      <CardTitle>Communication Preferences</CardTitle>
+      <Card>
+        <CardContent>
+          <div className='mt-6 flex flex-col gap-4'>
+            <div className='flex justify-between'>
+              <div className='flex flex-col'>
+                <Label htmlFor='emailNotifications'>Email</Label>
+                <span className='opacity-60'>
+                  Recieve notifications to your Email
+                </span>
+              </div>
+
+              <Switch id='emailNotifications' defaultChecked />
+            </div>
+
+            <div className='flex justify-between'>
+              <div className='flex flex-col'>
+                <Label htmlFor='smsNotifications'>SMS</Label>
+                <span className='opacity-60'>
+                  Recieve notifications to your Phone
+                </span>
+              </div>
+              <Switch id='smsNotifications' defaultChecked />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </>
+  )
+}
+
+const ClientFields = () => {
+  return (
+    <div className='grid gap-6 py-4'>
+      {/* General Information Section */}
+      <div className='space-y-4'>
+        <h3 className='text-lg font-medium'>General Information</h3>
+        <Card>
+          <CardContent>
+            <div className='mt-6 grid gap-4'>
+              <div className='flex items-center space-x-2'>
+                <Checkbox id='isUser' />
+                <Label htmlFor='isUser'>Create as User</Label>
+              </div>
+              <div className='grid grid-cols-4 items-center gap-4'>
+                <Label htmlFor='name' className='text-left'>
+                  Name
+                </Label>
+                <Input
+                  id='name'
+                  className='col-span-3'
+                  placeholder='Enter client name'
+                  required
+                />
+              </div>
+              <div className='grid grid-cols-4 items-center gap-4'>
+                <Label htmlFor='type' className='text-left'>
+                  Type
+                </Label>
+                <Select value='homeowner' onValueChange={() => { }}>
+                  <SelectTrigger className='col-span-3'>
+                    <SelectValue placeholder='Select client type' />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value='homeowner'>Homeowner</SelectItem>
+                    <SelectItem value='company'>Company</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className='grid grid-cols-4 items-center gap-4'>
+                <Label htmlFor='contact_person' className='text-left'>
+                  Contact Person
+                </Label>
+                <Input
+                  id='contact_person'
+                  className='col-span-3'
+                  placeholder='Enter contact person name'
+                  required
+                />
+              </div>
+              <div className='grid grid-cols-4 items-center gap-4'>
+                <Label htmlFor='phone' className='text-left'>
+                  Phone
+                </Label>
+                <Input
+                  id='phone'
+                  className='col-span-3'
+                  placeholder='Enter phone number'
+                  required
+                />
+              </div>
+              <div className='grid grid-cols-4 items-center gap-4'>
+                <Label htmlFor='email' className='text-left'>
+                  Email
+                </Label>
+                <Input
+                  id='email'
+                  type='email'
+                  className='col-span-3'
+                  placeholder='Enter email address'
+                  required
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className='space-y-4'>
+        <div className='flex items-center space-x-2'>
+          <h3 className='text-lg font-medium'>Address Information</h3>
+        </div>
+        <Card>
+          <CardContent>
+            <div className='mt-6 grid gap-4'>
+              <div className='grid grid-cols-4 items-center gap-4'>
+                <Label htmlFor='country' className='text-left'>
+                  Country
+                </Label>
+                <Select value='' onValueChange={() => { }}>
+                  <SelectTrigger className='col-span-3'>
+                    <SelectValue placeholder='Select country' />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value='US'>United States</SelectItem>
+                    <SelectItem value='CA'>Canada</SelectItem>
+                    <SelectItem value='GB'>United Kingdom</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className='grid grid-cols-4 items-center gap-4'>
+                <Label htmlFor='state' className='text-left'>
+                  State
+                </Label>
+                <Select value='' onValueChange={() => { }}>
+                  <SelectTrigger className='col-span-3'>
+                    <SelectValue placeholder='Select state' />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value='CA'>California</SelectItem>
+                    <SelectItem value='NY'>New York</SelectItem>
+                    <SelectItem value='TX'>Texas</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className='grid grid-cols-4 items-center gap-4'>
+                <Label htmlFor='city' className='text-left'>
+                  City
+                </Label>
+                <Select value='' onValueChange={() => { }}>
+                  <SelectTrigger className='col-span-3'>
+                    <SelectValue placeholder='Select city' />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value='LA'>Los Angeles</SelectItem>
+                    <SelectItem value='NY'>New York City</SelectItem>
+                    <SelectItem value='HOU'>Houston</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className='grid grid-cols-4 items-center gap-4'>
+                <Label htmlFor='address' className='text-left'>
+                  Street Address
+                </Label>
+                <Input
+                  id='address'
+                  className='col-span-3'
+                  placeholder='Enter street address'
+                  required
+                />
+              </div>
+              <div className='grid grid-cols-4 items-center gap-4'>
+                <Label htmlFor='postal_code' className='text-left'>
+                  Postal Code
+                </Label>
+                <Input
+                  id='postal_code'
+                  className='col-span-3'
+                  placeholder='Enter postal code'
+                  required
+                />
+              </div>
+              <div className='grid grid-cols-4 items-center gap-4'>
+                <Label htmlFor='notes' className='text-left'>
+                  Notes
+                </Label>
+                <Input
+                  id='notes'
+                  className='col-span-3'
+                  placeholder='Add any additional notes'
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  )
+}
