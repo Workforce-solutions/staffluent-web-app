@@ -3,22 +3,30 @@ import ThemeSwitch from '@/components/theme-switch'
 import { UserNav } from '@/components/user-nav'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select'
-import { Input } from '@/components/ui/input'
 
 // operations-manager/work-orders/index.tsx
 import {
     FileText,
     PlusCircle,
 } from 'lucide-react'
+import { useGetWorkOrdersListQuery } from '@/services/operationMangerApi'
+import { useShortCode } from '@/hooks/use-local-storage'
+import { useState } from 'react'
+import { CreateEditOrderModal } from './create-edit-order'
+import GenericTableWrapper from '@/components/wrappers/generic-wrapper'
+import { columns } from './components/columns'
 
 export default function WorkOrders() {
+
+    const short_code = useShortCode()
+
+    const { data: workOrders }: any = useGetWorkOrdersListQuery({
+        id: 3,
+        venue_short_code: short_code,
+    })
+
+    const [open, setOpen] = useState(false)
+
     return (
         <Layout>
             <Layout.Header>
@@ -36,7 +44,7 @@ export default function WorkOrders() {
                             Manage and track work orders
                         </p>
                     </div>
-                    <Button onClick={() => {}}>
+                    <Button onClick={() => setOpen(true)}>
                         <PlusCircle className='mr-2 h-4 w-4' />
                         Create Work Order
                     </Button>
@@ -55,36 +63,20 @@ export default function WorkOrders() {
                     </Card>
                 </div>
 
-                <Card>
-                    <CardHeader>
-                        <div className='flex items-center justify-between'>
-                            <CardTitle>Work Orders List</CardTitle>
-                            <div className='flex items-center space-x-2'>
-                                <Input
-                                    placeholder='Search orders...'
-                                    className='w-[200px]'
-                                />
-                                <Select>
-                                    <SelectTrigger className='w-[150px]'>
-                                        <SelectValue placeholder='Filter by status' />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value='all'>All Orders</SelectItem>
-                                        <SelectItem value='pending'>Pending</SelectItem>
-                                        <SelectItem value='in-progress'>In Progress</SelectItem>
-                                        <SelectItem value='completed'>Completed</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                        </div>
-                    </CardHeader>
-                    <CardContent>
-                        <div className='py-4 text-center text-sm text-muted-foreground'>
-                            No work orders found
-                        </div>
-                    </CardContent>
+                <Card className='p-5'>
+                    <div className='mt-4 flex-1 space-y-4'>
+                        <GenericTableWrapper
+                            data={workOrders?.work_orders}
+                            columns={columns}
+                            rowsSelected
+                        // {...{ isError }}
+                        // isLoading={isFetching}
+                        />
+                    </div>
                 </Card>
             </Layout.Body>
+
+            <CreateEditOrderModal open={open} setOpen={setOpen} />
         </Layout>
     )
 }

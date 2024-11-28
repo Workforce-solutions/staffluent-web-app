@@ -97,7 +97,7 @@ const Comments = () => {
                     <div className='grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-5'>
                         {order.map((supply: any) => (
                             <Card>
-                                <div key={supply.id} className="bg-white p-4 rounded-md divide-y">
+                                <div key={supply.id} className="p-4 rounded-md divide-y">
                                     <div className='pb-2 flex flex-col gap-2'>
                                         <div className="flex items-center justify-between">
                                             <h2 className="text-lg font-bold">{supply.title}</h2>
@@ -128,10 +128,10 @@ const Comments = () => {
                                     </div>
                                     <div className="flex items-center justify-between py-3">
                                         <p className="text-sm text-muted-foreground">
-                                            <span className="font-medium text-black">Team Leader: </span>{supply.team_leader}
+                                            <span className="font-medium">Team Leader: </span>{supply.team_leader}
                                         </p>
                                         <p className="text-sm text-muted-foreground">
-                                            <span className="font-medium text-black">Inspected In: </span>{supply.inspected_in}
+                                            <span className="font-medium">Inspected In: </span>{supply.inspected_in}
                                         </p>
                                     </div>
                                     <Card className='p-3'>

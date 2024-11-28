@@ -91,7 +91,7 @@ const Comments = () => {
                     <div className='grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-5'>
                         {supplies.map((supply: any) => (
                             <Card>
-                                <div key={supply.id} className="bg-white p-4 rounded-md">
+                                <div key={supply.id} className="p-4 rounded-md">
                                     <div className="flex items-center justify-between mb-3">
                                         <h2 className="text-lg font-bold">{supply.title}</h2>
                                         {/* <p className="text-muted-foreground">{supply.status}</p> */}
@@ -107,11 +107,11 @@ const Comments = () => {
                                             {supply?.status?.toUpperCase()}
                                         </Badge>
                                     </div>
-                                    <p className="text-muted-foreground"><span className='font-bold text-black'>Requested Date:</span> {supply.requested_date}</p>
-                                    <p className="text-muted-foreground"><span className='font-bold text-black'>Requested By:</span> {supply.requested_by}</p>
-                                    <p className="text-muted-foreground"><span className='font-bold text-black'>Supervisor:</span> {supply.suppervison}</p>
-                                    <p className="text-muted-foreground"><span className='font-bold text-black'>Required Date:</span> {supply.required_date}</p>
-                                    <p className="text-muted-foreground"><span className='font-bold text-black'>Remarks:</span> {supply.remarks}</p>
+                                    <p className="text-muted-foreground"><span className='font-bold'>Requested Date:</span> {supply.requested_date}</p>
+                                    <p className="text-muted-foreground"><span className='font-bold'>Requested By:</span> {supply.requested_by}</p>
+                                    <p className="text-muted-foreground"><span className='font-bold'>Supervisor:</span> {supply.suppervison}</p>
+                                    <p className="text-muted-foreground"><span className='font-bold'>Required Date:</span> {supply.required_date}</p>
+                                    <p className="text-muted-foreground"><span className='font-bold'>Remarks:</span> {supply.remarks}</p>
                                 </div>
                             </Card>
                         ))}

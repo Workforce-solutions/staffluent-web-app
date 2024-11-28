@@ -97,7 +97,7 @@ const Comments = () => {
                     <div className='grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-5'>
                         {order.map((supply: any) => (
                             <Card>
-                                <div key={supply.id} className="bg-white p-4 rounded-md divide-y">
+                                <div key={supply.id} className="p-4 rounded-md divide-y">
                                     <div className='pb-2'>
                                         <div className="flex items-center justify-between">
                                             <h2 className="text-lg font-bold">{supply.title}</h2>
@@ -120,18 +120,18 @@ const Comments = () => {
                                     <div className='flex flex-col pt-2 gap-2'>
                                         <div className="flex items-center justify-between">
                                             <p className="text-sm text-muted-foreground">
-                                                <span className="font-medium text-black">Requested by: </span>{supply.requested_by}
+                                                <span className="font-medium">Requested by: </span>{supply.requested_by}
                                             </p>
                                             <p className={`text-sm font-semibold ${supply.priorities === 'High' ? 'text-red-500' : supply.priorities === 'Medium' ? 'text-green-500' : 'text-yellow-500'}`}>
-                                                <span className="font-medium text-black">Priorities: </span> {supply.priorities}
+                                                <span className="font-medium">Priorities: </span> {supply.priorities}
                                             </p>
                                         </div>
                                         <div className="flex items-center justify-between">
                                             <p className="text-sm text-muted-foreground">
-                                                <span className="font-medium text-black">Start Date: </span>{supply.start_date}
+                                                <span className="font-medium ">Start Date: </span>{supply.start_date}
                                             </p>
                                             <p className="text-sm text-muted-foreground">
-                                                <span className="font-medium text-black">Incoive ID: </span> #{supply.invoice_id}
+                                                <span className="font-medium">Incoive ID: </span> #{supply.invoice_id}
                                             </p>
                                         </div>
                                     </div>

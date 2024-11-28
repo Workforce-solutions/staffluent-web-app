@@ -27,7 +27,6 @@ export default function Settings() {
     useLocalStorageString('vbAuth')
   ) as unknown as AuthProps
 
-
   function getInitials(fullName: string) {
     return fullName
       ?.split(' ')
@@ -60,24 +59,26 @@ export default function Settings() {
 
       <Layout.Body className='flex h-full flex-col gap-6 !overflow-y-auto'>
         <div className='flex w-full justify-center'>
-          <div className='flex flex-col items-center justify-center gap-4 relative'>
+          <div className='relative flex flex-col items-center justify-center gap-4'>
             <div className='flex h-28 w-28 items-center justify-center rounded-full bg-[#0F172A] text-[26px] font-bold text-white'>
               {/* ... existing initials code ... */}
               <div
-                className='absolute bottom-20 right-0 bg-white rounded-full p-2 cursor-pointer hover:bg-gray-100'
+                className='absolute bottom-20 right-0 cursor-pointer rounded-full bg-white p-2 hover:bg-gray-100'
                 onClick={handlePencilClick}
               >
-                <Pencil className='w-4 h-4' color='black' />
+                <Pencil className='h-4 w-4' color='black' />
               </div>
               <input
-                type="file"
+                type='file'
                 ref={fileInputRef}
-                className="hidden"
-                accept="image/*"
+                className='hidden'
+                accept='image/*'
                 onChange={handleFileChange}
               />
               {/* ... existing initials code ... */}
-              {getInitials(userData?.data?.user?.name ?? userData?.data?.user?.name)}
+              {getInitials(
+                userData?.data?.user?.name ?? userData?.data?.user?.name
+              )}
             </div>
           </div>
         </div>
@@ -89,15 +90,26 @@ export default function Settings() {
             <CardTitle>Personal Information</CardTitle>
             <Card>
               <CardContent>
-                <div className='mt-6 grid grid-cols-[1fr_2fr] items-center gap-4'>
-                  <Label htmlFor='fullName'>Full name</Label>
-                  <Input id='fullName' defaultValue={userData?.data?.user?.name} />
+                <div className='mt-6 grid grid-cols-[1fr_1fr] items-center gap-x-9 gap-y-6'>
+                  <div className='grid grid-cols-[100px_1fr] items-center'>
+                    <Label htmlFor='fullName'>Full name</Label>
+                    <Input
+                      id='fullName'
+                      defaultValue={userData?.data?.user?.name}
+                    />
+                  </div>
+                  <div className='grid grid-cols-[100px_1fr] items-center'>
+                    <Label htmlFor='email'>Email</Label>
+                    <Input
+                      id='email'
+                      defaultValue={userData?.data?.user?.email}
+                    />
+                  </div>
 
-                  <Label htmlFor='email'>Email</Label>
-                  <Input id='email' defaultValue={userData?.data?.user?.email} />
-
-                  <Label htmlFor='phone'>Phone</Label>
-                  <Input id='phone' defaultValue='123-456-78901' />
+                  <div className='grid grid-cols-[100px_1fr] items-center'>
+                    <Label htmlFor='phone'>Phone</Label>
+                    <Input id='phone' defaultValue='123-456-78901' />
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -107,11 +119,7 @@ export default function Settings() {
           </>
         )}
 
-        <Button
-          className='w-fit mx-auto'
-        >
-          Edit Profile
-        </Button>
+        <Button className='mx-auto w-fit'>Edit Profile</Button>
       </Layout.Body>
     </Layout>
   )
@@ -123,24 +131,31 @@ const EmploymentDetailsSection = () => {
       <CardTitle>Employment Details</CardTitle>
       <Card>
         <CardContent>
-          <div className='mt-6 grid grid-cols-[1fr_2fr] items-center gap-4'>
-            <Label htmlFor='email'>Email</Label>
-            <Input id='email' defaultValue='john.doe@company.com' />
-
-            <Label htmlFor='phone'>Phone</Label>
-            <Input id='phone' defaultValue='098-765-4321' />
-
-            <Label htmlFor='position'>Position</Label>
-            <Input id='position' defaultValue='Office Manager' />
-
-            <Label htmlFor='department'>Department</Label>
-            <Input id='department' defaultValue='Technology' />
-
-            <Label htmlFor='employeeId'>Employee ID</Label>
-            <Input id='employeeId' defaultValue='#34023342' />
-
-            <Label htmlFor='startDate'>Start Date</Label>
-            <Input id='startDate' defaultValue='2024-10-19' />
+          <div className='mt-6 grid grid-cols-[1fr_1fr] items-center gap-x-9 gap-y-6'>
+            <div className='grid grid-cols-[100px_1fr] items-center'>
+              <Label htmlFor='email'>Email</Label>
+              <Input id='email' defaultValue='john.doe@company.com' />
+            </div>
+            <div className='grid grid-cols-[100px_1fr] items-center'>
+              <Label htmlFor='phone'>Phone</Label>
+              <Input id='phone' defaultValue='098-765-4321' />
+            </div>
+            <div className='grid grid-cols-[100px_1fr] items-center'>
+              <Label htmlFor='position'>Position</Label>
+              <Input id='position' defaultValue='Office Manager' />
+            </div>
+            <div className='grid grid-cols-[100px_1fr] items-center'>
+              <Label htmlFor='department'>Department</Label>
+              <Input id='department' defaultValue='Technology' />
+            </div>
+            <div className='grid grid-cols-[100px_1fr] items-center'>
+              <Label htmlFor='employeeId'>Employee ID</Label>
+              <Input id='employeeId' defaultValue='#34023342' />
+            </div>
+            <div className='grid grid-cols-[100px_1fr] items-center'>
+              <Label htmlFor='startDate'>Start Date</Label>
+              <Input id='startDate' defaultValue='2024-10-19' />
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -210,7 +225,7 @@ const ClientFields = () => {
                 <Label htmlFor='type' className='text-left'>
                   Type
                 </Label>
-                <Select value='homeowner' onValueChange={() => { }}>
+                <Select value='homeowner' onValueChange={() => {}}>
                   <SelectTrigger className='col-span-3'>
                     <SelectValue placeholder='Select client type' />
                   </SelectTrigger>
@@ -270,7 +285,7 @@ const ClientFields = () => {
                 <Label htmlFor='country' className='text-left'>
                   Country
                 </Label>
-                <Select value='' onValueChange={() => { }}>
+                <Select value='' onValueChange={() => {}}>
                   <SelectTrigger className='col-span-3'>
                     <SelectValue placeholder='Select country' />
                   </SelectTrigger>
@@ -285,7 +300,7 @@ const ClientFields = () => {
                 <Label htmlFor='state' className='text-left'>
                   State
                 </Label>
-                <Select value='' onValueChange={() => { }}>
+                <Select value='' onValueChange={() => {}}>
                   <SelectTrigger className='col-span-3'>
                     <SelectValue placeholder='Select state' />
                   </SelectTrigger>
@@ -300,7 +315,7 @@ const ClientFields = () => {
                 <Label htmlFor='city' className='text-left'>
                   City
                 </Label>
-                <Select value='' onValueChange={() => { }}>
+                <Select value='' onValueChange={() => {}}>
                   <SelectTrigger className='col-span-3'>
                     <SelectValue placeholder='Select city' />
                   </SelectTrigger>

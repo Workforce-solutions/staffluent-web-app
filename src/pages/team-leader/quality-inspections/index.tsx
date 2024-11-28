@@ -16,8 +16,20 @@ import {
     PlusCircle,
     ClipboardCheck,
 } from 'lucide-react'
+import { useShortCode } from '@/hooks/use-local-storage'
+import { useState } from 'react'
+import { CreateEditInspectionModal } from './create-edit-inspection'
+import GenericTableWrapper from '@/components/wrappers/generic-wrapper'
+import { columns } from './components/columns'
+import { useGetQualityInspectionsListQuery } from '@/services/teamLeaderApi'
 
 export default function QualityInspections() {
+
+    const short_code = useShortCode()
+    const { data: teamLeaders } = useGetQualityInspectionsListQuery({ venue_short_code: short_code, id: 3 })
+
+    const [open, setOpen] = useState(false)
+
     return (
         <Layout>
             <Layout.Header>
@@ -35,7 +47,7 @@ export default function QualityInspections() {
                             Track and manage quality control
                         </p>
                     </div>
-                    <Button onClick={() => {}}>
+                    <Button onClick={() => setOpen(true)}>
                         <PlusCircle className='mr-2 h-4 w-4' />
                         New Inspection
                     </Button>
@@ -49,7 +61,7 @@ export default function QualityInspections() {
                             <ClipboardCheck className='h-4 w-4 text-muted-foreground' />
                         </CardHeader>
                         <CardContent>
-                            <div className='text-2xl font-bold'>0</div>
+                            <div className='text-2xl font-bold'>{teamLeaders?.quality_inspections.total}</div>
                             <p className='text-xs text-muted-foreground'>This month</p>
                         </CardContent>
                     </Card>
@@ -57,7 +69,7 @@ export default function QualityInspections() {
                     {/* Add more inspection stats */}
                 </div>
 
-                <Card>
+                <Card className='p-5 pt-0'>
                     <CardHeader>
                         <div className='flex items-center justify-between'>
                             <CardTitle>Recent Inspections</CardTitle>
@@ -80,13 +92,27 @@ export default function QualityInspections() {
                             </div>
                         </div>
                     </CardHeader>
-                    <CardContent>
-                        <p className='py-4 text-center text-sm text-muted-foreground'>
-                            No inspections found
-                        </p>
-                    </CardContent>
+                    {teamLeaders?.quality_inspections.data.length == 0 &&
+                        <CardContent>
+                            <p className='py-4 text-center text-sm text-muted-foreground'>
+                                No inspections found
+                            </p>
+                        </CardContent>
+                    }
+                    <div className='flex-1 space-y-4'>
+                        <GenericTableWrapper
+                            data={teamLeaders?.quality_inspections.data}
+                            columns={columns}
+                            rowsSelected
+                        // {...{ isError }}
+                        // isLoading={isFetching}
+                        />
+                    </div>
                 </Card>
             </Layout.Body>
+
+
+            <CreateEditInspectionModal open={open} setOpen={setOpen} />
         </Layout>
     )
 }

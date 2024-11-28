@@ -36,7 +36,7 @@ export const projectApi = createApi({
     baseUrl: vbUrl + 'vb-apps/staff/admin',
     prepareHeaders: (headers) => getPrepareHeaders({ headers }),
   }),
-  tagTypes: ['Projects', 'AppGalleries'],
+  tagTypes: ['Projects', 'AppGalleries', 'WorkOrders'],
   endpoints: (builder) => ({
     getProject: builder.query<ProjectDetails, IdInterface>({
       query: ({ venue_short_code, id }) => ({
@@ -303,6 +303,9 @@ export const projectApi = createApi({
       }),
       providesTags: ['Projects'],
     }),
+
+    // work orders
+
   }),
 })
 
@@ -310,7 +313,7 @@ export const {
   useGetProjectQuery,
   useGetProjectsListQuery,
   useGetProjectsStatusListQuery,
-    useAllTimeEntriesQuery,
+  useAllTimeEntriesQuery,
   useGetProjectsTeamQuery,
   useDeleteProjectMutation,
   useCreateProjectMutation,
