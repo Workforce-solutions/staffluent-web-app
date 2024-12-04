@@ -8,8 +8,25 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog'
+import { useLocalStorageString } from '@/hooks/use-local-storage'
+import { AccountType } from '@/pages/auth/components/user-auth-form'
+import { useNavigate } from 'react-router-dom'
 
 const ContactModal = ({ setOpen, open }: OpenModalProps) => {
+  const navigate = useNavigate()
+  const accountType = useLocalStorageString('accountType') as AccountType
+  const redirectToTickets = () => {
+    setOpen(false)
+
+    switch (accountType) {
+      case AccountType.business:
+        navigate(`/admin/support/tickets`)
+        break
+      case AccountType.client:
+        navigate(`/client-portal/support`)
+        break
+    }
+  }
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -25,13 +42,13 @@ const ContactModal = ({ setOpen, open }: OpenModalProps) => {
         <div className='mt-4 flex justify-end space-x-2'>
           <Button
             variant='outline'
-            onClick={() => {
-              setOpen(false)
-            }}
+            className='w-48'
+            onClick={redirectToTickets}
           >
-            Create support Ticket
+            Redirect to support Ticket
           </Button>
           <Button
+            className='w-48'
             onClick={() => {
               // Logic to start a chat
               console.log('Start chat clicked')

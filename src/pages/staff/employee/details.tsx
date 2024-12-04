@@ -36,6 +36,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { useEffect, useState } from 'react'
+import EmployeeTimeShortcuts from "../../../components/EmployeeTimeShortcuts";
 
 const employeeStatuses = [
   { value: 'active', label: 'Active' },
@@ -154,208 +155,212 @@ export default function StaffDetails() {
             <LoadingCard className='md:col-span-3' />
           </div>
         ) : employee ? (
-          <>
-            <div className='grid grid-cols-1 gap-6 md:grid-cols-3'>
-              {/* Profile Card */}
-              <Card className='md:col-span-1'>
-                <CardContent className='pt-6'>
-                  <div className='flex flex-col items-center space-y-4'>
-                    <Avatar className='h-32 w-32'>
-                      <AvatarImage src={employee.profile_picture} />
-                      <AvatarFallback>
-                        {employee.name
-                          .split(' ')
-                          .map((n) => n[0])
-                          .join('')}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className='text-center'>
-                      <h2 className='text-2xl font-bold'>{employee.name}</h2>
-                      <p className='text-muted-foreground'>
-                        {employee.role?.name}
-                      </p>
+            <>
+              <div className='grid grid-cols-1 gap-6 md:grid-cols-3'>
+                {/* Profile Card */}
+                <Card className='md:col-span-1'>
+                  <CardContent className='pt-6'>
+                    <div className='flex flex-col items-center space-y-4'>
+                      <Avatar className='h-32 w-32'>
+                        <AvatarImage src={employee.profile_picture}/>
+                        <AvatarFallback>
+                          {employee.name
+                              .split(' ')
+                              .map((n) => n[0])
+                              .join('')}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className='text-center'>
+                        <h2 className='text-2xl font-bold'>{employee.name}</h2>
+                        <p className='text-muted-foreground'>
+                          {employee.role?.name}
+                        </p>
 
-                      <div className='mt-4'>
-                        <Select
-                          value={employeeStatus}
-                          onValueChange={handleStatusChange}
-                        >
-                          <SelectTrigger
-                            className={`w-[180px] ${getStatusColor(employeeStatus)} border-0 ring-offset-background focus:ring-2 [&>span]:text-white [&>svg]:text-white`}
+                        <div className='mt-4'>
+                          <Select
+                              value={employeeStatus}
+                              onValueChange={handleStatusChange}
                           >
-                            <SelectValue placeholder='Select status' />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {employeeStatuses.map((status) => (
-                              <SelectItem
-                                key={status.value}
-                                value={status.value}
-                                className='hover:bg-muted'
-                              >
-                                {status.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                            <SelectTrigger
+                                className={`w-[180px] ${getStatusColor(employeeStatus)} border-0 ring-offset-background focus:ring-2 [&>span]:text-white [&>svg]:text-white`}
+                            >
+                              <SelectValue placeholder='Select status'/>
+                            </SelectTrigger>
+                            <SelectContent>
+                              {employeeStatuses.map((status) => (
+                                  <SelectItem
+                                      key={status.value}
+                                      value={status.value}
+                                      className='hover:bg-muted'
+                                  >
+                                    {status.label}
+                                  </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
                       </div>
-                    </div>
 
-                    <div className='w-full pt-4'>
-                      <div className='space-y-3'>
-                        <div className='flex items-center space-x-2'>
-                          <BriefcaseIcon className='h-4 w-4 opacity-70' />
-                          <span>
+                      <div className='w-full pt-4'>
+                        <div className='space-y-3'>
+                          <div className='flex items-center space-x-2'>
+                            <BriefcaseIcon className='h-4 w-4 opacity-70'/>
+                            <span>
                             {employee.department?.name || 'No Department'}
                           </span>
-                        </div>
-                        <div className='flex items-center space-x-2'>
-                          <MailIcon className='h-4 w-4 opacity-70' />
-                          <span>{employee.company_email}</span>
-                        </div>
-                        <div className='flex items-center space-x-2'>
-                          <PhoneIcon className='h-4 w-4 opacity-70' />
-                          <span>{employee.company_phone}</span>
-                        </div>
-                        <div className='flex items-center space-x-2'>
-                          <CalendarIcon className='h-4 w-4 opacity-70' />
-                          <span>
-                            Hired:{' '}
-                            {format(
-                              new Date(employee.hire_date),
-                              'MMM dd, yyyy'
-                            )}
-                          </span>
-                        </div>
-                        {employee.manager_id && (
-                          <div className='flex items-center space-x-2'>
-                            <UserIcon className='h-4 w-4 opacity-70' />
-                            <span>Reports to: {employee.manager?.name}</span>
                           </div>
-                        )}
+                          <div className='flex items-center space-x-2'>
+                            <MailIcon className='h-4 w-4 opacity-70'/>
+                            <span>{employee.company_email}</span>
+                          </div>
+                          <div className='flex items-center space-x-2'>
+                            <PhoneIcon className='h-4 w-4 opacity-70'/>
+                            <span>{employee.company_phone}</span>
+                          </div>
+                          <div className='flex items-center space-x-2'>
+                            <CalendarIcon className='h-4 w-4 opacity-70'/>
+                            <span>
+                            Hired:{' '}
+                              {format(
+                                  new Date(employee.hire_date),
+                                  'MMM dd, yyyy'
+                              )}
+                          </span>
+                          </div>
+                          {employee.manager_id && (
+                              <div className='flex items-center space-x-2'>
+                                <UserIcon className='h-4 w-4 opacity-70'/>
+                                <span>Reports to: {employee.manager?.name}</span>
+                              </div>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
 
-              {/* Detailed Information */}
-              <Card className='md:col-span-2'>
-                <CardContent className='pt-6'>
-                  <Tabs defaultValue='personal' className='w-full'>
-                    <TabsList>
-                      <TabsTrigger value='personal'>Personal Info</TabsTrigger>
-                      <TabsTrigger value='work'>Work Info</TabsTrigger>
-                      <TabsTrigger value='address'>Address</TabsTrigger>
-                    </TabsList>
+                {/* Detailed Information */}
+                <Card className='md:col-span-2'>
+                  <CardContent className='pt-6'>
+                    <Tabs defaultValue='personal' className='w-full'>
+                      <TabsList>
+                        <TabsTrigger value='personal'>Personal Info</TabsTrigger>
+                        <TabsTrigger value='work'>Work Info</TabsTrigger>
+                        <TabsTrigger value='address'>Address</TabsTrigger>
+                      </TabsList>
 
-                    <TabsContent value='personal' className='space-y-4'>
-                      <div className='grid grid-cols-2 gap-4'>
-                        <InfoField
-                          label='Personal Email'
-                          value={employee.personal_email}
-                          icon={<MailIcon className='h-4 w-4' />}
-                        />
-                        <InfoField
-                          label='Personal Phone'
-                          value={employee.personal_phone}
-                          icon={<PhoneIcon className='h-4 w-4' />}
-                        />
-                        <InfoField
-                          label='Hire Date'
-                          value={format(new Date(employee.hire_date), 'PP')}
-                          icon={<CalendarIcon className='h-4 w-4' />}
-                        />
-                      </div>
-                    </TabsContent>
+                      <TabsContent value='personal' className='space-y-4'>
+                        <div className='grid grid-cols-2 gap-4'>
+                          <InfoField
+                              label='Personal Email'
+                              value={employee.personal_email}
+                              icon={<MailIcon className='h-4 w-4'/>}
+                          />
+                          <InfoField
+                              label='Personal Phone'
+                              value={employee.personal_phone}
+                              icon={<PhoneIcon className='h-4 w-4'/>}
+                          />
+                          <InfoField
+                              label='Hire Date'
+                              value={format(new Date(employee.hire_date), 'PP')}
+                              icon={<CalendarIcon className='h-4 w-4'/>}
+                          />
+                        </div>
+                      </TabsContent>
 
-                    <TabsContent value='work' className='space-y-4'>
-                      <div className='grid grid-cols-2 gap-4'>
-                        <InfoField
-                          label='Role Type'
-                          value={employee.role?.role_type}
-                          icon={<BriefcaseIcon className='h-4 w-4' />}
-                        />
-                        <InfoField
-                          label='Department'
-                          value={employee.department?.name}
-                          icon={<BriefcaseIcon className='h-4 w-4' />}
-                        />
-                        <InfoField
-                          label='Employee ID'
-                          value={`#${employee.id}`}
-                          icon={<UserIcon className='h-4 w-4' />}
-                        />
-                      </div>
-                    </TabsContent>
+                      <TabsContent value='work' className='space-y-4'>
+                        <div className='grid grid-cols-2 gap-4'>
+                          <InfoField
+                              label='Role Type'
+                              value={employee.role?.role_type}
+                              icon={<BriefcaseIcon className='h-4 w-4'/>}
+                          />
+                          <InfoField
+                              label='Department'
+                              value={employee.department?.name}
+                              icon={<BriefcaseIcon className='h-4 w-4'/>}
+                          />
+                          <InfoField
+                              label='Employee ID'
+                              value={`#${employee.id}`}
+                              icon={<UserIcon className='h-4 w-4'/>}
+                          />
+                        </div>
+                      </TabsContent>
 
-                    <TabsContent value='address' className='space-y-4'>
-                      <div className='space-y-4'>
-                        <InfoField
-                          label='Street Address'
-                          value={employee.address?.address_line1}
-                          icon={<MapPinIcon className='h-4 w-4' />}
-                        />
-                        <InfoField
-                          label='Location'
-                          value={
-                            <LocationNames
-                              cityId={employee.address?.city_id}
-                              stateId={employee.address?.state_id}
-                              countryId={employee.address?.country_id}
-                              short_code={short_code}
-                            />
-                          }
-                          icon={<MapPinIcon className='h-4 w-4' />}
-                        />
-                        <InfoField
-                          label='Postal Code'
-                          value={employee.address?.postal_code}
-                          icon={<MapPinIcon className='h-4 w-4' />}
-                        />
-                      </div>
-                    </TabsContent>
-                  </Tabs>
-                </CardContent>
-              </Card>
+                      <TabsContent value='address' className='space-y-4'>
+                        <div className='space-y-4'>
+                          <InfoField
+                              label='Street Address'
+                              value={employee.address?.address_line1}
+                              icon={<MapPinIcon className='h-4 w-4'/>}
+                          />
+                          <InfoField
+                              label='Location'
+                              value={
+                                <LocationNames
+                                    cityId={employee.address?.city_id}
+                                    stateId={employee.address?.state_id}
+                                    countryId={employee.address?.country_id}
+                                    short_code={short_code}
+                                />
+                              }
+                              icon={<MapPinIcon className='h-4 w-4'/>}
+                          />
+                          <InfoField
+                              label='Postal Code'
+                              value={employee.address?.postal_code}
+                              icon={<MapPinIcon className='h-4 w-4'/>}
+                          />
+                        </div>
+                      </TabsContent>
+                    </Tabs>
+                  </CardContent>
+                </Card>
 
-              {/* Activity Feed */}
-              <Card className='md:col-span-3'>
-                <CardHeader>
-                  <CardTitle>Activity History</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ActivityFeed
-                    // @ts-ignore
-                    data={
-                      activityData || {
-                        activities: [],
-                        summary: {
-                          total_activities: 0,
-                          activity_types: [],
-                          most_active_time: { hour: 0, count: 0 },
-                        },
-                        pagination: {
-                          current_page: 1,
-                          total: 0,
-                          per_page: 15,
-                          total_pages: 1,
-                        },
-                      }
-                    }
-                    isLoading={isActivitiesLoading}
-                  />
-                </CardContent>
-              </Card>
-            </div>
+                {/* Activity Feed */}
+                <Card className='md:col-span-3'>
+                  <CardHeader>
+                    <CardTitle>Activity History</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ActivityFeed
+                        // @ts-ignore
+                        data={
+                            activityData || {
+                              activities: [],
+                              summary: {
+                                total_activities: 0,
+                                activity_types: [],
+                                most_active_time: {hour: 0, count: 0},
+                              },
+                              pagination: {
+                                current_page: 1,
+                                total: 0,
+                                per_page: 15,
+                                total_pages: 1,
+                              },
+                            }
+                        }
+                        isLoading={isActivitiesLoading}
+                    />
+                  </CardContent>
+                </Card>
+              </div>
 
-            {/* Edit Modal */}
-            <AddEditEmployeeModal
-              open={openEditModal}
-              setOpen={setOpenEditModal}
-              // @ts-ignore
-              employeeToEdit={employee}
-            />
-          </>
+              <div className="mt-6">
+                <EmployeeTimeShortcuts/>
+              </div>
+
+              {/* Edit Modal */}
+              <AddEditEmployeeModal
+                  open={openEditModal}
+                  setOpen={setOpenEditModal}
+                  // @ts-ignore
+                  employeeToEdit={employee}
+              />
+            </>
         ) : null}
       </Layout.Body>
     </Layout>

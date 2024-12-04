@@ -1,5 +1,5 @@
-import { clientLinks } from '@/data/client-links'
-import { sidelinks } from '@/data/sidelinks'
+/* eslint-disable react-refresh/only-export-components */
+import { useLocalStorageString } from '@/hooks/use-local-storage'
 import { cn } from '@/lib/utils'
 import { AccountType } from '@/pages/auth/components/user-auth-form'
 import { IconChevronsLeft, IconMenu2, IconX } from '@tabler/icons-react'
@@ -7,7 +7,10 @@ import { HTMLAttributes, useEffect, useState } from 'react'
 import { Button } from './custom/button'
 import { Layout } from './custom/layout'
 import Nav from './nav'
-import { useLocalStorageString } from '@/hooks/use-local-storage'
+import {
+  getSidebarLinks,
+  getSidebarText,
+} from '@/hooks/common/common-functions'
 
 interface SidebarProps extends HTMLAttributes<HTMLElement> {
   isCollapsed: boolean
@@ -22,6 +25,7 @@ export default function Sidebar({
   const [navOpened, setNavOpened] = useState(false)
 
   const accountType = useLocalStorageString('accountType') as AccountType
+  const sidebarLinks = getSidebarLinks(accountType)
 
   /* Make body not scrollable when navBar is opened */
   useEffect(() => {
@@ -59,11 +63,7 @@ export default function Sidebar({
               className={`flex flex-col justify-end truncate ${isCollapsed ? 'invisible w-0' : 'visible w-auto'}`}
             >
               <span className='font-medium'>Staffluent</span>
-              <span className='text-xs'>
-                {accountType === AccountType.business
-                  ? 'Admin'
-                  : 'Client Portal'}
-              </span>
+              <span className='text-xs'>{getSidebarText(accountType)}</span>
             </div>
           </div>
 
@@ -85,7 +85,7 @@ export default function Sidebar({
           className={`z-40 h-full flex-1 overflow-auto ${navOpened ? 'max-h-screen' : 'max-h-0 py-0 md:max-h-screen md:py-2'}`}
           closeNav={() => setNavOpened(false)}
           isCollapsed={isCollapsed}
-          links={accountType === AccountType.business ? sidelinks : clientLinks}
+          links={sidebarLinks}
         />
 
         {/* Scrollbar width toggle button */}

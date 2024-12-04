@@ -26,8 +26,18 @@ export const labels = [
 
 export const statuses = [
   {
+    value: 'draft',
+    label: 'Draft',
+    icon: QuestionMarkCircledIcon,
+  },
+  {
     value: 'backlog',
     label: 'Backlog',
+    icon: QuestionMarkCircledIcon,
+  },
+  {
+    value: 'on_hold',
+    label: 'On Hold',
     icon: QuestionMarkCircledIcon,
   },
   {
@@ -36,7 +46,7 @@ export const statuses = [
     icon: CircleIcon,
   },
   {
-    value: 'in progress',
+    value: 'in_progress',
     label: 'In Progress',
     icon: StopwatchIcon,
   },

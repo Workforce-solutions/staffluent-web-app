@@ -234,7 +234,7 @@ export default function AdminServices() {
           <CardContent>
             <GenericTableWrapper
               columns={columns}
-              data={services?.services.data as ServiceProps[]}
+              data={services?.services.data ?? []}
               isLoading={isFetching}
               showToolbar={false}
               {...{ paginationValues, setPaginationValues, isError }}

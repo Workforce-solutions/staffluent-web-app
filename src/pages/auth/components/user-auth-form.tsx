@@ -1,9 +1,7 @@
 import { HTMLAttributes, useState } from 'react'
 import { useForm } from 'react-hook-form'
-// import {Link} from 'react-router-dom'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-// import { IconBrandFacebook, IconBrandGithub } from '@tabler/icons-react'
 import { Button } from '@/components/custom/button'
 import { PasswordInput } from '@/components/custom/password-input'
 import {
@@ -27,6 +25,8 @@ import { useNavigate } from 'react-router-dom'
 export enum AccountType {
   client = 'client',
   business = 'business',
+  business_team_leader = 'business_team_leader',
+  business_operations_managers = 'business_operations_managers',
 }
 
 interface UserAuthFormProps extends HTMLAttributes<HTMLDivElement> {}
@@ -61,6 +61,13 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
     },
   })
 
+  const redirectMap = {
+    [AccountType.client]: '/client-portal/dashboard',
+    [AccountType.business]: '/',
+    [AccountType.business_team_leader]: '/team-leader/dashboard',
+    [AccountType.business_operations_managers]: '/operations-manager/dashboard',
+  }
+
   const handleVbLogin = async ({
     email,
     password,
@@ -70,15 +77,20 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
   }) => {
     try {
       const res = await vbLogin({ email, password }).unwrap()
-      console.log("🚀 ~ UserAuthForm ~ res:", res)
       if (res) {
-        const accountType = AccountType.client
-        localStorage.setItem('vbAuth', JSON.stringify(res))
+        const accountType = res.account_type
+        const newExpiresAt = Math.floor(Date.now() / 1000) + 60 * 60
+
+        localStorage.setItem(
+          'vbAuth',
+          JSON.stringify({ ...res, expires_at: newExpiresAt })
+        )
         localStorage.setItem('adminToken', res?.access_token ?? '')
         localStorage.setItem('refreshToken', res?.refresh_token ?? '')
         localStorage.setItem('accountType', accountType)
+        localStorage.setItem('expires_at', String(newExpiresAt))
 
-        navigate('/client-portal/dashboard')
+        navigate(redirectMap[accountType])
       }
     } catch (err) {
       setError('Invalid login credentials from Supabase. Trying fallback...')
@@ -100,7 +112,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
 
     try {
       if (loginError) {
-        handleVbLogin({ email, password })
+        await handleVbLogin({ email, password })
       } else {
         try {
           const res = await checkConnection({
@@ -110,19 +122,21 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
 
           if (res) {
             const accountType = res?.data?.account_type ?? AccountType.business
-            localStorage.setItem('vbAuth', JSON.stringify(res))
+            const newExpiresAt = Math.floor(Date.now() / 1000) + 60 * 60
+
+            localStorage.setItem(
+              'vbAuth',
+              JSON.stringify({ ...res, expires_at: newExpiresAt })
+            )
             localStorage.setItem('adminToken', res?.data?.token ?? '')
             localStorage.setItem('refreshToken', res?.data?.refresh_token ?? '')
             localStorage.setItem('accountType', accountType)
+            localStorage.setItem('expires_at', String(newExpiresAt))
 
-            navigate(
-              accountType === AccountType.business
-                ? '/'
-                : '/client-portal/dashboard'
-            )
+            navigate(redirectMap[accountType])
           }
         } catch (error) {
-          handleVbLogin({ email, password })
+          await handleVbLogin({ email, password })
         }
       }
     } catch {
@@ -137,7 +151,6 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <div className='grid gap-2'>
             {error && <p className='text-red-500'>{error}</p>}{' '}
-            {/* Display error messages */}
             <FormField
               control={form.control}
               name='email'

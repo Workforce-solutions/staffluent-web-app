@@ -232,7 +232,7 @@ export default function ProjectTeam() {
                 setModalOptions(
                     filteredOptions.map((employee) => ({
                       value: {
-                        label: employee.name,
+                        label: employee?.name,
                         value: employee.id.toString(),
                       },
                       label: employee.name,
@@ -253,10 +253,10 @@ export default function ProjectTeam() {
                 setModalOptions(
                     filteredOptions.map((opManager) => ({
                       value: {
-                        label: opManager.name,
+                        label: opManager?.name,
                         value: opManager.id.toString(),
                       },
-                      label: opManager.name,
+                      label: opManager?.name,
                     }))
                 )
               })
@@ -271,10 +271,10 @@ export default function ProjectTeam() {
                 setModalOptions(
                     filteredOptions.map((team) => ({
                       value: {
-                        label: team.name,
+                        label: team?.name,
                         value: team.id.toString(),
                       },
-                      label: team.name,
+                      label: team?.name,
                     }))
                 )
               })
@@ -286,10 +286,10 @@ export default function ProjectTeam() {
                 setModalOptions(
                     res.map((teamLeader) => ({
                       value: {
-                        label: teamLeader.name,
+                        label: teamLeader?.name,
                         value: teamLeader.id.toString(),
                       },
-                      label: teamLeader.name,
+                      label: teamLeader?.name,
                     }))
                 )
               })
@@ -306,10 +306,10 @@ export default function ProjectTeam() {
             setModalOptions(
                 res.map((teamLeader) => ({
                   value: {
-                    label: teamLeader.name,
+                    label: teamLeader?.name,
                     value: teamLeader.id.toString(),
                   },
-                  label: teamLeader.name,
+                  label: teamLeader?.name,
                 }))
             )
           })
@@ -324,21 +324,21 @@ export default function ProjectTeam() {
         cell: ({ row: { original } }) => (
             <div className='flex items-center space-x-3'>
               <Avatar className='h-8 w-8 ring-2 ring-background'>
-                {original.profile_picture.length <= 2 ? (
+                {original?.profile_picture?.length <= 2 ? (
                     <AvatarFallback className='bg-primary/10 text-primary'>
-                      {original.profile_picture}
+                      {original?.profile_picture}
                     </AvatarFallback>
                 ) : (
                     <AvatarImage
-                        src={original.profile_picture}
-                        alt={original.name}
+                        src={original?.profile_picture}
+                        alt={original?.name}
                     />
                 )}
               </Avatar>
               <div className='flex flex-col'>
-                <span className='text-sm font-semibold'>{original.name}</span>
+                <span className='text-sm font-semibold'>{original?.name}</span>
                 <span className='text-xs text-muted-foreground'>
-                {original.email}
+                {original?.email}
               </span>
               </div>
             </div>
@@ -651,7 +651,7 @@ export default function ProjectTeam() {
           <TeamSection
               title='Assigned Team'
               description='Project assigned team'
-              data={[projectsTeam?.assigned_team]}
+              data={projectsTeam?.assigned_team ? [projectsTeam.assigned_team] : []}
               isLoading={isFetching}
               isError={isError}
               columns={assignedTeamColumns()}

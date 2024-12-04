@@ -25,7 +25,18 @@ export const dashboardApi = createApi({
       }),
       providesTags: ['Dashboard'],
     }),
+    exportDashboard: builder.mutation<Blob, DashboardParams>({
+      query: ({ venue_short_code, time_frame = 'monthly' }) => ({
+        url: getCommonUrl({
+          queryString: '/dashboard/export',
+          query: `&venue_short_code=${venue_short_code}&time_frame=${time_frame}`,
+          params: staffAdminAppkeyParam,
+        }),
+        responseHandler: async (response) => response.blob(),
+        cache: 'no-cache',
+      }),
+    }),
   }),
 })
 
-export const { useGetDashboardQuery } = dashboardApi
+export const { useGetDashboardQuery, useExportDashboardMutation } = dashboardApi

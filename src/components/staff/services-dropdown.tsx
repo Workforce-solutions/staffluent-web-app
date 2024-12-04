@@ -19,9 +19,9 @@ const ServicesDropdown = ({
 
   const options: OptionsType[] = useMemo(() => {
     return servicesData.map((dept) => ({
-      label: dept.name,
+      label: dept.reference,
       value: {
-        label: dept.name,
+        label: dept.reference,
         value: String(dept.id),
       },
     }))
@@ -30,9 +30,9 @@ const ServicesDropdown = ({
   return (
     <SelectWrapper
       onChange={onChange}
-        // @ts-ignore
+      // @ts-ignore
       value={String(id ?? '')}
-      placeholder='Select Service...'
+      placeholder='Select Service Request...'
       {...{ queryParams, setQueryParams, className, options }}
     />
   )

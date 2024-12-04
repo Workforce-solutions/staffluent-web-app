@@ -203,6 +203,7 @@ export const servicesApi = createApi({
 export const {
   useGetServiceRequestsQuery,
   useGetServiceCategoriesQuery,
+  useLazyGetServiceCategoriesQuery,
   useGetServicesQuery,
   useLazyGetServicesQuery,
   useGetServiceDetailsQuery,

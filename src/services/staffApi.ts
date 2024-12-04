@@ -321,6 +321,15 @@ export const staffApi = createApi({
       }),
       invalidatesTags: ['Employees'],
     }),
+    getEmployeeTimeData: builder.query<any, IdShortCodeProps>({
+      query: ({ id, venue_short_code }) => ({
+        url: getCommonUrl({
+          queryString: `/employee/${id}/time-data`,
+          query: `&venue_short_code=${venue_short_code}`,
+          params: staffAdminAppkeyParam,
+        }),
+      }),
+    }),
   }),
 })
 
@@ -353,4 +362,5 @@ export const {
   useUpdateTeamMutation,
   useRemoveTeamEmployeeMutation,
   useUpdateEmployeeStatusMutation,
+    useGetEmployeeTimeDataQuery,
 } = staffApi

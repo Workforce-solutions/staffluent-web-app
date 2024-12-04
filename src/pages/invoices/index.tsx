@@ -1,8 +1,15 @@
 import { Layout } from '@/components/custom/layout'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import {
   Table,
   TableBody,
@@ -11,30 +18,25 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { useShortCode } from '@/hooks/use-local-storage'
 import {
-  Search,
-  // Filter,
-  Download,
-  DollarSign,
-  TrendingUp,
+  useGetInvoiceListQuery,
+  useLazyDownloadInvoicePdfQuery,
+} from '@/services/invoiceApi'
+import {
   AlertCircle,
-  Plus,
+  DollarSign,
+  Download,
   Eye,
+  Plus,
+  Search,
+  TrendingUp,
 } from 'lucide-react'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import ThemeSwitch from '../../components/theme-switch'
+import { toast } from '../../components/ui/use-toast'
 import { UserNav } from '../../components/user-nav'
-import { useShortCode } from '@/hooks/use-local-storage'
-import {useGetInvoiceListQuery, useLazyDownloadInvoicePdfQuery} from '@/services/invoiceApi'
-import {toast} from "../../components/ui/use-toast";
 
 export default function AdminInvoices() {
   const navigate = useNavigate()
@@ -43,79 +45,73 @@ export default function AdminInvoices() {
     search: '',
     status: 'all',
     page: 1,
-    per_page: 15
+    per_page: 15,
   })
-
 
   const { data: invoiceData, isLoading } = useGetInvoiceListQuery({
     venue_short_code: short_code,
     // @ts-ignore
-    query: `&search=${filters.search}&status=${filters.status !== 'all' ? filters.status : ''}&page=${filters.page}&per_page=${filters.per_page}`
-  });
+    query: `&search=${filters.search}&status=${filters.status !== 'all' ? filters.status : ''}&page=${filters.page}&per_page=${filters.per_page}`,
+  })
 
-  const [triggerDownload] = useLazyDownloadInvoicePdfQuery();
+  const [triggerDownload] = useLazyDownloadInvoicePdfQuery()
 
-  const handleDownload = async (invoiceId: any) => {
+  const handleDownload = async (invoiceId: number) => {
     try {
       const response = await triggerDownload({
         venue_short_code: short_code,
-        id: Number(invoiceId)
-      }).unwrap();
+        id: Number(invoiceId),
+      }).unwrap()
 
       // Convert base64 to blob
       // @ts-ignore
-      const byteCharacters = atob(response.data);
-      const byteNumbers = new Array(byteCharacters.length);
+      const byteCharacters = atob(response.data)
+      const byteNumbers = new Array(byteCharacters.length)
       for (let i = 0; i < byteCharacters.length; i++) {
-        byteNumbers[i] = byteCharacters.charCodeAt(i);
+        byteNumbers[i] = byteCharacters.charCodeAt(i)
       }
-      const byteArray = new Uint8Array(byteNumbers);
-      const blob = new Blob([byteArray], { type: 'application/pdf' });
+      const byteArray = new Uint8Array(byteNumbers)
+      const blob = new Blob([byteArray], { type: 'application/pdf' })
 
       // Create download link
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
       // @ts-ignore
-      a.download = response.filename;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      window.URL.revokeObjectURL(url);
-
+      a.download = response.filename
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      window.URL.revokeObjectURL(url)
     } catch (error) {
       toast({
         title: 'Error',
         description: 'Failed to download invoice',
-        variant: 'destructive'
-      });
+        variant: 'destructive',
+      })
     }
-  };
+  }
 
-
-
-  //@ts-ignore
   const handleSearch = (value: string) => {
-    setFilters(prev => ({
+    setFilters((prev) => ({
       ...prev,
       search: value,
-      page: 1
+      page: 1,
     }))
   }
 
   const handleStatusChange = (value: string) => {
-    setFilters(prev => ({
+    setFilters((prev) => ({
       ...prev,
       status: value,
-      page: 1
+      page: 1,
     }))
   }
 
-  //@ts-ignore
-  const formatCurrency = (amount) => {
+  const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: 'USD'
+      currency: 'USD',
     }).format(amount)
   }
 
@@ -148,7 +144,9 @@ export default function AdminInvoices() {
         <div className='grid gap-4 md:grid-cols-4'>
           <Card>
             <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-              <CardTitle className='text-sm font-medium'>Total Revenue</CardTitle>
+              <CardTitle className='text-sm font-medium'>
+                Total Revenue
+              </CardTitle>
               <DollarSign className='h-4 w-4 text-muted-foreground' />
             </CardHeader>
             <CardContent>
@@ -174,7 +172,9 @@ export default function AdminInvoices() {
 
           <Card>
             <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-              <CardTitle className='text-sm font-medium'>Paid This Month</CardTitle>
+              <CardTitle className='text-sm font-medium'>
+                Paid This Month
+              </CardTitle>
               <TrendingUp className='h-4 w-4 text-muted-foreground' />
             </CardHeader>
             <CardContent>
@@ -219,7 +219,7 @@ export default function AdminInvoices() {
                     className='w-[250px] pl-8'
                   />
                 </div>
-                <Select 
+                <Select
                   value={filters.status}
                   onValueChange={handleStatusChange}
                 >
@@ -238,7 +238,7 @@ export default function AdminInvoices() {
           </CardHeader>
           <CardContent>
             {isLoading ? (
-              <div className="flex justify-center py-8">Loading...</div>
+              <div className='flex justify-center py-8'>Loading...</div>
             ) : (
               <Table>
                 <TableHeader>
@@ -261,9 +261,7 @@ export default function AdminInvoices() {
                       </TableCell>
                       <TableCell>{invoice.client}</TableCell>
                       <TableCell>{invoice.service}</TableCell>
-                      <TableCell>
-                        {formatCurrency(invoice.amount)}
-                      </TableCell>
+                      <TableCell>{formatCurrency(invoice.amount)}</TableCell>
                       <TableCell>{invoice.date}</TableCell>
                       <TableCell>{invoice.due_date}</TableCell>
                       <TableCell>
@@ -278,18 +276,25 @@ export default function AdminInvoices() {
                                   : 'default'
                           }
                         >
-                          {invoice.status.charAt(0).toUpperCase() + invoice.status.slice(1)}
+                          {invoice.status.charAt(0).toUpperCase() +
+                            invoice.status.slice(1)}
                         </Badge>
                       </TableCell>
                       <TableCell>
                         <div className='flex space-x-2'>
-                          <Button variant='ghost' size='icon' onClick={() => handleDownload(invoice.id)}>
+                          <Button
+                            variant='ghost'
+                            size='icon'
+                            onClick={() => handleDownload(invoice.id)}
+                          >
                             <Download className='h-4 w-4' />
                           </Button>
                           <Button
                             variant='ghost'
                             size='icon'
-                            onClick={() => navigate(`/admin/invoices/${invoice.id}`)}
+                            onClick={() =>
+                              navigate(`/admin/invoices/${invoice.id}`)
+                            }
                           >
                             <Eye className='h-4 w-4' />
                           </Button>

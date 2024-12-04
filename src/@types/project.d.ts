@@ -139,6 +139,10 @@ export interface ProjectTask {
     name: string
   }
   time_entries?: TimeEntry[]
+  due_date: string
+  start_date: string
+  is_overdue: boolean,
+  description: string
 }
 
 export interface ProjectService {
@@ -198,7 +202,7 @@ export interface ProjectDetails {
 export interface ConnectProjectWithService {
   venue_short_code: string
   project_id: number
-  service_id: number
+  service_request_id: number
 }
 
 export interface GalleryResponse {

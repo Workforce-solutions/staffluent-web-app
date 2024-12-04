@@ -1,3 +1,4 @@
+import GeneralError from '@/pages/errors/general-error.tsx'
 import { RouteObject } from 'react-router-dom'
 
 export const clientsRoute: RouteObject[] = [
@@ -39,7 +40,9 @@ export const clientsRoute: RouteObject[] = [
         path: 'service-requests/:id',
         lazy: async () => ({
           Component: (
-              await import('../pages/client-portal/services/service-request-details.tsx')
+            await import(
+              '../pages/client-portal/services/service-request-details.tsx'
+            )
           ).default,
         }),
       },
@@ -53,22 +56,23 @@ export const clientsRoute: RouteObject[] = [
       {
         path: 'invoices/confirmation',
         lazy: async () => ({
-          Component: (await import('../pages/client-portal/invoices/confirmation'))
-              .default,
+          Component: (
+            await import('../pages/client-portal/invoices/confirmation')
+          ).default,
         }),
       },
       {
         path: 'invoices/fail',
         lazy: async () => ({
           Component: (await import('../pages/client-portal/invoices/fail.tsx'))
-              .default,
+            .default,
         }),
       },
       {
         path: 'invoices/success',
         lazy: async () => ({
           Component: (await import('../pages/client-portal/invoices/success'))
-              .default,
+            .default,
         }),
       },
       {
@@ -81,16 +85,25 @@ export const clientsRoute: RouteObject[] = [
       {
         path: 'support/tickets/:id',
         lazy: async () => ({
-          Component: (await import('../pages/client-portal/support/details.tsx'))
-              .default,
+          Component: (
+            await import('../pages/client-portal/support/details.tsx')
+          ).default,
         }),
       },
       {
         path: 'notifications',
         lazy: async () => ({
-          Component: (await import('../pages/client-portal/notifications/index.tsx'))
-              .default,
+          Component: (
+            await import('../pages/client-portal/notifications/index.tsx')
+          ).default,
         }),
+      },
+      {
+        path: 'settings',
+        lazy: async () => ({
+          Component: (await import('../pages/settings/index.tsx')).default,
+        }),
+        errorElement: <GeneralError />,
       },
     ],
   },
@@ -106,5 +119,4 @@ export const clientsRoute: RouteObject[] = [
       Component: (await import('../pages/clients/client-feedback.tsx')).default,
     }),
   },
-
 ]

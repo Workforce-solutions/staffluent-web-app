@@ -32,15 +32,15 @@ import { DateRange } from 'react-day-picker'
 import EmptyState from '@/components/table/empty-state'
 
 ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  BarElement,
-  ArcElement,
-  Title,
-  Tooltip,
-  Legend
+    CategoryScale,
+    LinearScale,
+    PointElement,
+    LineElement,
+    BarElement,
+    ArcElement,
+    Title,
+    Tooltip,
+    Legend
 )
 
 export default function ClientAnalytics() {
@@ -58,154 +58,185 @@ export default function ClientAnalytics() {
   } else if (!data) {
     return <EmptyState isLoading={isFetching} isError={isError} />
   }
-  const stats = data?.stats
 
+  const stats = data?.stats
   const charts = data?.charts
 
   return (
-    <Layout>
-      <Layout.Header>
-        <div className='ml-auto flex items-center space-x-2 sm:space-x-4'>
-          <ThemeSwitch />
-          <UserNav />
-        </div>
-      </Layout.Header>
-
-      <Layout.Body className='space-y-6'>
-        <div className='flex items-center justify-between'>
-          <div>
-            <h2 className='text-2xl font-bold tracking-tight'>
-              Client Analytics
-            </h2>
-            <p className='text-sm text-muted-foreground'>
-              Monitor client growth and engagement metrics
-            </p>
+      <Layout>
+        <Layout.Header>
+          <div className='ml-auto flex items-center space-x-2 sm:space-x-4'>
+            <ThemeSwitch />
+            <UserNav />
           </div>
-          <div className='flex items-center space-x-2'>
-            <Select defaultValue='thisMonth'>
-              <SelectTrigger className='w-[180px]'>
-                <SelectValue placeholder='Select period' />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value='thisMonth'>This Month</SelectItem>
-                <SelectItem value='lastMonth'>Last Month</SelectItem>
-                <SelectItem value='thisYear'>This Year</SelectItem>
-              </SelectContent>
-            </Select>
-            <DateRangePicker value={dateRange} onValueChange={setDateRange} />
-            <Button variant='outline'>
-              <Download className='mr-2 h-4 w-4' />
-              Export
-            </Button>
-          </div>
-        </div>
+        </Layout.Header>
 
-        <div className='grid gap-4 md:grid-cols-4'>
-          <Card>
-            <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-              <CardTitle className='text-sm font-medium'>
-                Total Clients
-              </CardTitle>
-              <Users className='h-4 w-4 text-muted-foreground' />
-            </CardHeader>
-            <CardContent>
-              <div className='text-2xl font-bold'>{stats.total_clients}</div>
-              <p className='text-xs text-muted-foreground'>
-                {(stats?.monthly_comparison.change ?? 0) > 0 ? '+' : ''}
-                {stats?.monthly_comparison.change ?? 0}% from last month
+        <Layout.Body className='space-y-6'>
+          <div className='flex items-center justify-between'>
+            <div>
+              <h2 className='text-2xl font-bold tracking-tight'>
+                Client Analytics
+              </h2>
+              <p className='text-sm text-muted-foreground'>
+                Monitor client growth and engagement metrics
               </p>
-            </CardContent>
-          </Card>
+            </div>
+            <div className='flex items-center space-x-2'>
+              <Select defaultValue='thisMonth'>
+                <SelectTrigger className='w-[180px]'>
+                  <SelectValue placeholder='Select period' />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value='thisMonth'>This Month</SelectItem>
+                  <SelectItem value='lastMonth'>Last Month</SelectItem>
+                  <SelectItem value='thisYear'>This Year</SelectItem>
+                </SelectContent>
+              </Select>
+              <DateRangePicker value={dateRange} onValueChange={setDateRange} />
+              <Button variant='outline'>
+                <Download className='mr-2 h-4 w-4' />
+                Export
+              </Button>
+            </div>
+          </div>
 
-          <Card>
-            <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-              <CardTitle className='text-sm font-medium'>New Clients</CardTitle>
-              <UserPlus className='h-4 w-4 text-muted-foreground' />
-            </CardHeader>
-            <CardContent>
-              <div className='text-2xl font-bold'>{stats.new_clients}</div>
-              <p className='text-xs text-muted-foreground'>This month</p>
-            </CardContent>
-          </Card>
+          <div className='grid gap-4 md:grid-cols-4'>
+            <Card>
+              <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+                <CardTitle className='text-sm font-medium'>Total Clients</CardTitle>
+                <Users className='h-4 w-4 text-muted-foreground' />
+              </CardHeader>
+              <CardContent>
+                <div className='text-2xl font-bold'>{stats.total_clients}</div>
+                <p className='text-xs text-muted-foreground'>
+                  {(stats?.monthly_comparison.change ?? 0) > 0 ? '+' : ''}
+                  {stats?.monthly_comparison.change ?? 0}% from last month
+                </p>
+              </CardContent>
+            </Card>
 
-          <Card>
-            <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-              <CardTitle className='text-sm font-medium'>Churn Rate</CardTitle>
-              <UserMinus className='h-4 w-4 text-muted-foreground' />
-            </CardHeader>
-            <CardContent>
-              <div className='text-2xl font-bold'>{stats.churn_rate}%</div>
-              <p className='text-xs text-muted-foreground'>Current period</p>
-            </CardContent>
-          </Card>
+            <Card>
+              <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+                <CardTitle className='text-sm font-medium'>New Clients</CardTitle>
+                <UserPlus className='h-4 w-4 text-muted-foreground' />
+              </CardHeader>
+              <CardContent>
+                <div className='text-2xl font-bold'>{stats.new_clients}</div>
+                <p className='text-xs text-muted-foreground'>This period</p>
+              </CardContent>
+            </Card>
 
-          <Card>
-            <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-              <CardTitle className='text-sm font-medium'>
-                Retention Rate
-              </CardTitle>
-              <TrendingUp className='h-4 w-4 text-muted-foreground' />
-            </CardHeader>
-            <CardContent>
-              <div className='text-2xl font-bold'>{stats.retention_rate}%</div>
-              <p className='text-xs text-muted-foreground'>Current period</p>
-            </CardContent>
-          </Card>
-        </div>
+            <Card>
+              <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+                <CardTitle className='text-sm font-medium'>Churn Rate</CardTitle>
+                <UserMinus className='h-4 w-4 text-muted-foreground' />
+              </CardHeader>
+              <CardContent>
+                <div className='text-2xl font-bold'>{stats.churn_rate}%</div>
+                <p className='text-xs text-muted-foreground'>Current period</p>
+              </CardContent>
+            </Card>
 
-        <div className='grid gap-4 md:grid-cols-2'>
-          <Card>
-            <CardHeader>
-              <CardTitle>Client Growth Trend</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Line
-                data={charts.client_growth}
-                options={{
-                  responsive: true,
-                  maintainAspectRatio: false,
-                  //@ts-ignore
-                  height: 300,
-                }}
-              />
-            </CardContent>
-          </Card>
+            <Card>
+              <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+                <CardTitle className='text-sm font-medium'>Retention Rate</CardTitle>
+                <TrendingUp className='h-4 w-4 text-muted-foreground' />
+              </CardHeader>
+              <CardContent>
+                <div className='text-2xl font-bold'>{stats.retention_rate}%</div>
+                <p className='text-xs text-muted-foreground'>Current period</p>
+              </CardContent>
+            </Card>
+          </div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Client Types</CardTitle>
-            </CardHeader>
-            <CardContent className='flex justify-center'>
-              <div style={{ width: '300px', height: '300px' }}>
-                <Doughnut
-                  data={charts.client_types}
-                  options={{
-                    responsive: true,
-                    maintainAspectRatio: false,
-                  }}
+          <div className='grid gap-4 md:grid-cols-2'>
+            <Card>
+              <CardHeader>
+                <CardTitle>Client Growth Trend</CardTitle>
+              </CardHeader>
+              <CardContent className='h-[300px]'>
+                <Line
+                    data={charts.client_growth}
+                    options={{
+                      responsive: true,
+                      maintainAspectRatio: false,
+                      plugins: {
+                        legend: {
+                          position: 'top' as const,
+                        },
+                      },
+                    }}
                 />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+              </CardContent>
+            </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Quarterly Activity</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Bar
-              data={charts?.quarterly_activity}
-              options={{
-                responsive: true,
-                maintainAspectRatio: false,
-                //@ts-ignore
-                height: 300,
-              }}
-            />
-          </CardContent>
-        </Card>
-      </Layout.Body>
-    </Layout>
+            <Card>
+              <CardHeader>
+                <CardTitle>Client Types Distribution</CardTitle>
+              </CardHeader>
+              <CardContent className='flex justify-center'>
+                <div className='h-[300px] w-[300px]'>
+                  <Doughnut
+                      data={charts.client_types}
+                      options={{
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                          legend: {
+                            position: 'right' as const,
+                          },
+                        },
+                      }}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className='grid gap-4 md:grid-cols-2'>
+            <Card>
+              <CardHeader>
+                <CardTitle>Booking Frequency</CardTitle>
+              </CardHeader>
+              <CardContent className='h-[300px]'>
+                <Bar
+                    // @ts-ignore
+                    data={charts.booking_frequency}
+                    options={{
+                      responsive: true,
+                      maintainAspectRatio: false,
+                      plugins: {
+                        legend: {
+                          position: 'top' as const,
+                        },
+                      },
+                    }}
+                />
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Client Acquisition Trend</CardTitle>
+              </CardHeader>
+              <CardContent className='h-[300px]'>
+                <Line
+                    // @ts-ignore
+                    data={charts.acquisition_trend}
+                    options={{
+                      responsive: true,
+                      maintainAspectRatio: false,
+                      plugins: {
+                        legend: {
+                          position: 'top' as const,
+                        },
+                      },
+                    }}
+                />
+              </CardContent>
+            </Card>
+          </div>
+        </Layout.Body>
+      </Layout>
   )
 }

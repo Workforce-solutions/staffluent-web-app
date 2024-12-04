@@ -28,11 +28,9 @@ import {
   CheckCircle,
   Clock,
   Eye,
-  Filter,
   MoreHorizontal,
-  Search,
 } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import ThemeSwitch from '../../components/theme-switch'
 import { UserNav } from '../../components/user-nav'
@@ -47,7 +45,6 @@ export enum StatusEnum {
 }
 
 export default function ServiceRequests() {
-  const [searchTerm, setSearchTerm] = useState('')
   const navigate = useNavigate()
   const [paginationProps, setPaginationProps] = useState(initialPage)
   const [tabValue, setTabValue] = useState('all')
@@ -64,6 +61,12 @@ export default function ServiceRequests() {
   const [declineRequest] = useDeclineServiceRequestMutation()
   const [scheduledDate, setScheduledDate] = useState('')
 
+  useEffect(() => {
+    if (selectedRequest) {
+      setScheduledDate(selectedRequest.requested_date ? new Date(selectedRequest.requested_date).toISOString().slice(0, -1) : '')
+    }
+  }, [selectedRequest])
+
   const handleApprove = async (id: number) => {
     try {
       await approveRequest({
@@ -75,10 +78,11 @@ export default function ServiceRequests() {
         title: 'Success',
         description: 'Service request approved successfully',
       })
-    } catch (error) {
+      setScheduledDate('')
+    } catch (error: any) {
       toast({
         title: 'Error',
-        description: 'Failed to approve service request',
+        description: error.data.errors.scheduled_date[0],
         variant: 'destructive',
       })
     }
@@ -155,47 +159,64 @@ export default function ServiceRequests() {
     },
     {
       header: 'Actions',
-      cell: ({ row }) => (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant='ghost' size='icon'>
-              <MoreHorizontal className='h-4 w-4' />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align='end'>
-            <DropdownMenuItem>
-              <div
-                className='flex cursor-pointer items-center gap-2'
-                onClick={() =>
-                  navigate(`/admin/services/requests/${row.original.id}`)
-                }
-              >
-                <Eye className='mr-2 h-4 w-4' />
-                View Details
-              </div>
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => {
-                setSelectedRequest(row.original)
-                setApproveModalOpen(true)
-              }}
-            >
-              <CheckCircle className='mr-2 h-4 w-4' />
-              Approve Request
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => {
-                setSelectedRequest(row.original)
-                setDeclineModalOpen(true)
-              }}
-            >
-              <AlertCircle className='mr-2 h-4 w-4' />
-              Decline Request
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      ),
-    },
+      cell: ({ row }) => {
+        const status = row.original.status.toLowerCase()
+
+        // Define which actions are available for each status
+        const canApprove = ['pending'].includes(status)
+        const canDecline = ['pending', 'scheduled'].includes(status)
+        const canViewDetails = true // Always available
+
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant='ghost' size='icon'>
+                <MoreHorizontal className='h-4 w-4' />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align='end'>
+              {canViewDetails && (
+                <DropdownMenuItem>
+                  <div
+                    className='flex cursor-pointer items-center gap-2'
+                    onClick={() =>
+                      navigate(`/admin/services/requests/${row.original.id}`)
+                    }
+                  >
+                    <Eye className='mr-2 h-4 w-4' />
+                    View Details
+                  </div>
+                </DropdownMenuItem>
+              )}
+
+              {canApprove && (
+                <DropdownMenuItem
+                  onClick={() => {
+                    setSelectedRequest(row.original)
+                    setApproveModalOpen(true)
+                  }}
+                >
+                  <CheckCircle className='mr-2 h-4 w-4' />
+                  Approve Request
+                </DropdownMenuItem>
+              )}
+
+              {canDecline && (
+                <DropdownMenuItem
+                  onClick={() => {
+                    setSelectedRequest(row.original)
+                    setDeclineModalOpen(true)
+                  }}
+                >
+                  <AlertCircle className='mr-2 h-4 w-4' />
+                  Decline Request
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )
+      },
+    }
   ]
 
   return (
@@ -236,7 +257,7 @@ export default function ServiceRequests() {
                 <Input
                   type='datetime-local'
                   min={new Date().toISOString().slice(0, 16)}
-                  value={scheduledDate}
+                  defaultValue={scheduledDate}
                   onChange={(e) => setScheduledDate(e.target.value)}
                 />
               }
@@ -257,7 +278,7 @@ export default function ServiceRequests() {
               extraContent={
                 <Input
                   placeholder='Enter reason for declining'
-                  value={declineReason}
+                  defaultValue={declineReason}
                   onChange={(e) => setDeclineReason(e.target.value)}
                   className='mt-4'
                 />
@@ -273,7 +294,7 @@ export default function ServiceRequests() {
               <AlertCircle className='h-4 w-4 text-muted-foreground' />
             </CardHeader>
             <CardContent>
-              <div className='text-2xl font-bold'>18</div>
+              <div className='text-2xl font-bold'>{data?.stats.new_requests}</div>
               <p className='text-xs text-muted-foreground'>Last 24 hours</p>
             </CardContent>
           </Card>
@@ -284,7 +305,7 @@ export default function ServiceRequests() {
               <Clock className='h-4 w-4 text-muted-foreground' />
             </CardHeader>
             <CardContent>
-              <div className='text-2xl font-bold'>32</div>
+              <div className='text-2xl font-bold'>{data?.stats.in_progress}</div>
               <p className='text-xs text-muted-foreground'>Active requests</p>
             </CardContent>
           </Card>
@@ -297,8 +318,8 @@ export default function ServiceRequests() {
               <CheckCircle className='h-4 w-4 text-muted-foreground' />
             </CardHeader>
             <CardContent>
-              <div className='text-2xl font-bold'>24</div>
-              <p className='text-xs text-muted-foreground'>+8 from yesterday</p>
+              <div className='text-2xl font-bold'>{data?.stats.completed_today}</div>
+              <p className='text-xs text-muted-foreground'></p>
             </CardContent>
           </Card>
 
@@ -310,8 +331,8 @@ export default function ServiceRequests() {
               <Clock className='h-4 w-4 text-muted-foreground' />
             </CardHeader>
             <CardContent>
-              <div className='text-2xl font-bold'>2.4h</div>
-              <p className='text-xs text-muted-foreground'>-15min from avg</p>
+              <div className='text-2xl font-bold'>{data?.stats.avg_response_time}</div>
+              {/*<p className='text-xs text-muted-foreground'>-15min from avg</p>*/}
             </CardContent>
           </Card>
         </div>
@@ -325,22 +346,6 @@ export default function ServiceRequests() {
                 <p className='text-sm text-muted-foreground'>
                   View and manage all service requests
                 </p>
-              </div>
-              <div className='flex items-center space-x-2'>
-                <div className='relative'>
-                  {/* TODO search query param to be added */}
-                  <Search className='absolute left-2 top-2.5 h-4 w-4 text-muted-foreground' />
-                  <Input
-                    placeholder='Search requests...'
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className='w-[300px] pl-8'
-                  />
-                </div>
-
-                <Button variant='outline' size='icon'>
-                  <Filter className='h-4 w-4' />
-                </Button>
               </div>
             </div>
           </CardHeader>
@@ -381,23 +386,15 @@ export default function ServiceRequests() {
           </CardHeader>
           <CardContent>
             <div className='space-y-4'>
-              {Array.from({ length: 5 }).map((_, i) => (
+              {data?.recent_activities.map((activity, i) => (
                 <div key={i} className='flex items-start space-x-4'>
                   <div className='mt-2 h-2 w-2 rounded-full bg-primary' />
                   <div>
                     <p className='text-sm font-medium'>
-                      {i === 0
-                        ? 'New request received from Client 1'
-                        : i === 1
-                          ? 'Request REQ-2024002 status updated to In Progress'
-                          : i === 2
-                            ? 'Staff assigned to REQ-2024003'
-                            : i === 3
-                              ? 'Request REQ-2024004 completed'
-                              : 'New comment added to REQ-2024005'}
+                      {activity.description}
                     </p>
                     <p className='text-sm text-muted-foreground'>
-                      {Math.floor(i * 1.5)} hours ago
+                      {activity.time_ago}
                     </p>
                   </div>
                 </div>

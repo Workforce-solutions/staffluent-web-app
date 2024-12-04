@@ -18,7 +18,12 @@ import {
   IconUsers,
   IconReportAnalytics,
   IconDeviceDesktopAnalytics,
-  IconAlignBoxCenterTop
+  IconAlignBoxCenterTop,
+  IconCalendarEvent,
+  IconClock,
+  IconFileSpreadsheet,
+  IconClockPause,
+  IconCertificate
 } from '@tabler/icons-react'
 import {
   Briefcase,
@@ -35,6 +40,13 @@ import {
   WalletCards,
   LifeBuoyIcon,
   Tickets,
+  Calendar,  // Added for leave management
+  CalendarDays,  // Added for leave types
+  CalendarOff,  // Added for time-off requests
+  BarChart2,  // Added for leave dashboard
+  Clock,  // Added for overtime base icon
+  Timer,  // Added for overtime list
+  Activity,  // Added for overtime dashboard
 } from 'lucide-react'
 
 // Navigation Link Interfaces
@@ -74,6 +86,12 @@ export const sidelinks: SideLink[] = [
         label: '',
         href: '/projects/tasks',
         icon: <IconHexagonNumber2 size={18} />,
+      },
+      {
+        title: 'Time Entries',
+        label: '',
+        href: '/projects/time-entries',
+        icon: <IconChecklist size={18} />,
       },
     ],
   },
@@ -140,7 +158,7 @@ export const sidelinks: SideLink[] = [
         title: 'Payment History',
         href: '/admin/invoices/payments',
         icon: <WalletCards size={18} />,
-      }
+      },
     ],
   },
   {
@@ -172,6 +190,30 @@ export const sidelinks: SideLink[] = [
         href: '/teams',
         icon: <Users size={18} />,
       },
+      {
+        title: 'Shifts',
+        label: '',
+        href: '/shifts/list',
+        icon: <IconCalendarEvent size={18} />,
+      },
+      {
+        title: 'Attendance records',
+        label: '',
+        href: '/shifts/attendance-record',
+        icon: <IconClock size={18} />,
+      },
+      {
+        title: 'Time Sheets',
+        label: '',
+        href: '/shifts/time-sheets',
+        icon: <IconFileSpreadsheet size={18} />,
+      },
+      {
+        title: 'Breaks',
+        label: '',
+        href: '/shifts/breaks',
+        icon: <IconClockPause size={18} />,
+      },
     ],
   },
   {
@@ -181,7 +223,13 @@ export const sidelinks: SideLink[] = [
     icon: <IconChartHistogram size={18} />,
   },
   {
-    title: "Support",
+    title: 'Compliance',
+    label: '',
+    href: '/compliance',
+    icon: <IconCertificate size={18} />,
+  },
+  {
+    title: 'Support',
     href: '/support',
     icon: <LifeBuoyIcon size={18} />,
     sub: [
@@ -190,6 +238,50 @@ export const sidelinks: SideLink[] = [
         label: '',
         href: '/admin/support/tickets',
         icon: <Tickets size={18} />,
+      },
+    ],
+  },
+  {
+    title: 'Leave Management',
+    href: '/leave-management',
+    icon: <Calendar size={18} />,  // Changed from AlarmClock
+    sub: [
+      {
+        title: 'Leave Types',
+        label: '',
+        href: '/leave-management/leave-types',
+        icon: <CalendarDays size={18} />,  // Changed from AlarmClock
+      },
+      {
+        title: 'Time-Off Requests',
+        label: '',
+        href: '/leave-management/time-off-requests',
+        icon: <CalendarOff size={18} />,  // Changed from AlarmClock
+      },
+      {
+        title: 'Leave Dashboard',
+        label: '',
+        href: '/leave-management/dashboard',
+        icon: <BarChart2 size={18} />,  // Changed from AlarmClock
+      },
+    ],
+  },
+  {
+    title: 'Overtime',
+    href: '/overtime',
+    icon: <Clock size={18} />,  // Changed from AlarmClock
+    sub: [
+      {
+        title: 'List',
+        label: '',
+        href: '/overtime/list',
+        icon: <Timer size={18} />,  // Changed from AlarmClock
+      },
+      {
+        title: 'Overtime dashboard',
+        label: '',
+        href: '/overtime/dashboard',
+        icon: <Activity size={18} />,  // Changed from AlarmClock
       },
     ],
   },

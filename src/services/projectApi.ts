@@ -36,7 +36,7 @@ export const projectApi = createApi({
     baseUrl: vbUrl + 'vb-apps/staff/admin',
     prepareHeaders: (headers) => getPrepareHeaders({ headers }),
   }),
-  tagTypes: ['Projects', 'AppGalleries'],
+  tagTypes: ['Projects', 'AppGalleries', 'WorkOrders'],
   endpoints: (builder) => ({
     getProject: builder.query<ProjectDetails, IdInterface>({
       query: ({ venue_short_code, id }) => ({
@@ -195,14 +195,14 @@ export const projectApi = createApi({
       void,
       ConnectProjectWithService
     >({
-      query: ({ venue_short_code, project_id, service_id }) => ({
+      query: ({ venue_short_code, project_id, service_request_id }) => ({
         url: getCommonUrl({
-          queryString: `/projects/${project_id}/connect-with-service`,
+          queryString: `/service-requests/${service_request_id}/connect-project`,
           query: `&venue_short_code=${venue_short_code}`,
           params: staffAdminAppkeyParam,
         }),
         method: 'POST',
-        body: { project_id, service_id },
+        body: { project_id },
       }),
       invalidatesTags: ['Projects'],
     }),
@@ -293,8 +293,19 @@ export const projectApi = createApi({
       }),
       invalidatesTags: ['Projects'],
     }),
+    allTimeEntries: builder.query<any, VenueShortCode>({
+      query: ({ venue_short_code }) => ({
+        url: getCommonUrl({
+          queryString: '/projects/time-entries',
+          query: `&venue_short_code=${venue_short_code}`,
+          params: staffAdminAppkeyParam,
+        }),
+      }),
+      providesTags: ['Projects'],
+    }),
 
-    // ... (keep existing endpoints)
+    // work orders
+
   }),
 })
 
@@ -302,6 +313,7 @@ export const {
   useGetProjectQuery,
   useGetProjectsListQuery,
   useGetProjectsStatusListQuery,
+  useAllTimeEntriesQuery,
   useGetProjectsTeamQuery,
   useDeleteProjectMutation,
   useCreateProjectMutation,
