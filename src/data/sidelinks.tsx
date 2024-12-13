@@ -1,15 +1,33 @@
 import {
+  Building2,
+  Workflow,
+  MapPin,
+  HardHat,
+  ClipboardCheck,
+  Truck,
+  Shield,
+  BarChart3,
+  Wrench,
+  Users,
+  MessageSquare,
+  Calendar,
+  FileSpreadsheet,
+  Boxes,
+  ThermometerSun,
+  Factory,
+  Ruler,
+  HardDrive,
+  Activity,
+  FileCheck,
+  Warehouse, Building, Landmark, User2Icon, Wind, PenTool, FileBarChart
+} from 'lucide-react'
+import {IconChecklist, IconExclamationCircle, IconHexagonNumber1, IconHexagonNumber2} from "@tabler/icons-react";
+import {
   IconApps,
   IconBuilding,
   IconChartHistogram,
-  IconChecklist,
-  // IconComponents,
-  IconExclamationCircle,
-  IconHexagonNumber1,
-  IconHexagonNumber2,
   IconHexagonNumber3,
   IconHexagonNumber4,
-  IconLayoutDashboard,
   IconMessages,
   IconSettings,
   IconTruck,
@@ -27,29 +45,27 @@ import {
 } from '@tabler/icons-react'
 import {
   Briefcase,
-  Building,
   ClipboardList,
   FolderTree,
-  MessageSquare,
-  User2Icon,
-  Users,
-  Wrench,
   Receipt,
   FileText,
   FilePlus,
   WalletCards,
   LifeBuoyIcon,
   Tickets,
-  Calendar,  // Added for leave management
   CalendarDays,  // Added for leave types
   CalendarOff,  // Added for time-off requests
   BarChart2,  // Added for leave dashboard
   Clock,  // Added for overtime base icon
   Timer,  // Added for overtime list
-  Activity,  // Added for overtime dashboard
+  Signature,
+  Package,
+  // CalendarCheck,
+  DollarSign,
+  Settings,
 } from 'lucide-react'
 
-// Navigation Link Interfaces
+
 export interface NavLink {
   title: string
   label?: string
@@ -61,39 +77,11 @@ export interface SideLink extends NavLink {
   sub?: NavLink[]
 }
 
-// eslint-disable-next-line react-refresh/only-export-components
 export const sidelinks: SideLink[] = [
   {
     title: 'Dashboard',
-    label: '',
     href: '/',
-    icon: <IconLayoutDashboard size={18} />,
-  },
-  {
-    title: 'Projects',
-    label: '',
-    href: '/projects',
-    icon: <IconChecklist size={18} />,
-    sub: [
-      {
-        title: 'Projects',
-        label: '',
-        href: '/projects/list',
-        icon: <IconHexagonNumber1 size={18} />,
-      },
-      {
-        title: 'Tasks',
-        label: '',
-        href: '/projects/tasks',
-        icon: <IconHexagonNumber2 size={18} />,
-      },
-      {
-        title: 'Time Entries',
-        label: '',
-        href: '/projects/time-entries',
-        icon: <IconChecklist size={18} />,
-      },
-    ],
+    icon: <Building2 size={18} />,
   },
   {
     title: 'Service Management',
@@ -114,6 +102,38 @@ export const sidelinks: SideLink[] = [
         title: 'Service Requests',
         href: '/admin/services/requests',
         icon: <ClipboardList size={18} />,
+      },
+      {
+        title: 'Quality Verification',
+        href: '/services/verification',
+        icon: <FileCheck size={18} />,
+      },
+      {
+        title: 'Weather Monitoring',
+        href: '/services/weather-monitoring',
+        icon: <Wind size={18} />,
+      }
+    ],
+  },
+  {
+    title: 'Work Orders',
+    icon: <PenTool size={18} />,
+    href: 'work-orders',
+    sub: [
+      {
+        title: 'Orders',
+        href: '/work-orders',
+        icon: <ClipboardList size={18} />,  // Better represents a list of orders
+      },
+      {
+        title: 'Settings',
+        href: '/work-orders/settings',
+        icon: <Settings size={18} />,  // More appropriate for settings than FolderTree
+      },
+      {
+        title: 'Reports',
+        href: '/work-orders/reports',
+        icon: <FileBarChart size={18} />,  // Better represents reports than ClipboardList
       },
     ],
   },
@@ -136,6 +156,11 @@ export const sidelinks: SideLink[] = [
         title: 'Client Feedback',
         href: '/admin/clients/feedback',
         icon: <MessageSquare size={18} />,
+      },
+      {
+        title: 'Client Sign-offs',
+        href: '/admin/clients/client-sign-off',
+        icon: <Signature size={18} />,
       },
     ],
   },
@@ -221,12 +246,6 @@ export const sidelinks: SideLink[] = [
     label: '',
     href: '/performance-metrics',
     icon: <IconChartHistogram size={18} />,
-  },
-  {
-    title: 'Compliance',
-    label: '',
-    href: '/compliance',
-    icon: <IconCertificate size={18} />,
   },
   {
     title: 'Support',
@@ -330,6 +349,257 @@ export const sidelinks: SideLink[] = [
     icon: <IconTruck size={18} />,
   },
   {
+    title: 'Quality Control',
+    href: '/quality-control',
+    icon: <ClipboardCheck size={18} />,
+    sub: [
+      {
+        title: 'Compliance',
+        label: '',
+        href: '/compliance',
+        icon: <IconCertificate size={18} />,
+      },
+      {
+        title: 'Inspection Checklists',
+        href: '/quality-control/checklists',
+        icon: <Workflow size={18} />,
+      },
+      {
+        title: 'Quality Metrics',
+        href: '/quality-control/metrics',
+        icon: <BarChart3 size={18} />,
+      },
+      {
+        title: 'Safety Audits',
+        href: '/quality-control/safety-audits',
+        icon: <HardHat size={18} />,
+      },
+      {
+        title: 'Code Compliance',
+        href: '/quality-control/compliance',
+        icon: <Shield size={18} />,
+      }
+    ]
+  },
+  {
+    title: 'Equipment Management',
+    href: '/equipment',
+    icon: <HardDrive size={18} />,
+    sub: [
+      {
+        title: 'Asset Tracking',
+        href: '/equipment/tracking',
+        icon: <Boxes size={18} />,
+      },
+      {
+        title: 'Maintenance Schedule',
+        href: '/equipment/maintenance',
+        icon: <Calendar size={18} />,
+      },
+      {
+        title: 'Usage Monitoring',
+        href: '/equipment/monitoring',
+        icon: <Activity size={18} />,
+      },
+      {
+        title: 'Equipment Assignment',
+        href: '/equipment/assignment',
+        icon: <Users size={18} />,
+      }
+    ]
+  },
+  {
+    title: 'Field Operations',
+    href: '/field-ops',
+    icon: <Truck size={18} />,
+    sub: [
+      {
+        title: 'Team Location',
+        href: '/field-ops/location',
+        icon: <MapPin size={18} />,
+      },
+      {
+        title: 'Route Planning',
+        href: '/field-ops/routes',
+        icon: <MapPin size={18} />,
+      },
+      {
+        title: 'Service Areas',
+        href: '/field-ops/service-areas',
+        icon: <MapPin size={18} />,
+      }
+    ]
+  },
+  {
+    title: 'Site Management',
+    href: '/sites',
+    icon: <Building size={18} />,
+    sub: [
+      {
+        title: 'Sites Overview',
+        href: '/sites/overview',
+        icon: <Landmark size={18} />,
+      },
+      {
+        title: 'Site Configuration',
+        href: '/sites/configuration',
+        icon: <Workflow size={18} />,
+      },
+      {
+        title: 'Resource Allocation',
+        href: '/sites/resources',
+        icon: <Boxes size={18} />,
+      },
+      {
+        title: 'Site Monitoring',
+        href: '/sites/monitoring',
+        icon: <Activity size={18} />,
+      },
+      {
+        title: 'Site Documentation',
+        href: '/sites/documents',
+        icon: <FileSpreadsheet size={18} />,
+      },
+      {
+        title: 'Site Access Control',
+        href: '/sites/access',
+        icon: <Shield size={18} />,
+      }
+    ]
+  },
+  {
+    title: 'Project Management',
+    href: '/projects',
+    icon: <Warehouse size={18} />,
+    sub: [
+      {
+        title: 'Projects',
+        label: '',
+        href: '/projects/list',
+        icon: <IconHexagonNumber1 size={18} />,
+      },
+      {
+        title: 'Tasks',
+        label: '',
+        href: '/projects/tasks',
+        icon: <IconHexagonNumber2 size={18} />,
+      },
+      {
+        title: 'Time Entries',
+        label: '',
+        href: '/projects/time-entries',
+        icon: <IconChecklist size={18} />,
+      },
+      {
+        title: 'Construction Milestones',
+        href: '/projects/milestones',
+        icon: <Factory size={18} />,
+      },
+      {
+        title: 'Site Workflows',
+        href: '/projects/workflows',
+        icon: <Workflow size={18} />,
+      },
+      {
+        title: 'Material Tracking',
+        href: '/projects/materials',
+        icon: <Ruler size={18} />,
+      },
+      {
+        title: 'Weather Monitoring',
+        href: '/projects/weather',
+        icon: <ThermometerSun size={18} />,
+      }
+    ]
+  },
+  {
+    title: 'Supply Management',
+    href: '/supply-management',
+    icon: <Package size={18} />,
+    sub: [
+      {
+        title: 'Inventory',
+        href: '/supply-management/inventory',
+        icon: <Boxes size={18} />,
+      },
+      {
+        title: 'Equipment Allocation',
+        href: '/supply-management/allocation',
+        icon: <Settings size={18} />,
+      },
+      {
+        title: 'Usage Monitoring',
+        href: '/supply-management/usage',
+        icon: <Activity size={18} />,
+      },
+      {
+        title: 'Cost Tracking',
+        href: '/supply-management/costs',
+        icon: <DollarSign size={18} />,
+      },
+      {
+        title: 'Suppliers',
+        href: '/supply-management/suppliers',
+        icon: <Users size={18} />,
+      },
+    ],
+  },
+  {
+    title: 'Safety Management',
+    href: '/safety',
+    icon: <Shield size={18} />,
+    sub: [
+      {
+        title: 'Barrier Management',
+        href: '/safety/barriers',
+        icon: <Warehouse size={18} />,
+      },
+      {
+        title: 'OSHA Compliance',
+        href: '/safety/osha',
+        icon: <ClipboardCheck size={18} />,
+      },
+      {
+        title: 'ADA Compliance',
+        href: '/safety/ada',
+        icon: <Shield size={18} />,
+      },
+      {
+        title: 'Site Safety Maps',
+        href: '/safety/maps',
+        icon: <MapPin size={18} />,
+      }
+    ]
+  },
+
+  {
+    title: 'Analytics & Reports',
+    href: '/reports',
+    icon: <BarChart3 size={18} />,
+    sub: [
+      {
+        title: 'Quality Metrics',
+        href: '/reports/quality',
+        icon: <FileSpreadsheet size={18} />,
+      },
+      {
+        title: 'Equipment Usage',
+        href: '/reports/equipment',
+        icon: <HardDrive size={18} />,
+      },
+      {
+        title: 'Safety Compliance',
+        href: '/reports/safety',
+        icon: <Shield size={18} />,
+      },
+      {
+        title: 'Site Performance',
+        href: '/reports/sites',
+        icon: <BarChart3 size={18} />,
+      }
+    ]
+  },
+  {
     title: 'Configuration',
     label: '',
     href: '/configuration',
@@ -355,12 +625,6 @@ export const sidelinks: SideLink[] = [
       },
     ],
   },
-  // {
-  //   title: 'Integrations',
-  //   label: '',
-  //   href: '/integrations',
-  //   icon: <IconComponents size={18} />,
-  // },
   {
     title: 'Audit Logs',
     label: '',
