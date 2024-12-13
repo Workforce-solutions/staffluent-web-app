@@ -39,13 +39,54 @@ export const clientsRoute: RouteObject[] = [
       {
         path: 'service-requests/:id',
         lazy: async () => ({
-          Component: (
-            await import(
-              '../pages/client-portal/services/service-request-details.tsx'
-            )
-          ).default,
+          Component: (await import('../pages/client-portal/services/service-request-details.tsx')).default,
         }),
       },
+      {
+        path: 'services/history',
+        lazy: async () => ({
+          Component: (await import('../pages/client-portal/services/history/index.tsx')).default,
+        }),
+      },
+      {
+        path: 'services/weather-alerts',
+        lazy: async () => ({
+          Component: (await import('../pages/client-portal/services/weather-alerts/index.tsx')).default,
+        }),
+      },
+      // Quality & Inspections Section
+      {
+        path: 'quality/inspections',
+        lazy: async () => ({
+          Component: (await import('../pages/client-portal/quality/inspections/index.tsx')).default,
+        }),
+      },
+      {
+        path: 'quality/reports',
+        lazy: async () => ({
+          Component: (await import('../pages/client-portal/quality/reports/index.tsx')).default,
+        }),
+      },
+      {
+        path: 'quality/progress',
+        lazy: async () => ({
+          Component: (await import('../pages/client-portal/quality/progress/index.tsx')).default,
+        }),
+      },
+      // Documentation Section
+      {
+        path: 'service-records',
+        lazy: async () => ({
+          Component: (await import('../pages/client-portal/documentation/service-records/index.tsx')).default,
+        }),
+      },
+      {
+        path: 'compliance',
+        lazy: async () => ({
+          Component: (await import('../pages/client-portal/documentation/compliance/index.tsx')).default,
+        }),
+      },
+      // Invoices Section
       {
         path: 'invoices',
         lazy: async () => ({
@@ -90,6 +131,7 @@ export const clientsRoute: RouteObject[] = [
           ).default,
         }),
       },
+      // Other Pages
       {
         path: 'notifications',
         lazy: async () => ({
@@ -117,6 +159,12 @@ export const clientsRoute: RouteObject[] = [
     path: 'admin/clients/feedback',
     lazy: async () => ({
       Component: (await import('../pages/clients/client-feedback.tsx')).default,
+    }),
+  },
+  {
+    path: 'admin/clients/client-sign-off',
+    lazy: async () => ({
+      Component: (await import('../pages/clients/client-sign-off.tsx')).default,
     }),
   },
 ]
