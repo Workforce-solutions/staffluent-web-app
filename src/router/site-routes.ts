@@ -10,6 +10,12 @@ export const siteRoutes = [
                 }),
             },
             {
+                path: 'detail/:id',
+                lazy: async () => ({
+                    Component: (await import('@/pages/sites/overview/detail')).default,
+                }),
+            },
+            {
                 path: 'configuration',
                 lazy: async () => ({
                     Component: (await import('@/pages/sites/configuration')).default,

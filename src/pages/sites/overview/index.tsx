@@ -7,23 +7,29 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Search, Plus, Building2, Users, HardHat, Construction, AlertTriangle } from 'lucide-react'
 import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api'
-import { Site, sitesData } from '../../../@types/site-management'
+import { Site } from '../../../@types/site-management'
 import { Progress } from '@/components/ui/progress'
 import {useState} from "react";
 import {AddSiteModal} from "./add-site";
+import { useGetSitesQuery } from '@/services/siteManagmentApi'
+import { useShortCode } from '@/hooks/use-local-storage'
+import { useNavigate } from 'react-router-dom'
 
 const SiteOverview = () => {
     const mapCenter = { lat: 40.7128, lng: -74.0060 }
     const mapStyles = { height: '400px', width: '100%' }
     const [isAddModalOpen, setIsAddModalOpen] = useState(false)
-
+    const navigate = useNavigate()
+    const short_code = useShortCode()
+    const {data: sites} = useGetSitesQuery({shortCode: short_code});
+  
     const SiteCard = ({ site }: { site: Site }) => (
         <Card>
             <CardContent className="pt-6">
                 <div className="flex justify-between items-start mb-4">
                     <div>
                         <h3 className="font-medium text-lg">{site.name}</h3>
-                        <p className="text-sm text-muted-foreground">{site.address}</p>
+                        <p className="text-sm text-muted-foreground">{site.address.address}</p>
                     </div>
                     <Badge variant={
                         site.status === 'active' ? 'success' :
@@ -38,7 +44,7 @@ const SiteOverview = () => {
                     <div>
                         <div className="flex justify-between text-sm mb-2">
                             <span>Progress</span>
-                            <span>{site.progress}%</span>
+                            <span>{site.progress ?? 0}%</span>
                         </div>
                         <Progress value={site.progress} className="h-2" />
                     </div>
@@ -46,11 +52,11 @@ const SiteOverview = () => {
                     <div className="grid grid-cols-2 gap-4">
                         <div className="flex items-center space-x-2">
                             <Users className="h-4 w-4 text-muted-foreground" />
-                            <span className="text-sm">{site.workers} Workers</span>
+                            <span className="text-sm">{site.no_of_workers} Workers</span>
                         </div>
                         <div className="flex items-center space-x-2">
                             <HardHat className="h-4 w-4 text-muted-foreground" />
-                            <span className="text-sm">Safety: {site.safetyScore}%</span>
+                            <span className="text-sm">Safety: {site.safety_score ?? 0}%</span>
                         </div>
                     </div>
 
@@ -59,6 +65,16 @@ const SiteOverview = () => {
                             <span className="text-muted-foreground">Current Phase:</span>
                             <span className="font-medium">{site.currentPhase}</span>
                         </div>
+                    </div>
+
+                    <div className="pt-4">
+                        <Button 
+                            className="w-full" 
+                            variant="outline"
+                            onClick={() => navigate(`/sites/detail/${site.id}`)}
+                        >
+                            View Details
+                        </Button>
                     </div>
                 </div>
             </CardContent>
@@ -73,7 +89,7 @@ const SiteOverview = () => {
                     <Building2 className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                    <div className="text-2xl font-bold">{sitesData.length}</div>
+                    <div className="text-2xl font-bold">{sites?.pagination.total ?? 0}</div>
                     <p className="text-xs text-muted-foreground">
                         Active and inactive sites
                     </p>
@@ -87,7 +103,7 @@ const SiteOverview = () => {
                 </CardHeader>
                 <CardContent>
                     <div className="text-2xl font-bold">
-                        {sitesData.filter(site => site.status === 'active').length}
+                        {sites?.projects_count ?? 0}
                     </div>
                     <p className="text-xs text-muted-foreground">
                         Currently in progress
@@ -102,7 +118,7 @@ const SiteOverview = () => {
                 </CardHeader>
                 <CardContent>
                     <div className="text-2xl font-bold">
-                        {sitesData.reduce((acc, site) => acc + site.workers, 0)}
+                        {sites?.total_workers ?? 0}
                     </div>
                     <p className="text-xs text-muted-foreground">
                         Across all sites
@@ -170,8 +186,9 @@ const SiteOverview = () => {
                                 zoom={13}
                                 center={mapCenter}
                             >
-                                {sitesData.map(site => (
-                                    <Marker
+                                {
+                                    sites?.data.map(site => (
+                                        <Marker
                                         key={site.id}
                                         position={site.location}
                                         title={site.name}
@@ -183,7 +200,7 @@ const SiteOverview = () => {
                 </Card>
 
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                    {sitesData.map(site => (
+                    {sites?.data.map((site: any) => (
                         <SiteCard key={site.id} site={site} />
                     ))}
                 </div>
