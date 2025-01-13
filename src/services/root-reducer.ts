@@ -25,7 +25,8 @@ import { adminTicketApi } from './adminTicketApi'
 import { complianceApi } from './complianceApi'
 import { operationManagerApi } from './operationMangerApi'
 import { teamLeaderApi } from './teamLeaderApi'
-
+import { siteManagementApi } from './siteManagmentApi'
+import { safetyApi } from './safetyApi'
 const rootReducer = combineReducers({
   [vbAuthApi.reducerPath]: vbAuthApi.reducer,
   [authApi.reducerPath]: authApi.reducer,
@@ -53,6 +54,8 @@ const rootReducer = combineReducers({
   [complianceApi.reducerPath]: complianceApi.reducer,
   [operationManagerApi.reducerPath]: operationManagerApi.reducer,
   [teamLeaderApi.reducerPath]: teamLeaderApi.reducer,
+  [siteManagementApi.reducerPath]: siteManagementApi.reducer,
+  [safetyApi.reducerPath]: safetyApi.reducer,
 })
 
 export default rootReducer

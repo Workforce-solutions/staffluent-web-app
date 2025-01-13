@@ -20,6 +20,10 @@ import { Separator } from '@/components/ui/separator'
 import { useToast } from '@/components/ui/use-toast'
 import { FormEvent, useState } from 'react'
 import { Building2, MapPin, Users, HardDrive, Calendar } from 'lucide-react'
+import { useAddSiteMutation } from '@/services/siteManagmentApi'
+import { useShortCode } from '@/hooks/use-local-storage'
+import { useGetProjectsListQuery } from '@/services/projectApi'
+import { ProjectsResponse } from '@/@types/project'
 
 interface AddSiteModalProps {
     open: boolean
@@ -27,8 +31,12 @@ interface AddSiteModalProps {
 }
 
 export function AddSiteModal({ open, setOpen }: AddSiteModalProps) {
+
+    const short_code = useShortCode();
+    const [addSite] = useAddSiteMutation()
     const [formData, setFormData] = useState({
         name: '',
+        app_project_id: '',
         type: 'construction',
         status: 'active',
         address: '',
@@ -54,11 +62,14 @@ export function AddSiteModal({ open, setOpen }: AddSiteModalProps) {
         description: ''
     })
 
+    
     const [newEquipment, setNewEquipment] = useState({
         name: '',
         status: 'operational' as const
     })
 
+    const { data } = useGetProjectsListQuery({ venue_short_code: short_code });
+    
     const { toast } = useToast()
     const [isLoading, setIsLoading] = useState(false)
 
@@ -82,13 +93,32 @@ export function AddSiteModal({ open, setOpen }: AddSiteModalProps) {
         setIsLoading(true)
 
         try {
-            // Add your API call here
-            console.log('Submitting site:', formData)
-            toast({
-                title: 'Success',
-                description: 'Site created successfully',
-            })
-            setOpen(false)
+
+            const {location,manager, estimatedWorkers, startDate, endDate, ...data } = formData
+            const response = await addSite({shortCode: short_code, siteData: {
+                ...data,
+                latitude: location.lat,
+                longitude: location.lng,
+                no_of_workers: estimatedWorkers,
+                site_manager: manager.name,
+                site_manager_email: manager.email,
+                site_manager_phone: manager.phone,
+                start_date: startDate,
+                end_date: endDate
+            }})
+            if(response.data){
+                toast({
+                    title: 'Success',
+                    description: 'Site created successfully',
+                })
+                setOpen(false)
+            } else {
+                toast({
+                    title: 'Error',
+                    description: 'Failed to create site',
+                    variant: 'destructive',
+                })
+            }
         } catch (error) {
             toast({
                 title: 'Error',
@@ -122,6 +152,22 @@ export function AddSiteModal({ open, setOpen }: AddSiteModalProps) {
                             <div className="space-y-4">
                                 <h3 className="text-lg font-medium">Basic Information</h3>
                                 <div className="grid gap-4">
+                                    <div className="grid grid-cols-4 items-center gap-4">
+                                        <Label htmlFor="project" className="text-left">Project</Label>
+                                        <Select
+                                            value={formData.app_project_id}
+                                            onValueChange={(value) => setFormData({ ...formData, app_project_id: value })}
+                                        >
+                                            <SelectTrigger className="col-span-3">
+                                                <SelectValue placeholder="Select project" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {data?.projects.map((project : ProjectsResponse) => (
+                                                    <SelectItem value={project.id.toString()}>{project.name}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
                                     <div className="grid grid-cols-4 items-center gap-4">
                                         <Label htmlFor="name" className="text-left">Name</Label>
                                         <Input

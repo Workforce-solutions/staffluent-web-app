@@ -26,6 +26,7 @@ export const getPrepareHeaders = ({
 
 export const supabaseUrl = 'https://unzkbvyeaefcpooqeenz.supabase.co'
 export const vbUrl = 'https://core.venueboost.io/api/v1/'
+// export const vbUrl = 'http://192.168.1.4:8000/api/v1/'
 export const STRIPE_PUBLIC_KEY =
   'pk_test_51NfR0wK9QDeYHZl0UJfwbBV4pQA720OkzlPCINfIXd1ghM1AHnvGIYdgOyp1s57JgJfg9zllXgROGytlwkwR0PeO00jNXxIIVd'
 export const vbParams =
