@@ -7,6 +7,7 @@ export interface EmployeeResponse {
   status: string
   start_date: string | null
   phone?: string
+  personal_phone?: string
   hire_date: string | null
   custom_role: string | null
   projects_assigned: number
