@@ -14,7 +14,7 @@ import {
     Settings,
     Users, Calendar
 } from 'lucide-react'
-import {Site, sitesData} from '../../../@types/site-management'
+import {Site, sitesData} from '@/@types/site-management'
 
 const SiteConfiguration = () => {
     const MaintenanceSchedule = () => (
@@ -35,7 +35,7 @@ const SiteConfiguration = () => {
                             new Date(a.nextMaintenance).getTime() - new Date(b.nextMaintenance).getTime()
                         )
                         // @ts-ignore
-                        .map((equipment, idx) => (
+                        .map((equipment) => (
                             <div key={equipment.id} className="flex items-center justify-between p-4 border rounded-lg">
                                 <div className="flex items-center space-x-4">
                                     <div className="p-2 bg-muted rounded-full">
@@ -194,6 +194,7 @@ const SiteConfiguration = () => {
                         site.equipment.map(equip => (
                             <EquipmentCard
                                 key={equip.id}
+                                // @ts-ignore
                                 equipment={equip}
                                 siteName={site.name}
                             />

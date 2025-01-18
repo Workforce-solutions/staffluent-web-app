@@ -146,19 +146,19 @@ const SiteDetailPage = () => {
             <div className='space-y-4'>
               <div>
                 <h4 className='font-medium'>Site Manager</h4>
-                <p className='text-sm'>{site.data.site_manager}</p>
+                <p className='text-sm'>{site.data.manager.name}</p>
               </div>
               <div className='grid grid-cols-1 gap-4 md:grid-cols-2'>
                 <div>
                   <h4 className='text-sm font-medium'>Contact Email</h4>
                   <p className='text-sm text-muted-foreground'>
-                    {site.data.site_manager_email ?? '-'}
+                    {site.data.manager.email ?? '-'}
                   </p>
                 </div>
                 <div>
                   <h4 className='text-sm font-medium'>Contact Phone</h4>
                   <p className='text-sm text-muted-foreground'>
-                    {site.data.site_manager_phone ?? '-'}
+                    {site.data.manager.personal_phone ?? '-'}
                   </p>
                 </div>
               </div>

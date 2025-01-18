@@ -24,6 +24,7 @@ import { useAddSiteMutation } from '@/services/siteManagmentApi'
 import { useShortCode } from '@/hooks/use-local-storage'
 import { useGetProjectsListQuery } from '@/services/projectApi'
 import { ProjectsResponse } from '@/@types/project'
+import { useGetEmployeesQuery } from '@/services/staffApi'
 
 interface AddSiteModalProps {
     open: boolean
@@ -44,12 +45,7 @@ export function AddSiteModal({ open, setOpen }: AddSiteModalProps) {
             lat: '',
             lng: ''
         },
-        manager: {
-            name: '',
-            email: '',
-            phone: '',
-            role: ''
-        },
+        manager: '',
         startDate: '',
         endDate: '',
         estimatedWorkers: '',
@@ -70,6 +66,7 @@ export function AddSiteModal({ open, setOpen }: AddSiteModalProps) {
 
     const { data } = useGetProjectsListQuery({ venue_short_code: short_code });
     
+    const { data: employees } = useGetEmployeesQuery(short_code) 
     const { toast } = useToast()
     const [isLoading, setIsLoading] = useState(false)
 
@@ -94,15 +91,12 @@ export function AddSiteModal({ open, setOpen }: AddSiteModalProps) {
 
         try {
 
-            const {location,manager, estimatedWorkers, startDate, endDate, ...data } = formData
+            const {location, estimatedWorkers, startDate, endDate, ...data } = formData
             const response = await addSite({shortCode: short_code, siteData: {
                 ...data,
                 latitude: location.lat,
                 longitude: location.lng,
                 no_of_workers: estimatedWorkers,
-                site_manager: manager.name,
-                site_manager_email: manager.email,
-                site_manager_phone: manager.phone,
                 start_date: startDate,
                 end_date: endDate
             }})
@@ -281,47 +275,26 @@ export function AddSiteModal({ open, setOpen }: AddSiteModalProps) {
                                 </div>
                                 <div className="grid gap-4">
                                     <div className="grid grid-cols-4 items-center gap-4">
-                                        <Label htmlFor="managerName" className="text-left">Name</Label>
-                                        <Input
-                                            id="managerName"
-                                            value={formData.manager.name}
-                                            onChange={(e) => setFormData({
-                                                ...formData,
-                                                manager: { ...formData.manager, name: e.target.value }
-                                            })}
-                                            className="col-span-3"
-                                            placeholder="Enter manager name"
-                                            required
-                                        />
-                                    </div>
-                                    <div className="grid grid-cols-4 items-center gap-4">
-                                        <Label htmlFor="managerEmail" className="text-left">Email</Label>
-                                        <Input
-                                            id="managerEmail"
-                                            type="email"
-                                            value={formData.manager.email}
-                                            onChange={(e) => setFormData({
-                                                ...formData,
-                                                manager: { ...formData.manager, email: e.target.value }
-                                            })}
-                                            className="col-span-3"
-                                            placeholder="Enter manager email"
-                                            required
-                                        />
-                                    </div>
-                                    <div className="grid grid-cols-4 items-center gap-4">
-                                        <Label htmlFor="managerPhone" className="text-left">Phone</Label>
-                                        <Input
-                                            id="managerPhone"
-                                            value={formData.manager.phone}
-                                            onChange={(e) => setFormData({
-                                                ...formData,
-                                                manager: { ...formData.manager, phone: e.target.value }
-                                            })}
-                                            className="col-span-3"
-                                            placeholder="Enter manager phone"
-                                            required
-                                        />
+                                        <Label htmlFor="managerId" className="text-left">Select Manager</Label>
+                                        <Select 
+                                            value={formData.manager}
+                                            onValueChange={(value) => {
+                                                setFormData({
+                                                    ...formData,
+                                                    manager: value
+                                                });
+                                            }}>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select a manager" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {employees?.map((employee) => (
+                                                    <SelectItem key={employee.id} value={employee.id.toString()}>
+                                                        {employee.name}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
                                     </div>
                                 </div>
                             </div>

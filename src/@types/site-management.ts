@@ -29,9 +29,7 @@ export interface Site {
     type: 'construction' | 'maintenance' | 'renovation'
     address: SiteAddress
     location: SiteLocation
-    site_manager: string;
-    site_manager_email: string;
-    site_manager_phone: string;
+    manager: EmployeeResponse
     start_date: string
     end_date: string
     progress: number
@@ -39,7 +37,10 @@ export interface Site {
     safety_score: number
     equipment: SiteEquipment[]
     lastIncident: string
-    currentPhase: string
+    currentPhase: string,
+    site_manager: string,
+    site_manager_email: string,
+    site_manager_phone: string,
 }
 
 export interface SiteAddress {
@@ -182,7 +183,7 @@ export interface ChecklistItem {
 }
 
 // Dummy data
-export const sitesData: Site[] = [
+export const sitesData: ({ end_date: string; address: { address: string; latitude: number; longitude: number }; equipment: ({ lastMaintenance: string; name: string; nextMaintenance: string; id: number; status: string } | { lastMaintenance: string; name: string; nextMaintenance: string; id: number; status: string })[]; lastIncident: string; type: string; no_of_workers: number; site_manager: string; site_manager_email: string; safety_score: number; currentPhase: string; name: string; progress: number; location: { lng: number; lat: number }; id: number; status: string; site_manager_phone: string; start_date: string } | { end_date: string; address: { address: string; latitude: number; longitude: number }; equipment: { lastMaintenance: string; name: string; nextMaintenance: string; id: number; status: string }[]; lastIncident: string; type: string; no_of_workers: number; site_manager: string; site_manager_email: string; safety_score: number; currentPhase: string; name: string; progress: number; location: { lng: number; lat: number }; id: number; status: string; site_manager_phone: string; start_date: string } | { end_date: string; address: { address: string; latitude: number; longitude: number }; equipment: ({ lastMaintenance: string; name: string; nextMaintenance: string; id: number; status: string } | { lastMaintenance: string; name: string; nextMaintenance: string; id: number; status: string })[]; lastIncident: string; type: string; no_of_workers: number; site_manager: string; site_manager_email: string; safety_score: number; currentPhase: string; name: string; progress: number; location: { lng: number; lat: number }; id: number; status: string; site_manager_phone: string; start_date: string })[] = [
     {
         id: 1,
         name: "Downtown Plaza Project",
