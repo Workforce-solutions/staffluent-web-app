@@ -51,12 +51,12 @@ const router = createBrowserRouter([
   //     Component: (await import('./pages/auth/sign-up')).default,
   //   }),
   // },
-  // {
-  //   path: '/forgot-password',
-  //   lazy: async () => ({
-  //     Component: (await import('./pages/auth/forgot-password')).default,
-  //   }),
-  // },
+  {
+    path: '/forgot-password',
+    lazy: async () => ({
+      Component: (await import('../pages/auth/forgot-password')).default,
+    }),
+  },
   // // {
   //   path: '/otp',
   //   lazy: async () => ({
