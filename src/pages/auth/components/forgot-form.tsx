@@ -68,7 +68,7 @@ export function ForgotForm({ className, ...props }: HTMLAttributes<HTMLDivElemen
                         <FormControl>
                           <Input
                               placeholder='Enter your email'
-                              className="bg-white border-gray-300 focus:border-[#1964b7] focus:ring-[#1964b7]"
+                              className="bg-white border-gray-300 focus:border-[#121212] focus:ring-[#121212]"
                               {...field}
                           />
                         </FormControl>
@@ -80,7 +80,7 @@ export function ForgotForm({ className, ...props }: HTMLAttributes<HTMLDivElemen
 
             <Button
                 type="submit"
-                className="w-full bg-[#1964b7] hover:bg-[#1557a0] text-white"
+                className="w-full bg-[#121212] hover:bg-[#171717] text-white"
                 loading={isLoading}
             >
               Send Reset Link
@@ -100,7 +100,7 @@ export function ForgotForm({ className, ...props }: HTMLAttributes<HTMLDivElemen
         </div>
 
         <div className="text-center text-sm">
-          <a href="/login" className="font-bold text-[#1964b7] hover:text-[#1557a0]">
+          <a href="/login" className="font-bold text-[#121212] hover:text-[#171717]">
             Back to login
           </a>
         </div>
