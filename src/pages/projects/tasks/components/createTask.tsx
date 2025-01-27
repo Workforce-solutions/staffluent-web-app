@@ -43,6 +43,7 @@ import { useGetProjectQuery, useGetProjectsListQuery } from "../../../../service
 interface CreateEditTaskModalProps extends OpenModalProps {
   task?: TasksResponse
   project_id?: string
+  construction_site_id?: string
 }
 
 const createTaskSchema = z.object({
@@ -54,9 +55,10 @@ const createTaskSchema = z.object({
   start_date: z.string().optional(),
   due_date: z.string().optional(),
   project_id: z.string().min(1, { message: 'Please select project' }),
+  construction_site_id: z.string().optional(),
 })
 
-const CreateEditTask = ({ open, setOpen, task, project_id }: CreateEditTaskModalProps) => {
+const CreateEditTask = ({ open, setOpen, task, project_id, construction_site_id }: CreateEditTaskModalProps) => {
   const venue_short_code = useShortCode()
   const [createTask] = useCreateTaskMutation()
   const [updateTask] = useUpdateTaskMutation()
@@ -118,6 +120,7 @@ const CreateEditTask = ({ open, setOpen, task, project_id }: CreateEditTaskModal
       description: task?.description ?? '',
       assigned_employee_ids: task?.assignee ? [task.assignee.id.toString()] : [], // Convert to string
       project_id: project_id ?? '',
+      construction_site_id: construction_site_id ?? '',
     },
   })
 

@@ -19,12 +19,14 @@ import {
 import { Separator } from '@/components/ui/separator'
 import { useToast } from '@/components/ui/use-toast'
 import { FormEvent, useState } from 'react'
-import { Building2, MapPin, Users, HardDrive, Calendar } from 'lucide-react'
+import { Building2, MapPin, Users, Calendar } from 'lucide-react'
 import { useAddSiteMutation } from '@/services/siteManagmentApi'
 import { useShortCode } from '@/hooks/use-local-storage'
 import { useGetProjectsListQuery } from '@/services/projectApi'
 import { ProjectsResponse } from '@/@types/project'
-import { useGetEmployeesQuery } from '@/services/staffApi'
+import { useGetEmployeesQuery, useGetTeamsQuery } from '@/services/staffApi'
+import MultiselectDropdown from '@/components/wrappers/multiselect-dropdown'
+import { FieldValueProps } from '@/@types/common'
 
 interface AddSiteModalProps {
     open: boolean
@@ -48,6 +50,7 @@ export function AddSiteModal({ open, setOpen }: AddSiteModalProps) {
         manager: '',
         startDate: '',
         endDate: '',
+        teamId: []  as FieldValueProps[],
         estimatedWorkers: '',
         equipment: [] as Array<{
             name: string;
@@ -67,23 +70,14 @@ export function AddSiteModal({ open, setOpen }: AddSiteModalProps) {
     const { data } = useGetProjectsListQuery({ venue_short_code: short_code });
     
     const { data: employees } = useGetEmployeesQuery(short_code) 
+    const { data: teams } = useGetTeamsQuery({ 
+        venue_short_code: short_code,
+        page: 1,
+        size: 100
+    })
+    
     const { toast } = useToast()
     const [isLoading, setIsLoading] = useState(false)
-
-    const handleAddEquipment = () => {
-        if (newEquipment.name) {
-            setFormData({
-                ...formData,
-                equipment: [...formData.equipment, { ...newEquipment }]
-            })
-            setNewEquipment({ name: '', status: 'operational' })
-        }
-    }
-
-    const handleRemoveEquipment = (index: number) => {
-        const newEquipment = formData.equipment.filter((_, i) => i !== index)
-        setFormData({ ...formData, equipment: newEquipment })
-    }
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault()
@@ -91,14 +85,15 @@ export function AddSiteModal({ open, setOpen }: AddSiteModalProps) {
 
         try {
 
-            const {location, estimatedWorkers, startDate, endDate, ...data } = formData
+            const {location, estimatedWorkers, startDate, endDate, teamId, ...data } = formData
             const response = await addSite({shortCode: short_code, siteData: {
                 ...data,
                 latitude: location.lat,
                 longitude: location.lng,
                 no_of_workers: estimatedWorkers,
                 start_date: startDate,
-                end_date: endDate
+                end_date: endDate,
+                team_id: teamId.map(team => team.value)
             }})
             if(response.data){
                 toast({
@@ -347,8 +342,39 @@ export function AddSiteModal({ open, setOpen }: AddSiteModalProps) {
 
                             <Separator />
 
-                            {/* Equipment */}
+                            {/* Team Selection */}
                             <div className="space-y-4">
+                                <div className="flex items-center space-x-2">
+                                    <Users className="h-5 w-5" />
+                                    <h3 className="text-lg font-medium">Team Assignment</h3>
+                                </div>
+                                <div className="grid grid-cols-4 items-center gap-4">
+                                    <Label htmlFor="team" className="text-left">Assigned Teams</Label>
+                                    <div className="col-span-3">
+                                        <MultiselectDropdown
+                                            itemValue={teams?.data.map((team) => ({
+                                                value: {
+                                                    value: team.id.toString(),
+                                                    label: team.name
+                                                }
+                                            })) || []}
+                                            value={formData.teamId}
+                                            setValue={(values) => {
+                                                setFormData({
+                                                    ...formData,
+                                                    teamId: values
+                                                })
+                                            }}
+                                            multiSelectorPlaceholder="Select teams"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <Separator />
+
+                            {/* Equipment */}
+                            {/* <div className="space-y-4">
                                 <div className="flex items-center space-x-2">
                                     <HardDrive className="h-5 w-5" />
                                     <h3 className="text-lg font-medium">Equipment</h3>
@@ -396,7 +422,7 @@ export function AddSiteModal({ open, setOpen }: AddSiteModalProps) {
                                         </Button>
                                     </div>
                                 </div>
-                            </div>
+                            </div> */}
                         </div>
                     </form>
                 </div>

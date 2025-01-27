@@ -15,83 +15,41 @@ import {
   UserCheck,
   Filter
 } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { AddEditAssignmentModal } from './add-edit-modal'
+import { useShortCode } from '@/hooks/use-local-storage'
+import { useGetEquipmentAssignmentQuery } from '@/services/siteManagmentApi'
+import { EquipmentAssignment } from '@/@types/site-management'
 
-// Types
-interface Assignment {
-  id: number
-  equipment: {
-    name: string
-    type: string
-    status: 'available' | 'assigned' | 'maintenance'
+const EquipmentAssignmentList = () => {
+  
+  const short_code = useShortCode()
+  const [openAddEditAssignmentModal, setOpenAddEditAssignmentModal] = useState(false)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [editEquipmentAssignment, setEditEquipmentAssignment] = useState<EquipmentAssignment | undefined>(undefined)
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(searchTerm)
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm)
+    }, 500)
+
+    return () => clearTimeout(timer)
+  }, [searchTerm])
+
+  const { data: equipmentAssignments, refetch: refetchEquipmentAssignments } = useGetEquipmentAssignmentQuery({
+    shortCode: short_code,
+    page: 1,
+    perPage: 100,
+    search: debouncedSearchTerm
+  })
+
+  const handleEdit = (assignment: EquipmentAssignment) => {
+    setEditEquipmentAssignment(assignment)
+    setOpenAddEditAssignmentModal(true)
   }
-  operator: {
-    name: string
-    certification: string[]
-    experience: string
-  } | null
-  site: string
-  startDate: string
-  endDate: string | null
-  duration: string
-  status: 'active' | 'scheduled' | 'completed'
-  notes: string
-}
 
-// Demo data
-const assignmentData: Assignment[] = [
-  {
-    id: 1,
-    equipment: {
-      name: "Excavator XC-200",
-      type: "Heavy Equipment",
-      status: "assigned"
-    },
-    operator: {
-      name: "John Operator",
-      certification: ["Heavy Equipment", "Safety Level 3"],
-      experience: "5 years"
-    },
-    site: "Downtown Plaza Site",
-    startDate: "2024-03-01",
-    endDate: "2024-03-15",
-    duration: "2 weeks",
-    status: "active",
-    notes: "Primary excavation work"
-  },
-  {
-    id: 2,
-    equipment: {
-      name: "Crane RT-300",
-      type: "Heavy Equipment",
-      status: "available"
-    },
-    operator: null,
-    site: "Tech Park Site",
-    startDate: "2024-03-20",
-    endDate: "2024-04-10",
-    duration: "3 weeks",
-    status: "scheduled",
-    notes: "Steel beam installation"
-  },
-  {
-    id: 3,
-    equipment: {
-      name: "Concrete Mixer CM-100",
-      type: "Construction Equipment",
-      status: "maintenance"
-    },
-    operator: null,
-    site: "Riverside Complex",
-    startDate: "2024-03-05",
-    endDate: "2024-03-10",
-    duration: "5 days",
-    status: "completed",
-    notes: "Foundation work"
-  }
-]
-
-const EquipmentAssignment = () => {
-    const AssignmentCard = ({ assignment }: { assignment: Assignment }) => (
+  const AssignmentCard = ({ assignment }: { assignment: EquipmentAssignment }) => (
         <Card>
             <CardContent className="pt-6">
                 <div className="flex justify-between items-start mb-4">
@@ -104,7 +62,7 @@ const EquipmentAssignment = () => {
                             assignment.status === 'scheduled' ? 'secondary' :
                                 'default'
                     }>
-                        {assignment.status}
+                        {assignment.status.charAt(0).toUpperCase() + assignment.status.slice(1)}
                     </Badge>
                 </div>
 
@@ -112,25 +70,29 @@ const EquipmentAssignment = () => {
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
                             <p className="text-sm text-muted-foreground">Site</p>
-                            <p className="text-sm font-medium">{assignment.site}</p>
+                            <p className="text-sm font-medium">{assignment.assignable.name}</p>
                         </div>
                         <div className="space-y-2">
                             <p className="text-sm text-muted-foreground">Duration</p>
-                            <p className="text-sm font-medium">{assignment.duration}</p>
+                            <p className="text-sm font-medium">
+                              {assignment.return_expected_at ? 
+                                `${Math.ceil((new Date(assignment.return_expected_at).getTime() - new Date(assignment.assigned_at).getTime()) / (1000 * 60 * 60 * 24))} days` :
+                                'No end date set'}
+                            </p>
                         </div>
                     </div>
 
                     <div className="space-y-2">
                         <p className="text-sm text-muted-foreground">Operator</p>
-                        {assignment.operator ? (
+                        {assignment.assigned_employee ? (
                             <div className="space-y-1">
-                                <p className="text-sm font-medium">{assignment.operator.name}</p>
+                                <p className="text-sm font-medium">{assignment.assigned_employee.name}</p>
                                 <div className="flex flex-wrap gap-1">
-                                    {assignment.operator.certification.map((cert, index) => (
+                                    {/* {assignment.assigned.certification.map((cert, index) => (
                                         <Badge key={index} variant="outline">
                                             {cert}
                                         </Badge>
-                                    ))}
+                                    ))} */}
                                 </div>
                             </div>
                         ) : (
@@ -145,12 +107,12 @@ const EquipmentAssignment = () => {
                         <div className="space-y-2">
                             <div className="flex items-center">
                                 <Clock className="h-4 w-4 mr-2 text-muted-foreground" />
-                                <span>Start: {assignment.startDate}</span>
+                                <span>Start: {new Date(assignment.assigned_at).toLocaleDateString('en-US')}</span>
                             </div>
-                            {assignment.endDate && (
+                            {assignment.return_expected_at && (
                                 <div className="flex items-center">
                                     <Clock className="h-4 w-4 mr-2 text-muted-foreground" />
-                                    <span>End: {assignment.endDate}</span>
+                                    <span>End: {new Date(assignment.return_expected_at).toLocaleDateString('en-US')}</span>
                                 </div>
                             )}
                         </div>
@@ -163,10 +125,10 @@ const EquipmentAssignment = () => {
                     </div>
 
                     <div className="flex justify-end space-x-2 pt-4 mt-4 border-t">
-                        <Button variant="outline" size="sm">
+                        <Button variant="outline" size="sm" onClick={() => handleEdit(assignment)}>
                             Edit
                         </Button>
-                        {!assignment.operator && (
+                        {!assignment.assigned_employee && (
                             <Button size="sm">
                                 Assign Operator
                             </Button>
@@ -195,7 +157,9 @@ const EquipmentAssignment = () => {
             </p>
           </div>
           <div className="flex space-x-2">
-            <Button>
+            <Button onClick={() => {
+                setOpenAddEditAssignmentModal(true)
+            }}>
               <Plus className="h-4 w-4 mr-2" />
               New Assignment
             </Button>
@@ -210,7 +174,7 @@ const EquipmentAssignment = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {assignmentData.filter(a => a.status === 'active').length}
+                {equipmentAssignments?.active_assignments || 0}
               </div>
               <p className="text-xs text-muted-foreground">
                 Currently deployed
@@ -224,7 +188,7 @@ const EquipmentAssignment = () => {
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">12</div>
+              <div className="text-2xl font-bold">{equipmentAssignments?.available_operator || 0}</div>
               <p className="text-xs text-muted-foreground">
                 Ready to assign
               </p>
@@ -251,7 +215,7 @@ const EquipmentAssignment = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {assignmentData.filter(a => !a.operator).length}
+                {equipmentAssignments?.unassigned_equipments || 0}
               </div>
               <p className="text-xs text-muted-foreground">
                 Needs operators
@@ -264,6 +228,8 @@ const EquipmentAssignment = () => {
           <Input
             placeholder="Search assignments..."
             className="max-w-sm"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
           />
           <Button variant="outline">
             <Filter className="h-4 w-4 mr-2" />
@@ -272,13 +238,24 @@ const EquipmentAssignment = () => {
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {assignmentData.map(assignment => (
+          {equipmentAssignments?.data.map((assignment: EquipmentAssignment) => (
             <AssignmentCard key={assignment.id} assignment={assignment} />
           ))}
         </div>
       </Layout.Body>
+      <AddEditAssignmentModal
+        open={openAddEditAssignmentModal}
+        initialData={editEquipmentAssignment}
+        onOpenChange={(open) => {
+          setOpenAddEditAssignmentModal(open);
+          if (!open) {
+            setEditEquipmentAssignment(undefined);
+          }
+        }}
+        refetchEquipmentAssignments={refetchEquipmentAssignments}
+      />
     </Layout>
   )
 }
 
-export default EquipmentAssignment
+export default EquipmentAssignmentList

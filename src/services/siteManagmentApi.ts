@@ -1,5 +1,6 @@
 import {
   ChecklistResponse,
+  EquipmentAssignmentResponse,
   EquipmentResponse,
   IssueResponse,
   NoticeResponse,
@@ -21,7 +22,7 @@ export const siteManagementApi = createApi({
     baseUrl: vbUrl + 'vb-apps/staff/admin',
     prepareHeaders: (headers) => getPrepareHeaders({ headers }),
   }),
-  tagTypes: ['Sites', 'Equipment', 'Issues', 'Requirements', 'Notices', 'Checklists'],
+  tagTypes: ['Sites', 'Equipment', 'Issues', 'Requirements', 'Notices', 'Checklists', 'EquipmentAssignment'],
   endpoints: (builder) => ({
     addSite: builder.mutation<void, { shortCode: string; siteData: any }>({
       query: ({ shortCode, siteData }) => ({
@@ -313,6 +314,39 @@ export const siteManagementApi = createApi({
       }),
       invalidatesTags: ['Checklists'],
     }),
+    addEquipmentAssignment: builder.mutation<void, { shortCode: string; equipmentAssignmentData: any }>({
+      query: ({ shortCode, equipmentAssignmentData }) => ({
+        url: getCommonUrl({
+          queryString: '/equipment-assignments',
+          params: staffAdminAppkeyParam,
+          query: `&venue_short_code=${shortCode}`,
+        }),
+        method: 'POST',
+        body: equipmentAssignmentData,
+      }),
+      invalidatesTags: ['EquipmentAssignment'],
+    }),
+    getEquipmentAssignment: builder.query<EquipmentAssignmentResponse, { shortCode: string; page: number; perPage: number; search: string }>({
+      query: ({ shortCode, page = 1, perPage = 20, search = '' }) => ({
+        url: getCommonUrl({
+          queryString: '/equipment-assignments',
+          params: staffAdminAppkeyParam,
+          query: `&venue_short_code=${shortCode}&page=${page}&per_page=${perPage}&search=${search}`,
+        }),
+      }),
+    }),
+    updateEquipmentAssignment: builder.mutation<void, { shortCode: string; equipmentAssignmentData: any; id: number }>({
+      query: ({ shortCode, equipmentAssignmentData, id }) => ({
+        url: getCommonUrl({
+          queryString: `/equipment-assignments/${id}`,
+          params: staffAdminAppkeyParam,
+          query: `&venue_short_code=${shortCode}`,
+        }),
+        method: 'PUT',
+        body: equipmentAssignmentData,
+      }),
+      invalidatesTags: ['EquipmentAssignment'],
+    }),
   }),
 })
 
@@ -339,4 +373,7 @@ export const {
   useUpdateChecklistMutation,
   useDeleteChecklistMutation,
   useMarkCheckListItemCompletedMutation,
+  useAddEquipmentAssignmentMutation,
+  useGetEquipmentAssignmentQuery,
+  useUpdateEquipmentAssignmentMutation,
 } = siteManagementApi

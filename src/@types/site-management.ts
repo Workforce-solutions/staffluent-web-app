@@ -41,6 +41,7 @@ export interface Site {
     site_manager: string,
     site_manager_email: string,
     site_manager_phone: string,
+    app_project_id: number
 }
 
 export interface SiteAddress {
@@ -180,6 +181,32 @@ export interface ChecklistItem {
     id: number
     title: string
     is_completed: number
+}
+
+export interface EquipmentAssignmentResponse {
+    data: EquipmentAssignment[]
+    active_assignments: number
+    available_operator: number
+    unassigned_equipments: number
+    pagination: {
+        total: number
+        page: number
+        limit: number
+    }
+}
+
+export interface EquipmentAssignment {
+    id: number
+    equipment_id: number
+    assigned_to: string
+    assigned_at: string
+    status: string
+    notes: string
+    equipment: Equipment
+    assigned_employee: EmployeeResponse
+    assignable: Site
+    return_expected_at: string
+    
 }
 
 // Dummy data
