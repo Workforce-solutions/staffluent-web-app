@@ -16,11 +16,11 @@ export const tasksApi = createApi({
     }),
     tagTypes: ['Tasks'],
     endpoints: (builder) => ({
-        getTasksList: builder.query<GetTasksResponse, VenueShortCode>({
-            query: ({ venue_short_code }) => ({
+        getTasksList: builder.query<GetTasksResponse, VenueShortCode & { construction_site_id?: string }>({
+            query: ({ venue_short_code, construction_site_id }) => ({
                 url: getCommonUrl({
                     queryString: '/tasks',
-                    query: `&venue_short_code=${venue_short_code}`,
+                    query: `&venue_short_code=${venue_short_code}${construction_site_id ? `&construction_site_id=${construction_site_id}` : ''}`,
                     params: staffAdminAppkeyParam,
                 }),
             }),

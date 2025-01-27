@@ -155,7 +155,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
                         <FormControl>
                           <Input
                               placeholder='Enter your email'
-                              className="bg-white border-gray-300 focus:border-[#1964b7] focus:ring-[#1964b7]"
+                              className="bg-white border-gray-300 focus:border-[#121212] focus:ring-[#121212]"
                               {...field}
                           />
                         </FormControl>
@@ -173,7 +173,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
                         <FormControl>
                           <PasswordInput
                               placeholder='Enter your password'
-                              className="bg-white border-gray-300 focus:border-[#1964b7] focus:ring-[#1964b7]"
+                              className="bg-white border-gray-300 focus:border-[#121212] focus:ring-[#121212]"
                               {...field}
                           />
                         </FormControl>
@@ -188,7 +188,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
                       id="remember-me"
                       name="remember-me"
                       type="checkbox"
-                      className="h-4 w-4 rounded border-gray-300 text-[#1964b7] focus:ring-[#1964b7]"
+                      className="h-4 w-4 rounded border-gray-300 text-[#121212] focus:ring-[#121212]"
                   />
                   <label htmlFor="remember-me" className="ml-2 text-sm text-gray-700">
                     Remember me
@@ -196,7 +196,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
                 </div>
 
                 <div className="text-sm">
-                  <a href="/forgot-password" className="font-medium text-[#1964b7] hover:text-[#1557a0]">
+                  <a href="/forgot-password" className="font-medium text-[#121212] hover:text-[#171717]">
                     Forgot password?
                   </a>
                 </div>
@@ -205,7 +205,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
 
             <Button
                 type="submit"
-                className="w-full bg-[#1964b7] hover:bg-[#1557a0] text-white"
+                className="w-full bg-[#121212] hover:bg-[#171717] text-white"
                 loading={isLoading}
             >
               Sign In
@@ -223,7 +223,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
         </div>
 
         <div className="text-center text-sm">
-          <a href="https://staffluent.co/contact" className="font-bold text-[#1964b7] hover:text-[#1557a0]">
+          <a href="https://staffluent.co/contact" className="font-bold text-[#121212] hover:text-[#171717]">
             Join now
           </a>
         </div>

@@ -15,6 +15,7 @@ import NoticeView from './notice'
 import RequirementView from './requirement'
 import IssueView from './issue'
 import ChecklistView from './checklist'
+import Tasks from './tasks'
 
 const SiteDetailPage = () => {
   const { id } = useParams()
@@ -33,6 +34,8 @@ const SiteDetailPage = () => {
   if (!site) {
     return <div>Site not found</div>
   }
+
+  console.log(site)
 
   return (
     <Layout>
@@ -170,7 +173,7 @@ const SiteDetailPage = () => {
         <RequirementView siteId={Number(id)} />
         <NoticeView siteId={Number(id)} />
         <ChecklistView siteId={Number(id)} />
-
+        <Tasks siteId={Number(id)} project_id={site.data.app_project_id ?? '0'} />
       </Layout.Body>
     </Layout>
   )
