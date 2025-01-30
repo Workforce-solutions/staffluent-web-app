@@ -1,3 +1,5 @@
+import { EmployeeResponse } from "./staff"
+
 // types/site-management.ts
 export interface SiteLocation {
     lat: number
@@ -25,39 +27,208 @@ export interface Site {
     name: string
     status: 'active' | 'maintenance' | 'inactive'
     type: 'construction' | 'maintenance' | 'renovation'
-    address: string
+    address: SiteAddress
     location: SiteLocation
-    manager: SiteManager
-    startDate: string
-    endDate: string
+    manager: EmployeeResponse
+    start_date: string
+    end_date: string
     progress: number
-    workers: number
+    no_of_workers: number
+    safety_score: number
     equipment: SiteEquipment[]
-    safetyScore: number
     lastIncident: string
-    currentPhase: string
+    currentPhase: string,
+    site_manager: string,
+    site_manager_email: string,
+    site_manager_phone: string,
+    app_project_id: number
+}
+
+export interface SiteAddress {
+    address: string;
+    latitude: number;
+    longitude: number;
+}
+
+export interface SiteResponse {
+    data: Site[]
+    total_workers: number
+    active_sites: number
+    projects_count: number
+    pagination: {
+        total: number
+        page: number
+        limit: number
+    }
+}
+
+export interface SiteDetailResponse {
+    data: Site
+}
+
+export interface EquipmentResponse {
+    data: Equipment[]
+    active_equipment: number
+    total_purchase_cost: number
+    pagination: {
+        total: number
+        page: number
+        limit: number
+    }
+} 
+
+export interface Equipment {
+    id: number
+    name: string
+    type: string
+    model: string
+    serial_number: string
+    purchase_date: string
+    purchase_cost: number
+    healthScore: number
+    utilization: number
+    location: string
+    assignedTo: string
+    status: 'available' | 'maintenance' | 'offline'
+    last_maintenance_date: string
+    next_maintenance_due: string
+    maintenance_interval_days: number
+}   
+export interface IssueResponse {
+    data: Issue[]
+    open_issues: number
+    resolved_issues: number
+    pagination: {
+        total: number
+        page: number
+        limit: number
+    }
+}
+
+export interface Issue {
+    id: number
+    title: string
+    description: string
+    location: string
+    priority: 'low' | 'medium' | 'high' | 'critical'
+    status: 'open' | 'in_progress' | 'resolved'
+    assigned_to: string
+    image: string
+    created_at: string
+    updated_at: string
+}
+
+export interface RequirementResponse {
+    data: Requirement[]
+    pagination: {
+        total: number
+        page: number
+        limit: number
+    }
+}
+
+export interface Requirement {
+    id: number
+    title: string
+    description: string
+    type: string
+    status: string
+    last_check_date: string
+    assigned_to: string
+    assigned: EmployeeResponse
+}
+
+export interface NoticeResponse {
+    data: Notice[]
+    pagination: {
+        total: number
+        page: number
+        limit: number
+    }
+}
+export interface Notice {
+    id: number
+    title: string
+    description: string
+    type: string
+    attachment: string
+    created_at: string
+    updated_at: string
+}
+
+export interface ChecklistResponse {
+    data: Checklist[]
+    pagination: {
+        total: number
+        page: number
+        limit: number
+    }
+}
+
+export interface Checklist {
+    id: number
+    title: string
+    assigned_to: string
+    due_date: string
+    progress: number
+    completed_items: number
+    total_items: number
+    items: ChecklistItem[]
+    assigned: EmployeeResponse
+}
+
+export interface ChecklistItem {
+    id: number
+    title: string
+    is_completed: number
+}
+
+export interface EquipmentAssignmentResponse {
+    data: EquipmentAssignment[]
+    active_assignments: number
+    available_operator: number
+    unassigned_equipments: number
+    pagination: {
+        total: number
+        page: number
+        limit: number
+    }
+}
+
+export interface EquipmentAssignment {
+    id: number
+    equipment_id: number
+    assigned_to: string
+    assigned_at: string
+    status: string
+    notes: string
+    equipment: Equipment
+    assigned_employee: EmployeeResponse
+    assignable: Site
+    return_expected_at: string
+    
 }
 
 // Dummy data
-export const sitesData: Site[] = [
+export const sitesData: ({ end_date: string; address: { address: string; latitude: number; longitude: number }; equipment: ({ lastMaintenance: string; name: string; nextMaintenance: string; id: number; status: string } | { lastMaintenance: string; name: string; nextMaintenance: string; id: number; status: string })[]; lastIncident: string; type: string; no_of_workers: number; site_manager: string; site_manager_email: string; safety_score: number; currentPhase: string; name: string; progress: number; location: { lng: number; lat: number }; id: number; status: string; site_manager_phone: string; start_date: string } | { end_date: string; address: { address: string; latitude: number; longitude: number }; equipment: { lastMaintenance: string; name: string; nextMaintenance: string; id: number; status: string }[]; lastIncident: string; type: string; no_of_workers: number; site_manager: string; site_manager_email: string; safety_score: number; currentPhase: string; name: string; progress: number; location: { lng: number; lat: number }; id: number; status: string; site_manager_phone: string; start_date: string } | { end_date: string; address: { address: string; latitude: number; longitude: number }; equipment: ({ lastMaintenance: string; name: string; nextMaintenance: string; id: number; status: string } | { lastMaintenance: string; name: string; nextMaintenance: string; id: number; status: string })[]; lastIncident: string; type: string; no_of_workers: number; site_manager: string; site_manager_email: string; safety_score: number; currentPhase: string; name: string; progress: number; location: { lng: number; lat: number }; id: number; status: string; site_manager_phone: string; start_date: string })[] = [
     {
         id: 1,
         name: "Downtown Plaza Project",
         status: "active",
         type: "construction",
-        address: "123 Main St, Downtown",
-        location: { lat: 40.7128, lng: -74.0060 },
-        manager: {
-            id: 1,
-            name: "John Builder",
-            email: "john@example.com",
-            phone: "(555) 123-4567",
-            role: "Project Manager"
+        address: {
+            address: "123 Main St, Downtown",
+            latitude: 40.7128,
+            longitude: -74.0060
         },
-        startDate: "2024-01-15",
-        endDate: "2024-12-31",
+        location: { lat: 40.7128, lng: -74.0060 },
+        site_manager: "John Builder",
+        site_manager_email: "john@example.com",
+        site_manager_phone: "(555) 123-4567",
+        start_date: "2024-01-15",
+        end_date: "2024-12-31",
         progress: 35,
-        workers: 45,
+        no_of_workers: 45,
         equipment: [
             {
                 id: 1,
@@ -74,7 +245,7 @@ export const sitesData: Site[] = [
                 nextMaintenance: "2024-03-20"
             }
         ],
-        safetyScore: 95,
+        safety_score: 95,
         lastIncident: "None reported",
         currentPhase: "Foundation Work"
     },
@@ -83,19 +254,19 @@ export const sitesData: Site[] = [
         name: "Riverside Complex",
         status: "maintenance",
         type: "renovation",
-        address: "456 River Road",
-        location: { lat: 40.7549, lng: -73.9840 },
-        manager: {
-            id: 2,
-            name: "Sarah Manager",
-            email: "sarah@example.com",
-            phone: "(555) 987-6543",
-            role: "Site Supervisor"
+        address: {
+            address: "456 River Road",
+            latitude: 40.7549,
+            longitude: -73.9840
         },
-        startDate: "2024-02-01",
-        endDate: "2024-08-30",
+        location: { lat: 40.7549, lng: -73.9840 },
+        site_manager: "Sarah Manager",
+        site_manager_email: "sarah@example.com",
+        site_manager_phone: "(555) 987-6543",
+        start_date: "2024-02-01",
+        end_date: "2024-08-30",
         progress: 65,
-        workers: 30,
+        no_of_workers: 30,
         equipment: [
             {
                 id: 3,
@@ -105,7 +276,7 @@ export const sitesData: Site[] = [
                 nextMaintenance: "2024-03-10"
             }
         ],
-        safetyScore: 88,
+        safety_score: 88,
         lastIncident: "2024-02-01",
         currentPhase: "Interior Renovation"
     },
@@ -114,19 +285,19 @@ export const sitesData: Site[] = [
         name: "Tech Park Development",
         status: "active",
         type: "construction",
-        address: "789 Innovation Way",
-        location: { lat: 40.7829, lng: -73.9654 },
-        manager: {
-            id: 3,
-            name: "Mike Constructor",
-            email: "mike@example.com",
-            phone: "(555) 456-7890",
-            role: "Project Manager"
+        address: {
+            address: "789 Innovation Way",
+            latitude: 40.7829,
+            longitude: -73.9654
         },
-        startDate: "2024-01-01",
-        endDate: "2025-01-01",
+        location: { lat: 40.7829, lng: -73.9654 },
+        site_manager: "Mike Constructor",
+        site_manager_email: "mike@example.com",
+        site_manager_phone: "(555) 456-7890",
+        start_date: "2024-01-01",
+        end_date: "2025-01-01",
         progress: 15,
-        workers: 60,
+        no_of_workers: 60,
         equipment: [
             {
                 id: 4,
@@ -143,7 +314,7 @@ export const sitesData: Site[] = [
                 nextMaintenance: "2024-03-01"
             }
         ],
-        safetyScore: 92,
+        safety_score: 92,
         lastIncident: "2024-01-15",
         currentPhase: "Ground Clearing"
     }

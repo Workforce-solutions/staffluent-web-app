@@ -14,14 +14,11 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
-
 import { useCheckConnectionMutation } from '@/services/vbAuthApi'
-
 import { useVbLoginMutation } from '@/services/authApi'
 import supabase from '@/supabaseClient'
 import { useNavigate } from 'react-router-dom'
 
-// eslint-disable-next-line react-refresh/only-export-components
 export enum AccountType {
   client = 'client',
   business = 'business',
@@ -33,17 +30,13 @@ interface UserAuthFormProps extends HTMLAttributes<HTMLDivElement> {}
 
 const formSchema = z.object({
   email: z
-    .string()
-    .min(1, { message: 'Please enter your email' })
-    .email({ message: 'Invalid email address' }),
+      .string()
+      .min(1, { message: 'Please enter your email' })
+      .email({ message: 'Invalid email address' }),
   password: z
-    .string()
-    .min(1, {
-      message: 'Please enter your password',
-    })
-    .min(5, {
-      message: 'Password must be at least 7 characters long',
-    }),
+      .string()
+      .min(1, { message: 'Please enter your password' })
+      .min(5, { message: 'Password must be at least 7 characters long' }),
 })
 
 export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
@@ -69,9 +62,9 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
   }
 
   const handleVbLogin = async ({
-    email,
-    password,
-  }: {
+                                 email,
+                                 password,
+                               }: {
     email: string
     password: string
   }) => {
@@ -82,8 +75,8 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
         const newExpiresAt = Math.floor(Date.now() / 1000) + 60 * 60
 
         localStorage.setItem(
-          'vbAuth',
-          JSON.stringify({ ...res, expires_at: newExpiresAt })
+            'vbAuth',
+            JSON.stringify({ ...res, expires_at: newExpiresAt })
         )
         localStorage.setItem('adminToken', res?.access_token ?? '')
         localStorage.setItem('refreshToken', res?.refresh_token ?? '')
@@ -93,7 +86,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
         navigate(redirectMap[accountType])
       }
     } catch (err) {
-      setError('Invalid login credentials from Supabase. Trying fallback...')
+      setError('Invalid login credentials. Please try again.')
     }
   }
 
@@ -101,16 +94,16 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
     setIsLoading(true)
     setError(null)
 
-    const { email, password } = data
-
-    const loginData = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    })
-
-    const loginError = loginData?.error
-
     try {
+      const { email, password } = data
+
+      const loginData = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      })
+
+      const loginError = loginData?.error
+
       if (loginError) {
         await handleVbLogin({ email, password })
       } else {
@@ -125,8 +118,8 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
             const newExpiresAt = Math.floor(Date.now() / 1000) + 60 * 60
 
             localStorage.setItem(
-              'vbAuth',
-              JSON.stringify({ ...res, expires_at: newExpiresAt })
+                'vbAuth',
+                JSON.stringify({ ...res, expires_at: newExpiresAt })
             )
             localStorage.setItem('adminToken', res?.data?.token ?? '')
             localStorage.setItem('refreshToken', res?.data?.refresh_token ?? '')
@@ -139,49 +132,101 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
           await handleVbLogin({ email, password })
         }
       }
-    } catch {
-      setError('Invalid login credentials from Supabase. Trying fallback...')
+    } catch (err) {
+      setError('An error occurred during login. Please try again.')
     }
+
     setIsLoading(false)
   }
 
   return (
-    <div className={cn('grid gap-6', className)} {...props}>
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
-          <div className='grid gap-2'>
-            {error && <p className='text-red-500'>{error}</p>}{' '}
-            <FormField
-              control={form.control}
-              name='email'
-              render={({ field }) => (
-                <FormItem className='space-y-1'>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input placeholder='name@example.com' {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name='password'
-              render={({ field }) => (
-                <FormItem className='space-y-1'>
-                  <FormControl>
-                    <PasswordInput placeholder='********' {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <Button className='mt-2' loading={isLoading}>
-              Login
+      <div className={cn('grid gap-6', className)} {...props}>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <div className='grid gap-3'>
+              {error && <p className='text-red-500 text-sm'>{error}</p>}
+
+              <FormField
+                  control={form.control}
+                  name='email'
+                  render={({ field }) => (
+                      <FormItem className='space-y-1.5'>
+                        <FormLabel className="text-gray-700">Email</FormLabel>
+                        <FormControl>
+                          <Input
+                              placeholder='Enter your email'
+                              className="bg-white border-gray-300 focus:border-[#121212] focus:ring-[#121212] text-gray-900"
+                              {...field}
+                          />
+                        </FormControl>
+                        <FormMessage className="text-sm" />
+                      </FormItem>
+                  )}
+              />
+
+              <FormField
+                  control={form.control}
+                  name='password'
+                  render={({ field }) => (
+                      <FormItem className='space-y-1.5'>
+                        <FormLabel className="text-gray-700">Password</FormLabel>
+                        <FormControl>
+                          <PasswordInput
+                              placeholder='Enter your password'
+                              className="bg-white border-gray-300 focus:border-[#121212] focus:ring-[#121212] text-gray-900"
+                              {...field}
+                          />
+                        </FormControl>
+                        <FormMessage className="text-sm" />
+                      </FormItem>
+                  )}
+              />
+
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <input
+                      id="remember-me"
+                      name="remember-me"
+                      type="checkbox"
+                      className="h-4 w-4 rounded border-gray-300 text-[#121212] focus:ring-[#121212] text-gray-900"
+                  />
+                  <label htmlFor="remember-me" className="ml-2 text-sm text-gray-700">
+                    Remember me
+                  </label>
+                </div>
+
+                <div className="text-sm">
+                  <a href="/forgot-password" className="font-medium text-[#121212] hover:text-[#171717]">
+                    Forgot password?
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <Button
+                type="submit"
+                className="w-full bg-[#121212] hover:bg-[#171717] text-white"
+                loading={isLoading}
+            >
+              Sign In
             </Button>
+          </form>
+        </Form>
+
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-gray-300" />
           </div>
-        </form>
-      </Form>
-    </div>
+          <div className="relative flex justify-center text-sm">
+            <span className="px-2 bg-white text-gray-500 text-center">Not part of Staffluent yet? Contact us to streamline your workforce management</span>
+          </div>
+        </div>
+
+        <div className="text-center text-sm">
+          <a href="https://staffluent.co/contact" className="font-bold text-[#121212] hover:text-[#171717]">
+            Join now
+          </a>
+        </div>
+      </div>
   )
 }

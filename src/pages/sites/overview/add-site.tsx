@@ -19,7 +19,14 @@ import {
 import { Separator } from '@/components/ui/separator'
 import { useToast } from '@/components/ui/use-toast'
 import { FormEvent, useState } from 'react'
-import { Building2, MapPin, Users, HardDrive, Calendar } from 'lucide-react'
+import { Building2, MapPin, Users, Calendar } from 'lucide-react'
+import { useAddSiteMutation } from '@/services/siteManagmentApi'
+import { useShortCode } from '@/hooks/use-local-storage'
+import { useGetProjectsListQuery } from '@/services/projectApi'
+import { ProjectsResponse } from '@/@types/project'
+import { useGetEmployeesQuery, useGetTeamsQuery } from '@/services/staffApi'
+import MultiselectDropdown from '@/components/wrappers/multiselect-dropdown'
+import { FieldValueProps } from '@/@types/common'
 
 interface AddSiteModalProps {
     open: boolean
@@ -27,8 +34,12 @@ interface AddSiteModalProps {
 }
 
 export function AddSiteModal({ open, setOpen }: AddSiteModalProps) {
+
+    const short_code = useShortCode();
+    const [addSite] = useAddSiteMutation()
     const [formData, setFormData] = useState({
         name: '',
+        app_project_id: '',
         type: 'construction',
         status: 'active',
         address: '',
@@ -36,14 +47,10 @@ export function AddSiteModal({ open, setOpen }: AddSiteModalProps) {
             lat: '',
             lng: ''
         },
-        manager: {
-            name: '',
-            email: '',
-            phone: '',
-            role: ''
-        },
+        manager: '',
         startDate: '',
         endDate: '',
+        teamId: []  as FieldValueProps[],
         estimatedWorkers: '',
         equipment: [] as Array<{
             name: string;
@@ -54,41 +61,53 @@ export function AddSiteModal({ open, setOpen }: AddSiteModalProps) {
         description: ''
     })
 
+    
     const [newEquipment, setNewEquipment] = useState({
         name: '',
         status: 'operational' as const
     })
 
+    const { data } = useGetProjectsListQuery({ venue_short_code: short_code });
+    
+    const { data: employees } = useGetEmployeesQuery(short_code) 
+    const { data: teams } = useGetTeamsQuery({ 
+        venue_short_code: short_code,
+        page: 1,
+        size: 100
+    })
+    
     const { toast } = useToast()
     const [isLoading, setIsLoading] = useState(false)
-
-    const handleAddEquipment = () => {
-        if (newEquipment.name) {
-            setFormData({
-                ...formData,
-                equipment: [...formData.equipment, { ...newEquipment }]
-            })
-            setNewEquipment({ name: '', status: 'operational' })
-        }
-    }
-
-    const handleRemoveEquipment = (index: number) => {
-        const newEquipment = formData.equipment.filter((_, i) => i !== index)
-        setFormData({ ...formData, equipment: newEquipment })
-    }
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         setIsLoading(true)
 
         try {
-            // Add your API call here
-            console.log('Submitting site:', formData)
-            toast({
-                title: 'Success',
-                description: 'Site created successfully',
-            })
-            setOpen(false)
+
+            const {location, estimatedWorkers, startDate, endDate, teamId, ...data } = formData
+            const response = await addSite({shortCode: short_code, siteData: {
+                ...data,
+                latitude: location.lat,
+                longitude: location.lng,
+                no_of_workers: estimatedWorkers,
+                start_date: startDate,
+                end_date: endDate,
+                team_id: teamId.map(team => team.value)
+            }})
+            if(response.data){
+                toast({
+                    title: 'Success',
+                    description: 'Site created successfully',
+                })
+                setOpen(false)
+            } else {
+                toast({
+                    title: 'Error',
+                    description: 'Failed to create site',
+                    variant: 'destructive',
+                })
+            }
         } catch (error) {
             toast({
                 title: 'Error',
@@ -122,6 +141,22 @@ export function AddSiteModal({ open, setOpen }: AddSiteModalProps) {
                             <div className="space-y-4">
                                 <h3 className="text-lg font-medium">Basic Information</h3>
                                 <div className="grid gap-4">
+                                    <div className="grid grid-cols-4 items-center gap-4">
+                                        <Label htmlFor="project" className="text-left">Project</Label>
+                                        <Select
+                                            value={formData.app_project_id}
+                                            onValueChange={(value) => setFormData({ ...formData, app_project_id: value })}
+                                        >
+                                            <SelectTrigger className="col-span-3">
+                                                <SelectValue placeholder="Select project" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {data?.projects.map((project : ProjectsResponse) => (
+                                                    <SelectItem value={project.id.toString()}>{project.name}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
                                     <div className="grid grid-cols-4 items-center gap-4">
                                         <Label htmlFor="name" className="text-left">Name</Label>
                                         <Input
@@ -235,47 +270,26 @@ export function AddSiteModal({ open, setOpen }: AddSiteModalProps) {
                                 </div>
                                 <div className="grid gap-4">
                                     <div className="grid grid-cols-4 items-center gap-4">
-                                        <Label htmlFor="managerName" className="text-left">Name</Label>
-                                        <Input
-                                            id="managerName"
-                                            value={formData.manager.name}
-                                            onChange={(e) => setFormData({
-                                                ...formData,
-                                                manager: { ...formData.manager, name: e.target.value }
-                                            })}
-                                            className="col-span-3"
-                                            placeholder="Enter manager name"
-                                            required
-                                        />
-                                    </div>
-                                    <div className="grid grid-cols-4 items-center gap-4">
-                                        <Label htmlFor="managerEmail" className="text-left">Email</Label>
-                                        <Input
-                                            id="managerEmail"
-                                            type="email"
-                                            value={formData.manager.email}
-                                            onChange={(e) => setFormData({
-                                                ...formData,
-                                                manager: { ...formData.manager, email: e.target.value }
-                                            })}
-                                            className="col-span-3"
-                                            placeholder="Enter manager email"
-                                            required
-                                        />
-                                    </div>
-                                    <div className="grid grid-cols-4 items-center gap-4">
-                                        <Label htmlFor="managerPhone" className="text-left">Phone</Label>
-                                        <Input
-                                            id="managerPhone"
-                                            value={formData.manager.phone}
-                                            onChange={(e) => setFormData({
-                                                ...formData,
-                                                manager: { ...formData.manager, phone: e.target.value }
-                                            })}
-                                            className="col-span-3"
-                                            placeholder="Enter manager phone"
-                                            required
-                                        />
+                                        <Label htmlFor="managerId" className="text-left">Select Manager</Label>
+                                        <Select 
+                                            value={formData.manager}
+                                            onValueChange={(value) => {
+                                                setFormData({
+                                                    ...formData,
+                                                    manager: value
+                                                });
+                                            }}>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select a manager" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {employees?.map((employee) => (
+                                                    <SelectItem key={employee.id} value={employee.id.toString()}>
+                                                        {employee.name}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
                                     </div>
                                 </div>
                             </div>
@@ -328,8 +342,39 @@ export function AddSiteModal({ open, setOpen }: AddSiteModalProps) {
 
                             <Separator />
 
-                            {/* Equipment */}
+                            {/* Team Selection */}
                             <div className="space-y-4">
+                                <div className="flex items-center space-x-2">
+                                    <Users className="h-5 w-5" />
+                                    <h3 className="text-lg font-medium">Team Assignment</h3>
+                                </div>
+                                <div className="grid grid-cols-4 items-center gap-4">
+                                    <Label htmlFor="team" className="text-left">Assigned Teams</Label>
+                                    <div className="col-span-3">
+                                        <MultiselectDropdown
+                                            itemValue={teams?.data.map((team) => ({
+                                                value: {
+                                                    value: team.id.toString(),
+                                                    label: team.name
+                                                }
+                                            })) || []}
+                                            value={formData.teamId}
+                                            setValue={(values) => {
+                                                setFormData({
+                                                    ...formData,
+                                                    teamId: values
+                                                })
+                                            }}
+                                            multiSelectorPlaceholder="Select teams"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <Separator />
+
+                            {/* Equipment */}
+                            {/* <div className="space-y-4">
                                 <div className="flex items-center space-x-2">
                                     <HardDrive className="h-5 w-5" />
                                     <h3 className="text-lg font-medium">Equipment</h3>
@@ -377,7 +422,7 @@ export function AddSiteModal({ open, setOpen }: AddSiteModalProps) {
                                         </Button>
                                     </div>
                                 </div>
-                            </div>
+                            </div> */}
                         </div>
                     </form>
                 </div>

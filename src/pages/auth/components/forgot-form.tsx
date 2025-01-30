@@ -1,7 +1,6 @@
 import { HTMLAttributes, useState } from 'react'
-import { cn } from '@/lib/utils'
-import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Button } from '@/components/custom/button'
 import {
@@ -13,57 +12,98 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
+import { cn } from '@/lib/utils'
 
-interface ForgotFormProps extends HTMLAttributes<HTMLDivElement> {}
-
+// Form Schema
 const formSchema = z.object({
   email: z
-    .string()
-    .min(1, { message: 'Please enter your email' })
-    .email({ message: 'Invalid email address' }),
+      .string()
+      .min(1, { message: 'Please enter your email' })
+      .email({ message: 'Invalid email address' }),
 })
 
-export function ForgotForm({ className, ...props }: ForgotFormProps) {
+// ForgotForm Component
+export function ForgotForm({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: { email: '' },
+    defaultValues: {
+      email: '',
+    },
   })
 
-  function onSubmit(data: z.infer<typeof formSchema>) {
+  async function onSubmit(data: z.infer<typeof formSchema>) {
     setIsLoading(true)
-    console.log(data)
+    setError(null)
 
-    setTimeout(() => {
-      setIsLoading(false)
-    }, 3000)
+    try {
+      // Add your password reset logic here
+      console.log('Reset password for:', data.email)
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 2000))
+    } catch (err) {
+      setError('An error occurred. Please try again.')
+    }
+
+    setIsLoading(false)
   }
 
   return (
-    <div className={cn('grid gap-6', className)} {...props}>
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
-          <div className='grid gap-2'>
-            <FormField
-              control={form.control}
-              name='email'
-              render={({ field }) => (
-                <FormItem className='space-y-1'>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input placeholder='name@example.com' {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <Button className='mt-2' loading={isLoading}>
-              Continue
+      // @ts-ignore
+      <div className={cn('grid gap-6', className)} {...props}>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <div className='grid gap-3'>
+              {error && <p className='text-red-500 text-sm'>{error}</p>}
+
+              <FormField
+                  // @ts-ignore
+                  control={form.control}
+                  name='email'
+                  render={({ field }) => (
+                      <FormItem className='space-y-1.5'>
+                        <FormLabel className="text-gray-700">Email</FormLabel>
+                        <FormControl>
+                          <Input
+                              placeholder='Enter your email'
+                              className="bg-white border-gray-300 focus:border-[#121212] focus:ring-[#121212] text-gray-900"
+                              {...field}
+                          />
+                        </FormControl>
+                        <FormMessage className="text-sm" />
+                      </FormItem>
+                  )}
+              />
+            </div>
+
+            <Button
+                type="submit"
+                className="w-full bg-[#121212] hover:bg-[#171717] text-white"
+                loading={isLoading}
+            >
+              Send Reset Link
             </Button>
+          </form>
+        </Form>
+
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-gray-300" />
           </div>
-        </form>
-      </Form>
-    </div>
+          <div className="relative flex justify-center text-sm">
+          <span className="px-2 bg-white text-gray-500">
+            Remember your password?
+          </span>
+          </div>
+        </div>
+
+        <div className="text-center text-sm">
+          <a href="/login" className="font-bold text-[#121212] hover:text-[#171717]">
+            Back to login
+          </a>
+        </div>
+      </div>
   )
 }

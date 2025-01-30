@@ -26,7 +26,8 @@ import { adminTicketApi } from './adminTicketApi'
 import { complianceApi } from './complianceApi'
 import { operationManagerApi } from './operationMangerApi'
 import { teamLeaderApi } from './teamLeaderApi'
-
+import { siteManagementApi } from './siteManagmentApi'
+import { safetyApi } from './safetyApi'
 const store = configureStore({
   reducer: rootReducer,
   middleware: (getDefaultMiddleware) =>
@@ -57,6 +58,8 @@ const store = configureStore({
       complianceApi.middleware,
       operationManagerApi.middleware,
       teamLeaderApi.middleware,
+      siteManagementApi.middleware,
+      safetyApi.middleware
     ),
 })
 

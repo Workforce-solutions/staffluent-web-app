@@ -13,148 +13,107 @@ import {
   Timer,
   Settings,
   QrCode,
-  BarChart
+  BarChart,
+  Loader2
 } from 'lucide-react'
 import { Progress } from '@/components/ui/progress'
+import { useShortCode } from '@/hooks/use-local-storage'
+import { useGetEquipmentQuery } from '@/services/siteManagmentApi'
+import { Equipment } from '@/@types/site-management'
+import { useState } from 'react'
+import { AddEquipmentModal } from './addEditEquipment'
+import { useDebounce } from '@/pages/clients/client-projects'
+import { format } from 'date-fns'
 
-// Types
-interface Asset {
-  id: number
-  name: string
-  type: string
-  serialNumber: string
-  status: 'active' | 'maintenance' | 'offline'
-  location: string
-  assignedTo: string | null
-  lastMaintenance: string
-  nextMaintenance: string
-  utilization: number
-  healthScore: number
-  purchaseDate: string
-  value: number
-}
 
-// Demo data
-const assetsData: Asset[] = [
-  {
-    id: 1,
-    name: "Excavator XC-200",
-    type: "Heavy Equipment",
-    serialNumber: "EX-2024-001",
-    status: "active",
-    location: "Downtown Plaza Site",
-    assignedTo: "John Operator",
-    lastMaintenance: "2024-02-01",
-    nextMaintenance: "2024-03-15",
-    utilization: 85,
-    healthScore: 92,
-    purchaseDate: "2023-06-15",
-    value: 150000
-  },
-  {
-    id: 2,
-    name: "Concrete Mixer CM-100",
-    type: "Construction Equipment",
-    serialNumber: "CM-2023-045",
-    status: "maintenance",
-    location: "Maintenance Bay",
-    assignedTo: null,
-    lastMaintenance: "2024-01-15",
-    nextMaintenance: "2024-02-15",
-    utilization: 0,
-    healthScore: 75,
-    purchaseDate: "2023-03-10",
-    value: 75000
-  },
-  {
-    id: 3,
-    name: "Crane RT-300",
-    type: "Heavy Equipment",
-    serialNumber: "CR-2024-007",
-    status: "active",
-    location: "Tech Park Site",
-    assignedTo: "Sarah Crane",
-    lastMaintenance: "2024-02-10",
-    nextMaintenance: "2024-03-25",
-    utilization: 92,
-    healthScore: 88,
-    purchaseDate: "2023-09-20",
-    value: 250000
-  }
-]
 
 const AssetTracking = () => {
-  const AssetCard = ({ asset }: { asset: Asset }) => (
-    <Card>
-      <CardContent className="pt-6">
-        <div className="flex justify-between items-start mb-4">
-          <div>
-            <h3 className="font-medium">{asset.name}</h3>
-            <p className="text-sm text-muted-foreground">
-              {asset.type} • {asset.serialNumber}
-            </p>
-          </div>
-          <Badge variant={
-            asset.status === 'active' ? 'success' :
-            asset.status === 'maintenance' ? 'warning' :
-            'destructive'
-          }>
-            {asset.status}
-          </Badge>
-        </div>
+  const short_code = useShortCode()
+  const [page, setPage] = useState(1)
+  const [perPage, _] = useState(20)
+  const [open, setOpen] = useState(false)
+  const [searchTerm, setSearchTerm] = useState('')
+  const debouncedSearch = useDebounce(searchTerm, 500)
+  const [equipmentEdit, setEquipmentEdit] = useState<Equipment | undefined>(undefined)
+  const {data: equipment, refetch, isFetching} = useGetEquipmentQuery({shortCode: short_code, search: debouncedSearch, page: page, perPage: perPage});
 
-        <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+  const AssetCard = ({ asset }: { asset: Equipment }) => (
+      <Card>
+        <CardContent className="pt-6">
+          <div className="flex justify-between items-start mb-4">
             <div>
-              <div className="flex justify-between text-sm mb-2">
-                <span>Health Score</span>
-                <span>{asset.healthScore}%</span>
-              </div>
-              <Progress value={asset.healthScore} className="h-2" />
+              <h3 className="font-medium">{asset.name}</h3>
+              <p className="text-sm text-muted-foreground">
+                {asset.type} • {asset.serial_number}
+              </p>
             </div>
-            <div>
-              <div className="flex justify-between text-sm mb-2">
-                <span>Utilization</span>
-                <span>{asset.utilization}%</span>
+            <Badge variant={
+              asset.status === 'available' ? 'success' :
+              asset.status === 'maintenance' ? 'warning' :
+              'destructive'
+            }>
+              {asset.status.charAt(0).toUpperCase() + asset.status.slice(1)}
+            </Badge>
+          </div>
+
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <div className="flex justify-between text-sm mb-2">
+                  <span>Health Score</span>
+                  <span>{asset.healthScore}%</span>
+                </div>
+                <Progress value={asset.healthScore} className="h-2" />
               </div>
-              <Progress value={asset.utilization} className="h-2" />
+              <div>
+                <div className="flex justify-between text-sm mb-2">
+                  <span>Utilization</span>
+                  <span>{asset.utilization}%</span>
+                </div>
+                <Progress value={asset.utilization} className="h-2" />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div className="space-y-2">
+                <div className="flex items-center">
+                  <MapPin className="h-4 w-4 mr-2 text-muted-foreground" />
+                  <span>{asset.location || '-'}</span>
+                </div>
+                <div className="flex items-center">
+                  <Settings className="h-4 w-4 mr-2 text-muted-foreground" />
+                  <span>Next Service: {asset.next_maintenance_due? format(new Date(asset.next_maintenance_due), 'yyyy-MM-dd') : '-'}</span>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-center">
+                  <Timer className="h-4 w-4 mr-2 text-muted-foreground" />
+                  <span>Last Service: {asset.last_maintenance_date? format(new Date(asset.last_maintenance_date), 'yyyy-MM-dd') : '-'}</span>
+                </div>
+                <div className="flex items-center">
+                  <QrCode className="h-4 w-4 mr-2 text-muted-foreground" />
+                  <span>ID: {asset.serial_number}</span>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4 text-sm">
-            <div className="space-y-2">
-              <div className="flex items-center">
-                <MapPin className="h-4 w-4 mr-2 text-muted-foreground" />
-                <span>{asset.location}</span>
-              </div>
-              <div className="flex items-center">
-                <Settings className="h-4 w-4 mr-2 text-muted-foreground" />
-                <span>Next Service: {asset.nextMaintenance}</span>
-              </div>
+          <div className="flex justify-between items-center pt-4 mt-4 border-t">
+            <div className="text-sm">
+              <span className="text-muted-foreground">Assigned to: </span>
+              <span>{asset.assignedTo || 'Unassigned'}</span>
             </div>
-            <div className="space-y-2">
-              <div className="flex items-center">
-                <Timer className="h-4 w-4 mr-2 text-muted-foreground" />
-                <span>Last Service: {asset.lastMaintenance}</span>
-              </div>
-              <div className="flex items-center">
-                <QrCode className="h-4 w-4 mr-2 text-muted-foreground" />
-                <span>ID: {asset.serialNumber}</span>
-              </div>
+            <div className="flex space-x-2">
+              <Button variant="outline" size="sm" onClick={() => {
+                setOpen(true)
+                setEquipmentEdit(asset)
+              }}>Edit</Button>
+              <Button variant="outline" size="sm">View Details</Button>
             </div>
           </div>
-        </div>
-
-        <div className="flex justify-between items-center pt-4 mt-4 border-t">
-          <div className="text-sm">
-            <span className="text-muted-foreground">Assigned to: </span>
-            <span>{asset.assignedTo || 'Unassigned'}</span>
-          </div>
-          <Button variant="outline" size="sm">View Details</Button>
-        </div>
-      </CardContent>
-    </Card>
-  )
+        </CardContent>
+      </Card>
+    )
 
   return (
     <Layout>
@@ -174,7 +133,10 @@ const AssetTracking = () => {
             </p>
           </div>
           <div className="flex space-x-2">
-            <Button>
+              <Button onClick={() => {
+                setOpen(true)
+                setEquipmentEdit(undefined)
+              }}>
               <Plus className="h-4 w-4 mr-2" />
               Add Asset
             </Button>
@@ -192,9 +154,9 @@ const AssetTracking = () => {
               <Boxes className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{assetsData.length}</div>
+              <div className="text-2xl font-bold">{equipment?.pagination.total ?? 0}</div>
               <p className="text-xs text-muted-foreground">
-                {assetsData.filter(a => a.status === 'active').length} active
+                {equipment?.active_equipment ?? 0} active
               </p>
             </CardContent>
           </Card>
@@ -206,7 +168,7 @@ const AssetTracking = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                ${assetsData.reduce((sum, asset) => sum + asset.value, 0).toLocaleString()}
+                ${equipment?.total_purchase_cost ?? 0}
               </div>
               <p className="text-xs text-muted-foreground">
                 Total equipment value
@@ -245,17 +207,34 @@ const AssetTracking = () => {
           <Input
             placeholder="Search assets..."
             className="max-w-sm"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
           />
           <Button variant="outline">
             Filter
           </Button>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {assetsData.map(asset => (
+        {isFetching && <div className="flex justify-center items-center">
+          <Loader2 className="h-4 w-4 animate-spin" />
+        </div>}
+        <div 
+          className="grid gap-4 md:grid-cols-2 lg:grid-cols-3"
+          onScroll={(e) => {
+            const element = e.target as HTMLDivElement;
+            if (equipment && element.scrollHeight - element.scrollTop === element.clientHeight && equipment?.data.length < equipment?.pagination.total
+            ) {
+              setPage((prev) => prev + 1);
+            }
+          }}
+          style={{ maxHeight: "calc(100vh - 400px)", overflowY: "auto" }}
+        >
+          {equipment?.data.map((asset: Equipment) => (
             <AssetCard key={asset.id} asset={asset} />
           ))}
         </div>
+
+        <AddEquipmentModal open={open} setOpen={setOpen} equipment={equipmentEdit} refetch={refetch} />
       </Layout.Body>
     </Layout>
   )
