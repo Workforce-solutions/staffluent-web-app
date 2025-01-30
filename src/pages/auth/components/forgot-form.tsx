@@ -68,7 +68,7 @@ export function ForgotForm({ className, ...props }: HTMLAttributes<HTMLDivElemen
                         <FormControl>
                           <Input
                               placeholder='Enter your email'
-                              className="bg-white border-gray-300 focus:border-[#121212] focus:ring-[#121212]"
+                              className="bg-white border-gray-300 focus:border-[#121212] focus:ring-[#121212] text-gray-900"
                               {...field}
                           />
                         </FormControl>

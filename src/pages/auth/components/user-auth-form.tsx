@@ -155,7 +155,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
                         <FormControl>
                           <Input
                               placeholder='Enter your email'
-                              className="bg-white border-gray-300 focus:border-[#121212] focus:ring-[#121212]"
+                              className="bg-white border-gray-300 focus:border-[#121212] focus:ring-[#121212] text-gray-900"
                               {...field}
                           />
                         </FormControl>
@@ -173,7 +173,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
                         <FormControl>
                           <PasswordInput
                               placeholder='Enter your password'
-                              className="bg-white border-gray-300 focus:border-[#121212] focus:ring-[#121212]"
+                              className="bg-white border-gray-300 focus:border-[#121212] focus:ring-[#121212] text-gray-900"
                               {...field}
                           />
                         </FormControl>
@@ -188,7 +188,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
                       id="remember-me"
                       name="remember-me"
                       type="checkbox"
-                      className="h-4 w-4 rounded border-gray-300 text-[#121212] focus:ring-[#121212]"
+                      className="h-4 w-4 rounded border-gray-300 text-[#121212] focus:ring-[#121212] text-gray-900"
                   />
                   <label htmlFor="remember-me" className="ml-2 text-sm text-gray-700">
                     Remember me
