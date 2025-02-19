@@ -144,7 +144,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <div className='grid gap-3'>
-              {error && <p className='text-red-500 text-sm'>{error}</p>}
+              {error && <p className='text-sm text-red-500'>{error}</p>}
 
               <FormField
                   control={form.control}
@@ -155,7 +155,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
                         <FormControl>
                           <Input
                               placeholder='Enter your email'
-                              className="bg-white border-gray-300 focus:border-[#121212] focus:ring-[#121212] text-gray-900"
+                              className="bg-white border-gray-300 focus:border-[#0A0A0A] focus:ring-[#0A0A0A] text-gray-900"
                               {...field}
                           />
                         </FormControl>
@@ -173,7 +173,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
                         <FormControl>
                           <PasswordInput
                               placeholder='Enter your password'
-                              className="bg-white border-gray-300 focus:border-[#121212] focus:ring-[#121212] text-gray-900"
+                              className="bg-white border-gray-300 focus:border-[#0A0A0A] focus:ring-[#0A0A0A] text-gray-900"
                               {...field}
                           />
                         </FormControl>
@@ -182,13 +182,13 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
                   )}
               />
 
-              <div className="flex items-center justify-between">
+              <div className="flex justify-between items-center">
                 <div className="flex items-center">
                   <input
                       id="remember-me"
                       name="remember-me"
                       type="checkbox"
-                      className="h-4 w-4 rounded border-gray-300 text-[#121212] focus:ring-[#121212] text-gray-900"
+                      className="h-4 w-4 rounded border-gray-300 text-[#0A0A0A] focus:ring-[#0A0A0A] text-gray-900"
                   />
                   <label htmlFor="remember-me" className="ml-2 text-sm text-gray-700">
                     Remember me
@@ -196,7 +196,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
                 </div>
 
                 <div className="text-sm">
-                  <a href="/forgot-password" className="font-medium text-[#121212] hover:text-[#171717]">
+                  <a href="/forgot-password" className="font-medium text-[#0A0A0A] hover:text-[#171717]">
                     Forgot password?
                   </a>
                 </div>
@@ -205,7 +205,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
 
             <Button
                 type="submit"
-                className="w-full bg-[#121212] hover:bg-[#171717] text-white"
+                className="w-full bg-[#0A0A0A] hover:bg-[#171717] text-white"
                 loading={isLoading}
             >
               Sign In
@@ -214,16 +214,16 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
         </Form>
 
         <div className="relative">
-          <div className="absolute inset-0 flex items-center">
+          <div className="flex absolute inset-0 items-center">
             <div className="w-full border-t border-gray-300" />
           </div>
-          <div className="relative flex justify-center text-sm">
-            <span className="px-2 bg-white text-gray-500 text-center">Not part of Staffluent yet? Contact us to streamline your workforce management</span>
+          <div className="flex relative justify-center text-sm">
+            <span className="px-2 text-center text-gray-500 bg-white">Not part of Staffluent yet? Contact us to streamline your workforce management</span>
           </div>
         </div>
 
-        <div className="text-center text-sm">
-          <a href="https://staffluent.co/contact" className="font-bold text-[#121212] hover:text-[#171717]">
+        <div className="text-sm text-center">
+          <a href="https://staffluent.co/contact" className="font-bold text-[#0A0A0A] hover:text-[#171717]">
             Join now
           </a>
         </div>
