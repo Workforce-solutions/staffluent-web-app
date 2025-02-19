@@ -1,7 +1,8 @@
 {
-  "name": "staff-app-admin",
+  "name": "staffluent-web-app",
   "private": true,
   "version": "1.0.0",
+  "license": "MIT", 
   "type": "module",
   "scripts": {
     "dev": "vite",

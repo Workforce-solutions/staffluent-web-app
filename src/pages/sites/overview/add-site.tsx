@@ -62,10 +62,10 @@ export function AddSiteModal({ open, setOpen }: AddSiteModalProps) {
     })
 
     
-    const [newEquipment, setNewEquipment] = useState({
-        name: '',
-        status: 'operational' as const
-    })
+    // const [newEquipment, setNewEquipment] = useState({
+    //     name: '',
+    //     status: 'operational' as const
+    // })
 
     const { data } = useGetProjectsListQuery({ venue_short_code: short_code });
     
@@ -125,7 +125,7 @@ export function AddSiteModal({ open, setOpen }: AddSiteModalProps) {
                 <DialogHeader>
                     <DialogTitle>
                         <div className="flex items-center space-x-2">
-                            <Building2 className="h-6 w-6" />
+                            <Building2 className="w-6 h-6" />
                             <span>Add New Site</span>
                         </div>
                     </DialogTitle>
@@ -134,14 +134,14 @@ export function AddSiteModal({ open, setOpen }: AddSiteModalProps) {
                     </DialogDescription>
                 </DialogHeader>
 
-                <div className="flex-1 overflow-y-auto pr-2">
+                <div className="overflow-y-auto flex-1 pr-2">
                     <form id="create-site-form" onSubmit={handleSubmit}>
                         <div className="grid gap-6 py-4">
                             {/* Basic Information */}
                             <div className="space-y-4">
                                 <h3 className="text-lg font-medium">Basic Information</h3>
                                 <div className="grid gap-4">
-                                    <div className="grid grid-cols-4 items-center gap-4">
+                                    <div className="grid grid-cols-4 gap-4 items-center">
                                         <Label htmlFor="project" className="text-left">Project</Label>
                                         <Select
                                             value={formData.app_project_id}
@@ -157,7 +157,7 @@ export function AddSiteModal({ open, setOpen }: AddSiteModalProps) {
                                             </SelectContent>
                                         </Select>
                                     </div>
-                                    <div className="grid grid-cols-4 items-center gap-4">
+                                    <div className="grid grid-cols-4 gap-4 items-center">
                                         <Label htmlFor="name" className="text-left">Name</Label>
                                         <Input
                                             id="name"
@@ -169,7 +169,7 @@ export function AddSiteModal({ open, setOpen }: AddSiteModalProps) {
                                         />
                                     </div>
 
-                                    <div className="grid grid-cols-4 items-center gap-4">
+                                    <div className="grid grid-cols-4 gap-4 items-center">
                                         <Label htmlFor="type" className="text-left">Type</Label>
                                         <Select
                                             value={formData.type}
@@ -186,7 +186,7 @@ export function AddSiteModal({ open, setOpen }: AddSiteModalProps) {
                                         </Select>
                                     </div>
 
-                                    <div className="grid grid-cols-4 items-center gap-4">
+                                    <div className="grid grid-cols-4 gap-4 items-center">
                                         <Label htmlFor="status" className="text-left">Status</Label>
                                         <Select
                                             value={formData.status}
@@ -210,11 +210,11 @@ export function AddSiteModal({ open, setOpen }: AddSiteModalProps) {
                             {/* Location Details */}
                             <div className="space-y-4">
                                 <div className="flex items-center space-x-2">
-                                    <MapPin className="h-5 w-5" />
+                                    <MapPin className="w-5 h-5" />
                                     <h3 className="text-lg font-medium">Location Details</h3>
                                 </div>
                                 <div className="grid gap-4">
-                                    <div className="grid grid-cols-4 items-center gap-4">
+                                    <div className="grid grid-cols-4 gap-4 items-center">
                                         <Label htmlFor="address" className="text-left">Address</Label>
                                         <Input
                                             id="address"
@@ -225,7 +225,7 @@ export function AddSiteModal({ open, setOpen }: AddSiteModalProps) {
                                             required
                                         />
                                     </div>
-                                    <div className="grid grid-cols-4 items-center gap-4">
+                                    <div className="grid grid-cols-4 gap-4 items-center">
                                         <Label htmlFor="latitude" className="text-left">Latitude</Label>
                                         <Input
                                             id="latitude"
@@ -241,7 +241,7 @@ export function AddSiteModal({ open, setOpen }: AddSiteModalProps) {
                                             required
                                         />
                                     </div>
-                                    <div className="grid grid-cols-4 items-center gap-4">
+                                    <div className="grid grid-cols-4 gap-4 items-center">
                                         <Label htmlFor="longitude" className="text-left">Longitude</Label>
                                         <Input
                                             id="longitude"
@@ -265,11 +265,11 @@ export function AddSiteModal({ open, setOpen }: AddSiteModalProps) {
                             {/* Manager Details */}
                             <div className="space-y-4">
                                 <div className="flex items-center space-x-2">
-                                    <Users className="h-5 w-5" />
+                                    <Users className="w-5 h-5" />
                                     <h3 className="text-lg font-medium">Site Manager</h3>
                                 </div>
                                 <div className="grid gap-4">
-                                    <div className="grid grid-cols-4 items-center gap-4">
+                                    <div className="grid grid-cols-4 gap-4 items-center">
                                         <Label htmlFor="managerId" className="text-left">Select Manager</Label>
                                         <Select 
                                             value={formData.manager}
@@ -299,11 +299,11 @@ export function AddSiteModal({ open, setOpen }: AddSiteModalProps) {
                             {/* Timeline */}
                             <div className="space-y-4">
                                 <div className="flex items-center space-x-2">
-                                    <Calendar className="h-5 w-5" />
+                                    <Calendar className="w-5 h-5" />
                                     <h3 className="text-lg font-medium">Project Timeline</h3>
                                 </div>
                                 <div className="grid gap-4">
-                                    <div className="grid grid-cols-4 items-center gap-4">
+                                    <div className="grid grid-cols-4 gap-4 items-center">
                                         <Label htmlFor="startDate" className="text-left">Start Date</Label>
                                         <Input
                                             id="startDate"
@@ -314,7 +314,7 @@ export function AddSiteModal({ open, setOpen }: AddSiteModalProps) {
                                             required
                                         />
                                     </div>
-                                    <div className="grid grid-cols-4 items-center gap-4">
+                                    <div className="grid grid-cols-4 gap-4 items-center">
                                         <Label htmlFor="endDate" className="text-left">End Date</Label>
                                         <Input
                                             id="endDate"
@@ -325,7 +325,7 @@ export function AddSiteModal({ open, setOpen }: AddSiteModalProps) {
                                             required
                                         />
                                     </div>
-                                    <div className="grid grid-cols-4 items-center gap-4">
+                                    <div className="grid grid-cols-4 gap-4 items-center">
                                         <Label htmlFor="workers" className="text-left">Est. Workers</Label>
                                         <Input
                                             id="workers"
@@ -345,10 +345,10 @@ export function AddSiteModal({ open, setOpen }: AddSiteModalProps) {
                             {/* Team Selection */}
                             <div className="space-y-4">
                                 <div className="flex items-center space-x-2">
-                                    <Users className="h-5 w-5" />
+                                    <Users className="w-5 h-5" />
                                     <h3 className="text-lg font-medium">Team Assignment</h3>
                                 </div>
-                                <div className="grid grid-cols-4 items-center gap-4">
+                                <div className="grid grid-cols-4 gap-4 items-center">
                                     <Label htmlFor="team" className="text-left">Assigned Teams</Label>
                                     <div className="col-span-3">
                                         <MultiselectDropdown
@@ -376,7 +376,7 @@ export function AddSiteModal({ open, setOpen }: AddSiteModalProps) {
                             {/* Equipment */}
                             {/* <div className="space-y-4">
                                 <div className="flex items-center space-x-2">
-                                    <HardDrive className="h-5 w-5" />
+                                    <HardDrive className="w-5 h-5" />
                                     <h3 className="text-lg font-medium">Equipment</h3>
                                 </div>
                                 <div className="space-y-4">
@@ -427,7 +427,7 @@ export function AddSiteModal({ open, setOpen }: AddSiteModalProps) {
                     </form>
                 </div>
 
-                <DialogFooter className="mt-6 flex flex-none justify-between sm:justify-end sm:space-x-2">
+                <DialogFooter className="flex flex-none justify-between mt-6 sm:justify-end sm:space-x-2">
                     <Button
                         type="button"
                         variant="outline"
