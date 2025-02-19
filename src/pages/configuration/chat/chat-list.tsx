@@ -26,11 +26,11 @@ export function ChatList({
                 .join('')}
             </AvatarFallback>
           </Avatar>
-          <div className='min-w-0 flex-1'>
-            <p className='truncate text-sm font-medium text-gray-900 dark:text-gray-100'>
+          <div className='flex-1 min-w-0'>
+            <p className='truncate text-sm font-medium text-[#0A0A0A] dark:text-gray-100'>
               {chat.name}
             </p>
-            <p className='truncate text-sm text-gray-500 dark:text-gray-400'>
+            <p className='text-sm text-gray-500 truncate dark:text-gray-400'>
               {chat.lastMessage}
             </p>
           </div>

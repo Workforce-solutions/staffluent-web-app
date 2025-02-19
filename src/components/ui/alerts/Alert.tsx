@@ -8,7 +8,7 @@ interface AlertProps {
 }
 
 const alertVariants = {
-    default: 'bg-gray-50 border-gray-300 text-gray-900',
+    default: 'bg-gray-50 border-gray-300 text-[#0A0A0A]',
     success: 'bg-green-50 border-green-500 text-green-800',
     error: 'bg-red-50 border-red-500 text-red-800',
     warning: 'bg-yellow-50 border-yellow-500 text-yellow-800',
@@ -19,7 +19,7 @@ export function Alert({ children, variant = 'default', className }: AlertProps) 
     return (
         <div
             className={cn(
-                'border-l-4 p-4 rounded-md shadow-sm',
+                'p-4 rounded-md border-l-4 shadow-sm',
                 alertVariants[variant],
                 className
             )}
