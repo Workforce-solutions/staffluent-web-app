@@ -56,7 +56,7 @@ export function ForgotForm({ className, ...props }: HTMLAttributes<HTMLDivElemen
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <div className='grid gap-3'>
-              {error && <p className='text-red-500 text-sm'>{error}</p>}
+              {error && <p className='text-sm text-red-500'>{error}</p>}
 
               <FormField
                   // @ts-ignore
@@ -68,7 +68,7 @@ export function ForgotForm({ className, ...props }: HTMLAttributes<HTMLDivElemen
                         <FormControl>
                           <Input
                               placeholder='Enter your email'
-                              className="bg-white border-gray-300 focus:border-[#121212] focus:ring-[#121212] text-gray-900"
+                              className="bg-white border-gray-300 focus:border-[#0A0A0A] focus:ring-[#0A0A0A] text-gray-900"
                               {...field}
                           />
                         </FormControl>
@@ -80,7 +80,7 @@ export function ForgotForm({ className, ...props }: HTMLAttributes<HTMLDivElemen
 
             <Button
                 type="submit"
-                className="w-full bg-[#121212] hover:bg-[#171717] text-white"
+                className="w-full bg-[#0A0A0A] hover:bg-[#171717] text-white"
                 loading={isLoading}
             >
               Send Reset Link
@@ -89,18 +89,18 @@ export function ForgotForm({ className, ...props }: HTMLAttributes<HTMLDivElemen
         </Form>
 
         <div className="relative">
-          <div className="absolute inset-0 flex items-center">
+          <div className="flex absolute inset-0 items-center">
             <div className="w-full border-t border-gray-300" />
           </div>
-          <div className="relative flex justify-center text-sm">
-          <span className="px-2 bg-white text-gray-500">
+          <div className="flex relative justify-center text-sm">
+          <span className="px-2 text-gray-500 bg-white">
             Remember your password?
           </span>
           </div>
         </div>
 
-        <div className="text-center text-sm">
-          <a href="/login" className="font-bold text-[#121212] hover:text-[#171717]">
+        <div className="text-sm text-center">
+          <a href="/login" className="font-bold text-[#0A0A0A] hover:text-[#171717]">
             Back to login
           </a>
         </div>
