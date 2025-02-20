@@ -11,6 +11,7 @@ import {
   getSidebarLinks,
   getSidebarText,
 } from '@/hooks/common/common-functions'
+import './index.css'
 
 interface SidebarProps extends HTMLAttributes<HTMLElement> {
   isCollapsed: boolean
@@ -82,7 +83,7 @@ export default function Sidebar({
 
         <Nav
           id='sidebar-menu'
-          className={`z-40 h-full flex-1 overflow-auto ${navOpened ? 'max-h-screen' : 'max-h-0 py-0 md:max-h-screen md:py-2'}`}
+          className={`scrollbar-hide z-40 h-full flex-1 ${navOpened ? 'max-h-screen' : 'max-h-0 py-0 md:max-h-screen md:py-2'}`}
           closeNav={() => setNavOpened(false)}
           isCollapsed={isCollapsed}
           links={sidebarLinks}
