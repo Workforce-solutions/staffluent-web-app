@@ -1,3 +1,5 @@
+import { OpenModalProps } from './common'
+
 // Types
 export interface AddressPayload {
   address_line1: string
@@ -107,19 +109,19 @@ export type ClientType = 'homeowner' | 'company'
 
 // Project related types
 interface ClientProject {
-  id: number;
-  project_name: string;
-  client: string;
-  client_id?: number; // Add this field
-  start_date: string;
-  due_date: string;
-  progress: number;
-  status: 'Active' | 'Completed' | 'Pending' | 'On Hold';
-  contact_person: string;
-  type: 'company' | 'individual';
-  email?: string;
-  phone?: string;
-  full_address?: string;
+  id: number
+  project_name: string
+  client: string
+  client_id?: number // Add this field
+  start_date: string
+  due_date: string
+  progress: number
+  status: 'Active' | 'Completed' | 'Pending' | 'On Hold'
+  contact_person: string
+  type: 'company' | 'individual'
+  email?: string
+  phone?: string
+  full_address?: string
 }
 
 export interface ProjectStats {
@@ -131,17 +133,17 @@ export interface ProjectStats {
 
 // In your types file
 export interface ClientProjectsResponse {
-  projects: Array<ClientProject & { client_id?: number }>;
+  projects: Array<ClientProject & { client_id?: number }>
   stats: {
-    active_projects: number;
-    total_clients: number;
-    due_this_month: number;
-    previous_month_active: number;
-  };
+    active_projects: number
+    total_clients: number
+    due_this_month: number
+    previous_month_active: number
+  }
   pagination: {
-    current_page: number;
-    per_page: number;
-    total: number;
-    total_pages: number;
-  };
+    current_page: number
+    per_page: number
+    total: number
+    total_pages: number
+  }
 }

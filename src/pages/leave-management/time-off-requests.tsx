@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from 'react'
 import { Layout } from '@/components/custom/layout'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -79,7 +80,7 @@ const TimeOffRequest = () => {
   ]
 
   const RequestForm = () => (
-    <div className='grid gap-4 py-4'>
+    <div className='grid max-h-[80vh] gap-4 overflow-y-auto py-4 '>
       <div className='grid gap-2'>
         <label>Leave Type</label>
         <Select>
@@ -118,7 +119,7 @@ const TimeOffRequest = () => {
     </div>
   )
 
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (status = '') => {
     const variants: any = {
       pending: 'warning',
       approved: 'success',
