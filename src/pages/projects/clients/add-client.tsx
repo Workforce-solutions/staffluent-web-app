@@ -136,7 +136,7 @@ export function AddClientModal({ open, setOpen }: AddClientModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className='flex max-h-[95vh] flex-col sm:max-w-[425px] md:min-w-[600px]'>
+      <DialogContent className='flex flex-col sm:max-w-[425px] md:min-w-[600px]'>
         <DialogHeader>
           <DialogTitle>
             <div className='flex items-center space-x-2'>
@@ -148,7 +148,7 @@ export function AddClientModal({ open, setOpen }: AddClientModalProps) {
             Add a new client to your organization. Fill in all required fields.
           </DialogDescription>
         </DialogHeader>
-        <div className='flex-1 overflow-y-auto pr-2'>
+        <div className='max-h-[75vh] flex-1 overflow-y-auto pr-2'>
           <form id='create-client-form' onSubmit={handleSubmit}>
             <div className='grid gap-6 py-4'>
               {/* General Information Section */}

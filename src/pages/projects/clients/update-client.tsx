@@ -30,9 +30,7 @@ import { IconMapPin, IconUsers } from '@tabler/icons-react'
 import { FormEvent, useEffect, useState } from 'react'
 
 export function UpdateClientModal({
-  // @ts-ignore
   open,
-  // @ts-ignore
   setOpen,
   client,
 }: UpdateClientModalProps) {
