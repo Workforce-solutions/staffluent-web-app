@@ -1,4 +1,8 @@
 /* eslint-disable react-refresh/only-export-components */
+import {
+  getSidebarLinks,
+  getSidebarText,
+} from '@/hooks/common/common-functions'
 import { useLocalStorageString } from '@/hooks/use-local-storage'
 import { cn } from '@/lib/utils'
 import { AccountType } from '@/pages/auth/components/user-auth-form'
@@ -6,12 +10,8 @@ import { IconChevronsLeft, IconMenu2, IconX } from '@tabler/icons-react'
 import { HTMLAttributes, useEffect, useState } from 'react'
 import { Button } from './custom/button'
 import { Layout } from './custom/layout'
-import Nav from './nav'
-import {
-  getSidebarLinks,
-  getSidebarText,
-} from '@/hooks/common/common-functions'
 import './index.css'
+import Nav from './nav'
 
 interface SidebarProps extends HTMLAttributes<HTMLElement> {
   isCollapsed: boolean
