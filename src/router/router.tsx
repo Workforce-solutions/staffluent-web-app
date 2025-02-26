@@ -19,16 +19,16 @@ import { shiftsRoute } from './shifts-routes.tsx'
 import { compliancesRoute } from './compliance-routes.tsx'
 import { leaveManagementRoutes } from './leave-managment-routes.tsx'
 import { overtimeRoutes } from './overtime-routes.tsx'
-import {qualityControlRoutes} from "./quality-control-routes";
-import {equipmentRoutes} from "./equipment-routes";
-import {fieldOpsRoutes} from "./field-ops-routes";
-import {safetyRoutes} from "./safetyRoutes";
-import {siteRoutes} from "./site-routes";
-import {analyticsReportsRoutes} from "./analyticsReportsRoutes";
-import {projectAdditionalRoutes} from "./projectAdditionalRoutes";
-import {serviceManagementRoutes} from "./serviceManagementRoutes";
-import {supplyRoutes} from "./supply-routes";
-import {workOrdersRoutes} from "./workorder-routes";
+import { qualityControlRoutes } from './quality-control-routes'
+import { equipmentRoutes } from './equipment-routes'
+import { fieldOpsRoutes } from './field-ops-routes'
+import { safetyRoutes } from './safetyRoutes'
+import { siteRoutes } from './site-routes'
+import { analyticsReportsRoutes } from './analyticsReportsRoutes'
+import { projectAdditionalRoutes } from './projectAdditionalRoutes'
+import { serviceManagementRoutes } from './serviceManagementRoutes'
+import { supplyRoutes } from './supply-routes'
+import { workOrdersRoutes } from './workorder-routes'
 // import Login from "./pages/auth/login";
 
 const router = createBrowserRouter([
@@ -109,6 +109,7 @@ const router = createBrowserRouter([
           Component: (await import('@/pages/tasks')).default,
         }),
       },
+
       {
         path: 'chats',
         lazy: async () => ({
