@@ -10,7 +10,7 @@ export default function useLocalStorage<T>({
 }: LocalStorageProps<T>) {
   const [value, setValue] = useState<T>(() => {
     const storedValue = localStorage.getItem(key)
-    return storedValue !== null ? (JSON.parse(storedValue) as T) : defaultValue
+    return storedValue !== null ? (JSON?.parse(storedValue) as T) : defaultValue
   })
 
   useEffect(() => {
@@ -23,8 +23,8 @@ export default function useLocalStorage<T>({
 export const useShortCode = () => {
   const [shortCode, setShortCode] = useState<string>(() => {
     const vbAuth = localStorage.getItem('vbAuth')
-    return vbAuth
-      ? ((JSON.parse(vbAuth) as DataAuthProps)?.data?.venue?.short_code ?? '')
+    return vbAuth && vbAuth !== 'undefined'
+      ? ((JSON?.parse(vbAuth) as DataAuthProps)?.data?.venue?.short_code ?? '')
       : ''
   })
 
@@ -32,7 +32,8 @@ export const useShortCode = () => {
     const handleStorageChange = () => {
       const vbAuth = localStorage.getItem('vbAuth')
       const newShortCode = vbAuth
-        ? ((JSON.parse(vbAuth) as DataAuthProps)?.data?.venue?.short_code ?? '')
+        ? ((JSON?.parse(vbAuth) as DataAuthProps)?.data?.venue?.short_code ??
+          '')
         : ''
       setShortCode(newShortCode)
     }

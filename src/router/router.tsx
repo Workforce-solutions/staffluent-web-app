@@ -109,12 +109,7 @@ const router = createBrowserRouter([
           Component: (await import('@/pages/tasks')).default,
         }),
       },
-      {
-        path: 'magic-link/:token',
-        lazy: async () => ({
-          Component: (await import('@/pages/magic-link')).default,
-        }),
-      },
+
       {
         path: 'chats',
         lazy: async () => ({
