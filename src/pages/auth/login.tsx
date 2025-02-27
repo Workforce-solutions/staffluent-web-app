@@ -13,12 +13,14 @@ export default function Login() {
     const refreshToken = searchParams.get('refreshToken')
     const accountType = searchParams.get('accountType')
     const expiresAt = searchParams.get('expires_at')
+    const vbAuth = searchParams.get('vbAuth')
 
-    if (token && refreshToken && accountType && expiresAt) {
+    if (token && refreshToken && accountType && expiresAt && vbAuth) {
       localStorage.setItem('adminToken', token)
       localStorage.setItem('refreshToken', refreshToken)
       localStorage.setItem('accountType', accountType)
       localStorage.setItem('expires_at', expiresAt)
+      localStorage.setItem('vbAuth', vbAuth)
 
       navigate('/')
     }

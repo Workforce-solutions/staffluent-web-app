@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { HTMLAttributes, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -69,10 +70,12 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
         const accountType = res.account_type
         const newExpiresAt = Math.floor(Date.now() / 1000) + 60 * 60
 
-        localStorage.setItem(
-          'vbAuth',
-          JSON.stringify({ ...res, expires_at: newExpiresAt })
-        )
+        if (newExpiresAt) {
+          localStorage.setItem(
+            'vbAuth',
+            JSON.stringify({ ...res, expires_at: newExpiresAt })
+          )
+        }
         localStorage.setItem('adminToken', res?.access_token ?? '')
         localStorage.setItem('refreshToken', res?.refresh_token ?? '')
         localStorage.setItem('accountType', accountType)
@@ -112,10 +115,12 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
             const accountType = res?.data?.account_type ?? AccountType.business
             const newExpiresAt = Math.floor(Date.now() / 1000) + 60 * 60
 
-            localStorage.setItem(
-              'vbAuth',
-              JSON.stringify({ ...res, expires_at: newExpiresAt })
-            )
+            if (newExpiresAt) {
+              localStorage.setItem(
+                'vbAuth',
+                JSON.stringify({ ...res, expires_at: newExpiresAt })
+              )
+            }
             localStorage.setItem('adminToken', res?.data?.token ?? '')
             localStorage.setItem('refreshToken', res?.data?.refresh_token ?? '')
             localStorage.setItem('accountType', accountType)

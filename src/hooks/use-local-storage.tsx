@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { DataAuthProps, LocalStorageProps } from '@/@types/auth'
+import { AuthProps, DataAuthProps, LocalStorageProps } from '@/@types/auth'
 import { AccountType } from '@/pages/auth/components/user-auth-form'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -24,7 +24,9 @@ export const useShortCode = () => {
   const [shortCode, setShortCode] = useState<string>(() => {
     const vbAuth = localStorage.getItem('vbAuth')
     return vbAuth && vbAuth !== 'undefined'
-      ? ((JSON?.parse(vbAuth) as DataAuthProps)?.data?.venue?.short_code ?? '')
+      ? ((JSON?.parse(vbAuth) as DataAuthProps)?.data?.venue?.short_code ??
+          (JSON?.parse(vbAuth)?.venue?.short_code as AuthProps) ??
+          '')
       : ''
   })
 
