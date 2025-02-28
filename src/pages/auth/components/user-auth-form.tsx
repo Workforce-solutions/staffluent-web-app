@@ -28,7 +28,10 @@ export enum AccountType {
   business_operations_managers = 'business_operations_managers',
 }
 
-interface UserAuthFormProps extends HTMLAttributes<HTMLDivElement> {}
+interface UserAuthFormProps extends HTMLAttributes<HTMLDivElement> {
+  authMethod: 'password' | 'magic-link'
+  buttonText: string
+}
 
 const formSchema = z.object({
   email: z
@@ -41,7 +44,12 @@ const formSchema = z.object({
     .min(5, { message: 'Password must be at least 7 characters long' }),
 })
 
-export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
+export function UserAuthForm({
+  className,
+  buttonText,
+  authMethod,
+  ...props
+}: UserAuthFormProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const navigate = useNavigate()
@@ -164,49 +172,53 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
               )}
             />
 
-            <FormField
-              control={form.control}
-              name='password'
-              render={({ field }) => (
-                <FormItem className='space-y-1.5'>
-                  <FormLabel className='text-gray-700'>Password</FormLabel>
-                  <FormControl>
-                    <PasswordInput
-                      placeholder='Enter your password'
-                      className='border-gray-300 bg-white text-[#0A0A0A] focus:border-[#0A0A0A] focus:ring-[#0A0A0A]'
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage className='text-sm' />
-                </FormItem>
-              )}
-            />
-
-            <div className='flex items-center justify-between'>
-              <div className='flex items-center'>
-                <input
-                  id='remember-me'
-                  name='remember-me'
-                  type='checkbox'
-                  className='h-4 w-4 rounded border-gray-300 text-[#0A0A0A] focus:ring-[#0A0A0A]'
+            {authMethod === 'password' && (
+              <>
+                <FormField
+                  control={form.control}
+                  name='password'
+                  render={({ field }) => (
+                    <FormItem className='space-y-1.5'>
+                      <FormLabel className='text-gray-700'>Password</FormLabel>
+                      <FormControl>
+                        <PasswordInput
+                          placeholder='Enter your password'
+                          className='border-gray-300 bg-white text-[#0A0A0A] focus:border-[#0A0A0A] focus:ring-[#0A0A0A]'
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage className='text-sm' />
+                    </FormItem>
+                  )}
                 />
-                <label
-                  htmlFor='remember-me'
-                  className='ml-2 text-sm text-gray-700'
-                >
-                  Remember me
-                </label>
-              </div>
 
-              <div className='text-sm'>
-                <a
-                  href='/forgot-password'
-                  className='font-medium text-[#0A0A0A] hover:text-[#171717]'
-                >
-                  Forgot password?
-                </a>
-              </div>
-            </div>
+                <div className='flex items-center justify-between'>
+                  <div className='flex items-center'>
+                    <input
+                      id='remember-me'
+                      name='remember-me'
+                      type='checkbox'
+                      className='h-4 w-4 rounded border-gray-300 text-[#0A0A0A] focus:ring-[#0A0A0A]'
+                    />
+                    <label
+                      htmlFor='remember-me'
+                      className='ml-2 text-sm text-gray-700'
+                    >
+                      Remember me
+                    </label>
+                  </div>
+
+                  <div className='text-sm'>
+                    <a
+                      href='/forgot-password'
+                      className='font-medium text-[#0A0A0A] hover:text-[#171717]'
+                    >
+                      Forgot password?
+                    </a>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
 
           <Button
@@ -214,7 +226,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
             className='w-full bg-[#0A0A0A] text-white hover:bg-[#171717]'
             loading={isLoading}
           >
-            Sign In
+            {buttonText}
           </Button>
         </form>
       </Form>

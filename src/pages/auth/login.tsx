@@ -1,12 +1,14 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { UserAuthForm } from './components/user-auth-form'
 import staffLogo from '/images/logo.png'
 import { useNavigate, useSearchParams } from 'react-router-dom'
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 
 export default function Login() {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
+  const [authMethod, setAuthMethod] = useState('password')
 
   useEffect(() => {
     const token = searchParams.get('token')
@@ -26,6 +28,9 @@ export default function Login() {
     }
   }, [searchParams])
 
+  const className =
+    'data-[state=active]:bg-[#5577FF] data-[state=active]:text-white data-[state=active]:shadow'
+
   return (
     <div className='flex min-h-screen flex-col justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-8'>
       <div className='sm:mx-auto sm:w-full sm:max-w-md'>
@@ -41,7 +46,33 @@ export default function Login() {
 
       <div className='mt-8 sm:mx-auto sm:w-full sm:max-w-md'>
         <div className='bg-white px-4 py-8 shadow sm:rounded-lg sm:px-10'>
-          <UserAuthForm />
+          <Tabs value={authMethod} onValueChange={setAuthMethod}>
+            <TabsList className='mb-4 grid w-full grid-cols-2 border border-gray-200 bg-transparent'>
+              <TabsTrigger
+                className={`${className} text-gray-600`}
+                value='password'
+              >
+                Password
+              </TabsTrigger>
+              <TabsTrigger
+                className={`${className} text-gray-600`}
+                value='magic-link'
+              >
+                Magic Link
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value='password'>
+              <UserAuthForm authMethod='password' buttonText='Login' />
+            </TabsContent>
+
+            <TabsContent value='magic-link'>
+              <UserAuthForm
+                authMethod='magic-link'
+                buttonText='Send Magic Link'
+              />
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
     </div>
