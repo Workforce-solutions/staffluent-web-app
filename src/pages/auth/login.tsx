@@ -29,7 +29,7 @@ export default function Login() {
   }, [searchParams])
 
   const className =
-    'data-[state=active]:bg-gray-100 data-[state=active]:text-[#5577FF] data-[state=active]:shadow'
+    'data-[state=active]:bg-gray-100 data-[state=active]:text-background data-[state=active]:shadow'
 
   return (
     <div className='flex min-h-screen flex-col justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-8'>
@@ -47,7 +47,7 @@ export default function Login() {
       <div className='mt-8 sm:mx-auto sm:w-full sm:max-w-md'>
         <div className='bg-white px-4 py-8 shadow sm:rounded-lg sm:px-10'>
           <Tabs value={authMethod} onValueChange={setAuthMethod}>
-            <TabsList className='mb-4 grid w-full grid-cols-2 border border-gray-200 bg-transparent'>
+            <TabsList className='mb-4 grid h-full w-full grid-cols-2 rounded-md border border-gray-200 bg-transparent pb-2'>
               <TabsTrigger
                 className={`${className} text-gray-600`}
                 value='password'
