@@ -29,7 +29,7 @@ export default function Login() {
   }, [searchParams])
 
   const className =
-    'data-[state=active]:bg-[#5577FF] data-[state=active]:text-white data-[state=active]:shadow'
+    'data-[state=active]:bg-gray-100 data-[state=active]:text-[#5577FF] data-[state=active]:shadow'
 
   return (
     <div className='flex min-h-screen flex-col justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-8'>
