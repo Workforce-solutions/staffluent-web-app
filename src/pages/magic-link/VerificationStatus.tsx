@@ -172,7 +172,7 @@ const VerificationStatus: React.FC<VerificationStatusProps> = ({
           {isLoading ? (
             <div className='flex flex-col items-center space-y-4'>
               <Loader className='h-12 w-12 animate-spin text-primary' />
-              <h1 className='text-2xl font-semibold text-gray-900'>
+              <h1 className='text-2xl font-semibold text-gray-900 dark:text-white'>
                 Redirecting...
               </h1>
               <p className='text-base text-gray-600'>Please wait a moment</p>

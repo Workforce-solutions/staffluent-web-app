@@ -39,6 +39,13 @@ const router = createBrowserRouter([
       Component: (await import('../pages/auth/login.tsx')).default,
     }),
   },
+
+  {
+    path: '/magic-link',
+    lazy: async () => ({
+      Component: (await import('../pages/magic-link/index.tsx')).default,
+    }),
+  },
   // {
   //   path: '/sign-in-2',
   //   lazy: async () => ({
