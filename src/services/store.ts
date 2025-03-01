@@ -28,6 +28,7 @@ import { operationManagerApi } from './operationMangerApi'
 import { teamLeaderApi } from './teamLeaderApi'
 import { siteManagementApi } from './siteManagmentApi'
 import { safetyApi } from './safetyApi'
+import { magicLinkApi } from './magic-linkApi'
 const store = configureStore({
   reducer: rootReducer,
   middleware: (getDefaultMiddleware) =>
@@ -59,7 +60,8 @@ const store = configureStore({
       operationManagerApi.middleware,
       teamLeaderApi.middleware,
       siteManagementApi.middleware,
-      safetyApi.middleware
+      safetyApi.middleware,
+      magicLinkApi.middleware
     ),
 })
 
