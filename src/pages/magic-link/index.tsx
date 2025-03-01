@@ -19,12 +19,10 @@ const MagicLink = () => {
       verifyMagicLink({ token })
         .unwrap()
         .then((res) => {
-          setData(res)
+          setData(res.auth_response)
         })
     }
   }, [token])
-
-  console.log(token, 'token')
 
   return (
     <VerificationStatus

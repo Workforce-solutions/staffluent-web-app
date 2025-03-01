@@ -12,10 +12,14 @@ export const magicLinkApi = createApi({
   }),
   tagTypes: ['MagicLink'],
   endpoints: (builder) => ({
-    verifyMagicLink: builder.query<AuthResponse, { token: string }>({
+    verifyMagicLink: builder.query<
+      { auth_response: AuthResponse },
+      { token: string }
+    >({
       query: ({ token }) => ({
         url: getCommonUrl({
           queryString: `/magic-link/verify?token=${token}`,
+          params: '',
         }),
       }),
       providesTags: ['MagicLink'],
@@ -24,6 +28,7 @@ export const magicLinkApi = createApi({
       query: (body) => ({
         url: getCommonUrl({
           queryString: '/magic-link/send',
+          params: '',
         }),
         method: 'POST',
         body,
