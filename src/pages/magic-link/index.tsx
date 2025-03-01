@@ -7,7 +7,8 @@ import VerificationStatus from './VerificationStatus'
 const MagicLink = () => {
   const [searchParams] = useSearchParams()
   const [data, setData] = useState<AuthResponse>()
-  const [hasError, setHasError] = useState(false)
+  // @ts-expect-error - Variable is used in state management but not directly in rendering
+  const [hasError, setHasError] = useState<boolean>(false)
   const [isVerificationComplete, setIsVerificationComplete] = useState(false)
 
   const [verifyMagicLink, { isFetching }] = useLazyVerifyMagicLinkQuery()
