@@ -10,11 +10,11 @@ export default function ForgotPassword() {
               src={staffLogo}
               alt='Staffluent'
           />
-          <h2 className='mt-6 text-center text-3xl font-semibold text-[#0A0A0A]'>
-            Reset your password
+           <h2 className='mt-6 text-center text-3xl font-semibold text-[#0A0A0A]'>
+            Login with magic link
           </h2>
           <p className='mx-auto mt-2 max-w-lg text-sm text-center text-gray-600'>
-            Enter your email address and we'll send you instructions to reset your password
+            Enter your email address and we'll send you a magic link to log in directly. You can change your password from the dashboard later.
           </p>
         </div>
 
