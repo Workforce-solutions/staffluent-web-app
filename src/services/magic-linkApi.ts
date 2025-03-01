@@ -1,3 +1,4 @@
+import { AuthResponse } from '@/@types/auth'
 import { getCommonUrl } from '@/hooks/common/common-api-url'
 import { BASE_URL, getPrepareHeaders } from '@/hooks/common/common-functions'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
@@ -11,6 +12,14 @@ export const magicLinkApi = createApi({
   }),
   tagTypes: ['MagicLink'],
   endpoints: (builder) => ({
+    verifyMagicLink: builder.query<AuthResponse, { token: string }>({
+      query: ({ token }) => ({
+        url: getCommonUrl({
+          queryString: `/magic-link/verify?token=${token}`,
+        }),
+      }),
+      providesTags: ['MagicLink'],
+    }),
     magicLink: builder.mutation<void, { email: string }>({
       query: (body) => ({
         url: getCommonUrl({
@@ -24,4 +33,5 @@ export const magicLinkApi = createApi({
   }),
 })
 
-export const { useMagicLinkMutation } = magicLinkApi
+export const { useLazyVerifyMagicLinkQuery, useMagicLinkMutation } =
+  magicLinkApi
