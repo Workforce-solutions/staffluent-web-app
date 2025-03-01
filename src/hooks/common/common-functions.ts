@@ -5,10 +5,15 @@ import { sidelinks } from '@/data/sidelinks'
 import { teamLeaderLinks } from '@/data/team-leader-links'
 import { AccountType } from '@/pages/auth/components/user-auth-form'
 
+const STAFFLUENT_API_KEY =
+  'sk_2462670fcf9d668a3ce8e98d5845b3154ee13aa100e4f00e3103b054e9a0bacf'
+const API_KEY = 'gwy_3kjg9KdJ37sdL4hF8Tk2sXnY5LzW8Rv'
+
 export const getPrepareHeaders = ({
   headers,
   apikey = false,
   isRefreshToken,
+  isClientApiKey,
 }: HeaderProps) => {
   const token = localStorage.getItem('adminToken')
   const refreshToken = localStorage.getItem('refreshToken')
@@ -21,8 +26,14 @@ export const getPrepareHeaders = ({
   if (apikey) {
     headers.set('apikey', supabaseKey)
   }
+  if (isClientApiKey) {
+    headers.set('client-x-api-key', STAFFLUENT_API_KEY)
+    headers.set('x-api-key', API_KEY)
+  }
   return headers
 }
+
+export const BASE_URL = 'https://apigtw.omnistackhub.xyz/'
 
 export const supabaseUrl = 'https://unzkbvyeaefcpooqeenz.supabase.co'
 export const vbUrl = 'https://core.venueboost.io/api/v1/'
