@@ -2,7 +2,7 @@
 import { AuthResponse } from '@/@types/auth'
 import { Card, CardContent } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
-import { CheckCircle, XCircle } from 'lucide-react'
+import { CheckCircle, Loader, XCircle } from 'lucide-react'
 import type React from 'react'
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -36,7 +36,7 @@ const VerificationStatus: React.FC<VerificationStatusProps> = ({
 
       const timeout = setTimeout(() => {
         navigate('/')
-      }, 3000)
+      }, 300000)
 
       return () => clearTimeout(timeout)
     }
@@ -46,7 +46,15 @@ const VerificationStatus: React.FC<VerificationStatusProps> = ({
     <div className='flex min-h-screen items-center justify-center border bg-background p-4'>
       <Card className='w-full max-w-md'>
         <CardContent className='flex flex-col items-center space-y-4 p-6 text-center'>
-          {redirected || isLoading ? (
+          {isLoading ? (
+            <div className='flex flex-col items-center space-y-4'>
+              <Loader className='h-12 w-12 animate-spin text-primary' />
+              <h1 className='text-2xl font-semibold text-gray-900 dark:text-white'>
+                Redirecting...
+              </h1>
+              <p className='text-base text-gray-600'>Please wait a moment</p>
+            </div>
+          ) : redirected || isLoading ? (
             <>
               <div className='rounded-full bg-green-50 p-3'>
                 <CheckCircle className='h-12 w-12 text-green-600' />

@@ -62,12 +62,12 @@ export function UserAuthForm({
       }
     )
 
-  const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const navigate = useNavigate()
-  const [checkConnection] = useCheckConnectionMutation()
-  const [vbLogin] = useVbLoginMutation()
-  const [magicLink] = useMagicLinkMutation()
+  const [checkConnection, { isLoading: isCheckLoading }] =
+    useCheckConnectionMutation()
+  const [vbLogin, { isLoading: isVbLoading }] = useVbLoginMutation()
+  const [magicLink, { isLoading: isMagicLoading }] = useMagicLinkMutation()
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -110,7 +110,6 @@ export function UserAuthForm({
   }
 
   async function onSubmit(data: z.infer<typeof formSchema>) {
-    setIsLoading(true)
     setError(null)
 
     try {
@@ -179,9 +178,9 @@ export function UserAuthForm({
     } catch (err) {
       setError('An error occurred during login. Please try again.')
     }
-
-    setIsLoading(false)
   }
+
+  const isLoading = isMagicLoading || isCheckLoading || isVbLoading
 
   return (
     <div className={cn('grid gap-6', className)} {...props}>
