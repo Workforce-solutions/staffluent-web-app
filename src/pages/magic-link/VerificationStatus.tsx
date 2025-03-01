@@ -36,7 +36,7 @@ const VerificationStatus: React.FC<VerificationStatusProps> = ({
 
       const timeout = setTimeout(() => {
         navigate('/')
-      }, 300000)
+      }, 3000)
 
       return () => clearTimeout(timeout)
     }
