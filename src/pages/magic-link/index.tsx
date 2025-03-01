@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import { AuthResponse } from '@/@types/auth'
 import { useLazyVerifyMagicLinkQuery } from '@/services/magic-linkApi'
 import { useEffect, useState } from 'react'
@@ -8,6 +7,7 @@ import VerificationStatus from './VerificationStatus'
 const MagicLink = () => {
   const [searchParams] = useSearchParams()
   const [data, setData] = useState<AuthResponse>()
+  const [hasError, setHasError] = useState(false)
 
   const [verifyMagicLink, { isFetching }] = useLazyVerifyMagicLinkQuery()
 
@@ -21,6 +21,12 @@ const MagicLink = () => {
         .then((res) => {
           setData(res.auth_response)
         })
+        .catch(() => {
+          setHasError(true)
+        })
+    } else {
+      // Handle case where no token is provided
+      setHasError(true)
     }
   }, [token])
 
@@ -28,7 +34,7 @@ const MagicLink = () => {
     <VerificationStatus
       data={data}
       redirected={data !== undefined && !isFetching}
-      isLoading={isFetching}
+      isLoading={isFetching && !hasError}
     />
   )
 }
