@@ -1,12 +1,12 @@
 import { Card } from '@/components/ui/card'
-import { UserAuthForm } from './components/user-auth-form'
+// import { UserAuthForm } from './components/user-auth-form'
 
 export default function SignIn2() {
   return (
     <>
-      <div className='container grid h-svh flex-col items-center justify-center bg-primary-foreground lg:max-w-none lg:px-0'>
+      <div className='container grid flex-col justify-center items-center h-svh bg-primary-foreground lg:max-w-none lg:px-0'>
         <div className='mx-auto flex w-full flex-col justify-center space-y-2 sm:w-[480px] lg:p-8'>
-          <div className='mb-4 flex items-center justify-center'>
+          <div className='flex justify-center items-center mb-4'>
             <svg
               xmlns='http://www.w3.org/2000/svg'
               viewBox='0 0 24 24'
@@ -15,7 +15,7 @@ export default function SignIn2() {
               strokeWidth='2'
               strokeLinecap='round'
               strokeLinejoin='round'
-              className='mr-2 h-6 w-6'
+              className='mr-2 w-6 h-6'
             >
               <path d='M15 6v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3V6a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3' />
             </svg>
@@ -29,8 +29,8 @@ export default function SignIn2() {
                 to log into your account
               </p>
             </div>
-            <UserAuthForm />
-            <p className='mt-4 px-8 text-center text-sm text-muted-foreground'>
+            {/* <UserAuthForm /> */}
+            <p className='px-8 mt-4 text-sm text-center text-muted-foreground'>
               By clicking login, you agree to our{' '}
               <a
                 href='/terms'
