@@ -20,6 +20,8 @@ import { useVbLoginMutation } from '@/services/authApi'
 import supabase from '@/supabaseClient'
 import { useNavigate } from 'react-router-dom'
 import { LoginProps } from '@/@types/auth'
+import { useMagicLinkMutation } from '@/services/magic-linkApi'
+import { toast } from '@/components/ui/use-toast'
 
 export enum AccountType {
   client = 'client',
@@ -33,28 +35,39 @@ interface UserAuthFormProps extends HTMLAttributes<HTMLDivElement> {
   buttonText: string
 }
 
-const formSchema = z.object({
-  email: z
-    .string()
-    .min(1, { message: 'Please enter your email' })
-    .email({ message: 'Invalid email address' }),
-  password: z
-    .string()
-    .min(1, { message: 'Please enter your password' })
-    .min(5, { message: 'Password must be at least 7 characters long' }),
-})
-
 export function UserAuthForm({
   className,
   buttonText,
   authMethod,
   ...props
 }: UserAuthFormProps) {
+  const formSchema = z
+    .object({
+      email: z
+        .string()
+        .min(1, { message: 'Please enter your email' })
+        .email({ message: 'Invalid email address' }),
+      password: z.string().optional(),
+    })
+    .refine(
+      (data) => {
+        if (authMethod !== 'magic-link' && !data.password) {
+          return false
+        }
+        return true
+      },
+      {
+        message: 'Password must be at least 7 characters long',
+        path: ['password'],
+      }
+    )
+
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const navigate = useNavigate()
   const [checkConnection] = useCheckConnectionMutation()
   const [vbLogin] = useVbLoginMutation()
+  const [magicLink] = useMagicLinkMutation()
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -101,43 +114,66 @@ export function UserAuthForm({
     setError(null)
 
     try {
-      const { email, password } = data
+      const { email, password = '' } = data
 
-      const loginData = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      })
-
-      const loginError = loginData?.error
-
-      if (loginError) {
-        await handleVbLogin({ email, password })
-      } else {
-        try {
-          const res = await checkConnection({
-            email: loginData?.data?.user?.email ?? '',
-            supabase_id: loginData?.data?.user?.id ?? '',
+      if (authMethod === 'magic-link') {
+        magicLink({ email })
+          .unwrap()
+          .then(() => {
+            toast({
+              title: 'Magic Link Sent',
+              description:
+                'Check your email sent with the magic link so you can access directly your web app',
+              variant: 'default',
+            })
           })
+          .catch(() => {
+            toast({
+              title: 'Error',
+              description: 'Failed to send magic link. Please try again.',
+              variant: 'destructive',
+            })
+          })
+      } else {
+        const loginData = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        })
 
-          if (res) {
-            const accountType = res?.data?.account_type ?? AccountType.business
-            const newExpiresAt = Math.floor(Date.now() / 1000) + 60 * 60
-
-            if (newExpiresAt) {
-              localStorage.setItem(
-                'vbAuth',
-                JSON.stringify({ ...res, expires_at: newExpiresAt })
-              )
-            }
-            localStorage.setItem('adminToken', res?.data?.token ?? '')
-            localStorage.setItem('refreshToken', res?.data?.refresh_token ?? '')
-            localStorage.setItem('accountType', accountType)
-            localStorage.setItem('expires_at', String(newExpiresAt))
-
-            navigate(redirectMap[accountType])
-          }
-        } catch (error) {
+        const loginError = loginData?.error
+        if (loginError) {
           await handleVbLogin({ email, password })
+        } else {
+          try {
+            const res = await checkConnection({
+              email: loginData?.data?.user?.email ?? '',
+              supabase_id: loginData?.data?.user?.id ?? '',
+            })
+
+            if (res) {
+              const accountType =
+                res?.data?.account_type ?? AccountType.business
+              const newExpiresAt = Math.floor(Date.now() / 1000) + 60 * 60
+
+              if (newExpiresAt) {
+                localStorage.setItem(
+                  'vbAuth',
+                  JSON.stringify({ ...res, expires_at: newExpiresAt })
+                )
+              }
+              localStorage.setItem('adminToken', res?.data?.token ?? '')
+              localStorage.setItem(
+                'refreshToken',
+                res?.data?.refresh_token ?? ''
+              )
+              localStorage.setItem('accountType', accountType)
+              localStorage.setItem('expires_at', String(newExpiresAt))
+
+              navigate(redirectMap[accountType])
+            }
+          } catch (error) {
+            await handleVbLogin({ email, password })
+          }
         }
       }
     } catch (err) {

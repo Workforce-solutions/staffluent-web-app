@@ -7,6 +7,7 @@ export interface HeaderProps {
   headers: Headers
   apikey?: boolean
   isRefreshToken?: boolean
+  isClientApiKey?: boolean
 }
 
 export interface CommonUrlProps {
