@@ -14,7 +14,7 @@ export interface RefreshProps {
   venue_short_code: string
 }
 
-export interface CheckConnectionProps { }
+export interface CheckConnectionProps {}
 
 export interface AuthProps {
   data: {
@@ -84,4 +84,14 @@ export interface LocalStorageProps<T> {
 
 export interface DataAuthProps {
   data: AuthProps
+}
+
+export interface AuthResponse {
+  account_type: AccountType
+  supabase_id: string
+  token: string
+  access_token: string
+  refresh_token: string
+  expires_at: number
+  expires_in: number
 }

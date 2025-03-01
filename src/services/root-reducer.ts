@@ -27,6 +27,7 @@ import { operationManagerApi } from './operationMangerApi'
 import { teamLeaderApi } from './teamLeaderApi'
 import { siteManagementApi } from './siteManagmentApi'
 import { safetyApi } from './safetyApi'
+import { magicLinkApi } from './magic-linkApi'
 const rootReducer = combineReducers({
   [vbAuthApi.reducerPath]: vbAuthApi.reducer,
   [authApi.reducerPath]: authApi.reducer,
@@ -56,6 +57,7 @@ const rootReducer = combineReducers({
   [teamLeaderApi.reducerPath]: teamLeaderApi.reducer,
   [siteManagementApi.reducerPath]: siteManagementApi.reducer,
   [safetyApi.reducerPath]: safetyApi.reducer,
+  [magicLinkApi.reducerPath]: magicLinkApi.reducer,
 })
 
 export default rootReducer
