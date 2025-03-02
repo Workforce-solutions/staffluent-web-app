@@ -64,15 +64,238 @@ export const useLocalStorageString = (key: string) => {
 
     window.addEventListener('storage', handleStorageChange)
 
-    window.addEventListener('local-storage', handleStorageChange)
-
     return () => {
       window.removeEventListener('storage', handleStorageChange)
-      window.removeEventListener('local-storage', handleStorageChange)
     }
   }, [key])
 
   return value
+}
+
+// Hook to access has_changed_password
+export const useHasChangedPassword = () => {
+  const [hasChangedPassword, setHasChangedPassword] = useState<boolean>(() => {
+    // Check osAuth first
+    const osAuth = localStorage.getItem('osAuth')
+    if (osAuth) {
+      return JSON.parse(osAuth).has_changed_password || false
+    }
+    
+    // Fallback to vbAuth
+    const vbAuth = localStorage.getItem('vbAuth')
+    if (vbAuth) {
+      const parsed = JSON.parse(vbAuth)
+      return parsed.has_changed_password || parsed.metadata?.has_changed_password || false
+    }
+    
+    return false
+  })
+
+  useEffect(() => {
+    const handleStorageChange = () => {
+      // Check osAuth first
+      const osAuth = localStorage.getItem('osAuth')
+      if (osAuth) {
+        setHasChangedPassword(JSON.parse(osAuth).has_changed_password || false)
+        return
+      }
+      
+      // Fallback to vbAuth
+      const vbAuth = localStorage.getItem('vbAuth')
+      if (vbAuth) {
+        const parsed = JSON.parse(vbAuth)
+        setHasChangedPassword(parsed.has_changed_password || parsed.metadata?.has_changed_password || false)
+      } else {
+        setHasChangedPassword(false)
+      }
+    }
+
+    window.addEventListener('storage', handleStorageChange)
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange)
+    }
+  }, [])
+
+  return hasChangedPassword
+}
+
+// Hook to access features
+export const useFeatures = () => {
+  const [features, setFeatures] = useState<string[]>(() => {
+    // Check osAuth first
+    const osAuth = localStorage.getItem('osAuth')
+    if (osAuth) {
+      return JSON.parse(osAuth).features || []
+    }
+    
+    // Fallback to vbAuth
+    const vbAuth = localStorage.getItem('vbAuth')
+    if (vbAuth) {
+      const parsed = JSON.parse(vbAuth)
+      return parsed.features || []
+    }
+    
+    return []
+  })
+
+  useEffect(() => {
+    const handleStorageChange = () => {
+      // Check osAuth first
+      const osAuth = localStorage.getItem('osAuth')
+      if (osAuth) {
+        setFeatures(JSON.parse(osAuth).features || [])
+        return
+      }
+      
+      // Fallback to vbAuth
+      const vbAuth = localStorage.getItem('vbAuth')
+      if (vbAuth) {
+        const parsed = JSON.parse(vbAuth)
+        setFeatures(parsed.features || [])
+      } else {
+        setFeatures([])
+      }
+    }
+
+    window.addEventListener('storage', handleStorageChange)
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange)
+    }
+  }, [])
+
+  return features
+}
+
+// Hook to access sidebar links
+export const useSidebarLinks = () => {
+  const [sidebarLinks, setSidebarLinks] = useState<any[]>(() => {
+    // Check osAuth first
+    const osAuth = localStorage.getItem('osAuth')
+    if (osAuth) {
+      return JSON.parse(osAuth).sidebarLinks || []
+    }
+    
+    // No fallback for vbAuth as it doesn't contain sidebarLinks
+    return []
+  })
+
+  useEffect(() => {
+    const handleStorageChange = () => {
+      // Check osAuth first
+      const osAuth = localStorage.getItem('osAuth')
+      if (osAuth) {
+        setSidebarLinks(JSON.parse(osAuth).sidebarLinks || [])
+      } else {
+        setSidebarLinks([])
+      }
+    }
+
+    window.addEventListener('storage', handleStorageChange)
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange)
+    }
+  }, [])
+
+  return sidebarLinks
+}
+
+// Hook to access subscription data
+export const useSubscription = () => {
+  const [subscription, setSubscription] = useState<any>(() => {
+    // Check osAuth first
+    const osAuth = localStorage.getItem('osAuth')
+    if (osAuth) {
+      return JSON.parse(osAuth).subscription || {}
+    }
+    
+    // Fallback to vbAuth
+    const vbAuth = localStorage.getItem('vbAuth')
+    if (vbAuth) {
+      const parsed = JSON.parse(vbAuth)
+      return parsed.subscription || {}
+    }
+    
+    return {}
+  })
+
+  useEffect(() => {
+    const handleStorageChange = () => {
+      // Check osAuth first
+      const osAuth = localStorage.getItem('osAuth')
+      if (osAuth) {
+        setSubscription(JSON.parse(osAuth).subscription || {})
+        return
+      }
+      
+      // Fallback to vbAuth
+      const vbAuth = localStorage.getItem('vbAuth')
+      if (vbAuth) {
+        const parsed = JSON.parse(vbAuth)
+        setSubscription(parsed.subscription || {})
+      } else {
+        setSubscription({})
+      }
+    }
+
+    window.addEventListener('storage', handleStorageChange)
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange)
+    }
+  }, [])
+
+  return subscription
+}
+
+// Hook to access business data
+export const useBusinessData = () => {
+  const [business, setBusiness] = useState<any>(() => {
+    // Check osAuth first
+    const osAuth = localStorage.getItem('osAuth')
+    if (osAuth) {
+      return JSON.parse(osAuth).business || {}
+    }
+    
+    // Fallback to vbAuth
+    const vbAuth = localStorage.getItem('vbAuth')
+    if (vbAuth) {
+      const parsed = JSON.parse(vbAuth)
+      return parsed.business || {}
+    }
+    
+    return {}
+  })
+
+  useEffect(() => {
+    const handleStorageChange = () => {
+      // Check osAuth first
+      const osAuth = localStorage.getItem('osAuth')
+      if (osAuth) {
+        setBusiness(JSON.parse(osAuth).business || {})
+        return
+      }
+      
+      // Fallback to vbAuth
+      const vbAuth = localStorage.getItem('vbAuth')
+      if (vbAuth) {
+        const parsed = JSON.parse(vbAuth)
+        setBusiness(parsed.business || {})
+      } else {
+        setBusiness({})
+      }
+    }
+
+    window.addEventListener('storage', handleStorageChange)
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange)
+    }
+  }, [])
+
+  return business
 }
 
 const originalSetItem = localStorage.setItem
