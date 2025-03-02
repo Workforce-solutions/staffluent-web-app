@@ -64,6 +64,7 @@ export interface AuthProps {
   expires_at: number
   expires_in: number,
   auth_response?: AuthResponse
+  userId: string
 }
 
 export interface Role {
