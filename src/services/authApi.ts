@@ -1,4 +1,4 @@
-import { AuthProps, LoginProps, RefreshProps } from '@/@types/auth'
+import { AuthProps, AuthResponse, LoginProps, RefreshProps } from '@/@types/auth'
 import { getCommonUrl } from '@/hooks/common/common-api-url'
 import {
   getPrepareHeaders,
@@ -36,10 +36,10 @@ export const authApi = createApi({
       }),
       invalidatesTags: ['User'],
     }),
-    omniStackLogin: builder.mutation<AuthProps, LoginProps>({
+    omniStackLogin: builder.mutation<AuthProps & {auth_response?: AuthResponse}, LoginProps>({
       query: (body) => {
         const headers = getPrepareHeaders({ headers: new Headers(), isClientApiKey: true });
-        const headerObj = {};
+        const headerObj: Record<string, string> = {};
         
         // Convert Headers object to plain object for RTK Query
         headers.forEach((value, key) => {

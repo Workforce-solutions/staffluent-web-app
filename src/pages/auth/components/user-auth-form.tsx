@@ -88,34 +88,35 @@ export function UserAuthForm({
   const handleOmniStackLogin = async ({ email, password }: LoginProps) => {
     try {
       const res = await omniStackLogin({ email, password }).unwrap()
-      if (res) {
-        // Extract account_type from auth_response if it exists, otherwise use default
-        const accountType = res.account_type || res.auth_response?.account_type || AccountType.business
-        const newExpiresAt = Math.floor(Date.now() / 1000) + 60 * 60
-
-        if (newExpiresAt) {
-          localStorage.setItem(
-            'vbAuth',
-            JSON.stringify({ ...res, expires_at: newExpiresAt })
-          )
-        }
+      
+      if (res && res.auth_response) {
+        // Get account_type from auth_response
+        const accountType = res.auth_response.account_type || AccountType.business;
+        const newExpiresAt = Math.floor(Date.now() / 1000) + 60 * 60;
         
-        // Store tokens from auth_response if they exist, otherwise use top-level properties
-        const accessToken = res.auth_response?.access_token || res.access_token || res.token || ''
-        const refreshToken = res.auth_response?.refresh_token || res.refresh_token || ''
+  
+        // Store just the auth_response in vbAuth
+        localStorage.setItem(
+          'vbAuth',
+          JSON.stringify({ ...res.auth_response, expires_at: newExpiresAt })
+        );
         
-        localStorage.setItem('adminToken', accessToken)
-        localStorage.setItem('refreshToken', refreshToken)
-        localStorage.setItem('accountType', accountType)
-        localStorage.setItem('expires_at', String(newExpiresAt))
-
-        navigate(redirectMap[accountType])
+        // Extract tokens from auth_response
+        const accessToken = res.auth_response.token || res.auth_response.access_token || '';
+        const refreshToken = res.auth_response.refresh_token || '';
+        
+        localStorage.setItem('adminToken', accessToken);
+        localStorage.setItem('refreshToken', refreshToken);
+        localStorage.setItem('accountType', accountType);
+        localStorage.setItem('expires_at', String(newExpiresAt));
+  
+        navigate(redirectMap[accountType]);
       }
     } catch (err) {
-      setError('Invalid login credentials. Please try again.')
+      setError('Invalid login credentials. Please try again.');
     }
   }
-
+  
   const handleVbLogin = async ({ email, password }: LoginProps) => {
     try {
       const res = await vbLogin({ email, password }).unwrap()
