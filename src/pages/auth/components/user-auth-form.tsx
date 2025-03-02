@@ -124,13 +124,13 @@ export function UserAuthForm({
 
       // Extract tokens from auth_response
       const accessToken =
-        res?.token ||
-        res?.access_token ||
         res?.auth_response?.token ||
         res?.auth_response?.access_token ||
+        res?.token ||
+        res?.access_token ||
         ''
       const refreshToken =
-        res?.refresh_token || res?.auth_response?.refresh_token || ''
+        res?.auth_response?.refresh_token || res?.refresh_token || ''
 
       accessToken && localStorage.setItem('adminToken', accessToken)
       refreshToken && localStorage.setItem('refreshToken', refreshToken)
