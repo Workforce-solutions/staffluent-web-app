@@ -61,8 +61,11 @@ export function AddClientModal({ open, setOpen }: AddClientModalProps) {
     country_code: 'US',
   })
 
-  const [createClient, { isLoading }] = useCreateClientMutation()
-  const [createUser] = useCreateUserMutation()
+  const [createClient, { isLoading: isClientLoading }] = useCreateClientMutation()
+  const [createUser, { isLoading: isUserLoading }] = useCreateUserMutation()
+  
+  // Then combine them
+  const isLoading = isClientLoading || isUserLoading
   const { toast } = useToast()
   const short_code = useShortCode()
 
@@ -165,7 +168,7 @@ export function AddClientModal({ open, setOpen }: AddClientModalProps) {
                     />
                     <Label htmlFor='isUser'>Create as User</Label>
                   </div>
-                  <div className='grid grid-cols-4 items-center gap-4'>
+                  <div className='grid grid-cols-4 gap-4 items-center'>
                     <Label htmlFor='name' className='text-left'>
                       Name
                     </Label>
@@ -181,7 +184,7 @@ export function AddClientModal({ open, setOpen }: AddClientModalProps) {
                     />
                   </div>
 
-                  <div className='grid grid-cols-4 items-center gap-4'>
+                  <div className='grid grid-cols-4 gap-4 items-center'>
                     <Label htmlFor='type' className='text-left'>
                       Type
                     </Label>
@@ -201,7 +204,7 @@ export function AddClientModal({ open, setOpen }: AddClientModalProps) {
                     </Select>
                   </div>
 
-                  <div className='grid grid-cols-4 items-center gap-4'>
+                  <div className='grid grid-cols-4 gap-4 items-center'>
                     <Label htmlFor='contact_person' className='text-left'>
                       Contact Person
                     </Label>
@@ -220,7 +223,7 @@ export function AddClientModal({ open, setOpen }: AddClientModalProps) {
                     />
                   </div>
 
-                  <div className='grid grid-cols-4 items-center gap-4'>
+                  <div className='grid grid-cols-4 gap-4 items-center'>
                     <Label htmlFor='phone' className='text-left'>
                       Phone
                     </Label>
@@ -236,7 +239,7 @@ export function AddClientModal({ open, setOpen }: AddClientModalProps) {
                     />
                   </div>
 
-                  <div className='grid grid-cols-4 items-center gap-4'>
+                  <div className='grid grid-cols-4 gap-4 items-center'>
                     <Label htmlFor='email' className='text-left'>
                       Email
                     </Label>
@@ -254,7 +257,7 @@ export function AddClientModal({ open, setOpen }: AddClientModalProps) {
                   </div>
 
                   {formData.isUser && (
-                    <div className='grid grid-cols-4 items-center gap-4'>
+                    <div className='grid grid-cols-4 gap-4 items-center'>
                       <Label htmlFor='password' className='text-left'>
                         Password
                       </Label>
@@ -283,7 +286,7 @@ export function AddClientModal({ open, setOpen }: AddClientModalProps) {
                   <h3 className='text-lg font-medium'>Address Information</h3>
                 </div>
                 <div className='grid gap-4'>
-                  <div className='grid grid-cols-4 items-center gap-4'>
+                  <div className='grid grid-cols-4 gap-4 items-center'>
                     <Label htmlFor='country' className='text-left'>
                       Country
                     </Label>
@@ -322,7 +325,7 @@ export function AddClientModal({ open, setOpen }: AddClientModalProps) {
                   </div>
 
                   {formData.address.country_id > 0 && (
-                    <div className='grid grid-cols-4 items-center gap-4'>
+                    <div className='grid grid-cols-4 gap-4 items-center'>
                       <Label htmlFor='state' className='text-left'>
                         State
                       </Label>
@@ -361,7 +364,7 @@ export function AddClientModal({ open, setOpen }: AddClientModalProps) {
                   )}
 
                   {formData.address.state_id > 0 && (
-                    <div className='grid grid-cols-4 items-center gap-4'>
+                    <div className='grid grid-cols-4 gap-4 items-center'>
                       <Label htmlFor='city' className='text-left'>
                         City
                       </Label>
@@ -398,7 +401,7 @@ export function AddClientModal({ open, setOpen }: AddClientModalProps) {
                     </div>
                   )}
 
-                  <div className='grid grid-cols-4 items-center gap-4'>
+                  <div className='grid grid-cols-4 gap-4 items-center'>
                     <Label htmlFor='address' className='text-left'>
                       Street Address
                     </Label>
@@ -420,7 +423,7 @@ export function AddClientModal({ open, setOpen }: AddClientModalProps) {
                     />
                   </div>
 
-                  <div className='grid grid-cols-4 items-center gap-4'>
+                  <div className='grid grid-cols-4 gap-4 items-center'>
                     <Label htmlFor='postal_code' className='text-left'>
                       Postal Code
                     </Label>
@@ -447,7 +450,7 @@ export function AddClientModal({ open, setOpen }: AddClientModalProps) {
               <Separator />
 
               {/* Notes Section */}
-              <div className='grid grid-cols-4 items-center gap-4'>
+              <div className='grid grid-cols-4 gap-4 items-center'>
                 <Label htmlFor='notes' className='text-left'>
                   Notes
                 </Label>
@@ -464,7 +467,7 @@ export function AddClientModal({ open, setOpen }: AddClientModalProps) {
             </div>
           </form>
         </div>
-        <DialogFooter className='mt-6 flex flex-none justify-between sm:justify-end sm:space-x-2'>
+        <DialogFooter className='flex flex-none justify-between mt-6 sm:justify-end sm:space-x-2'>
           <Button
             type='button'
             variant='outline'
