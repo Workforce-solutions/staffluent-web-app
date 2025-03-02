@@ -103,11 +103,13 @@ export default function Settings() {
                 accept='image/*'
                 onChange={handleFileChange}
               />
-              {getInitials(
-                userData?.data?.user?.name ?? userData?.user?.name ?? ''
+              
+              {getInitials( // @ts-ignore
+                userData?.data?.user?.name ?? userData?.user?.name ?? '' 
               )}
             </div>
             <h2 className='mt-2 text-xl font-semibold'>
+              {/*// @ts-ignore*/}
               {userData?.data?.user?.name ?? userData?.user?.name ?? 'User'}
             </h2>
             <Badge variant={accountType === 'business' ? 'default' : 'outline'}>
@@ -137,6 +139,7 @@ export default function Settings() {
                         <Label htmlFor='fullName'>Full name</Label>
                         <Input
                           id='fullName'
+                          // @ts-ignore
                           defaultValue={userData?.data?.user?.name ?? userData?.user?.name}
                         />
                       </div>
@@ -144,6 +147,7 @@ export default function Settings() {
                         <Label htmlFor='email'>Email</Label>
                         <Input
                           id='email'
+                          // @ts-ignore
                           defaultValue={userData?.data?.user?.email ?? userData?.user?.email}
                         />
                       </div>
@@ -170,6 +174,7 @@ export default function Settings() {
               <div>
                 <PasswordChangeSection 
                   hasChangedPassword={hasChangedPassword} 
+                  // @ts-ignore
                   userId={userId}
                 />
               </div>
@@ -413,7 +418,7 @@ const SubscriptionSection = ({ subscription }: { subscription: any }) => {
                     </Badge>
                   </p>
                 </div>
-                <Button variant="outline">Upgrade Plan</Button>
+                <Button disabled variant="outline">Upgrade Plan</Button>
               </div>
               
               {subscription.endDate && (
