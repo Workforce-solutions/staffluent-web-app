@@ -49,6 +49,11 @@ interface User {
   }
 }
 
+export interface SidebarResponse {
+  title: string
+  href: string
+}
+
 export interface AuthProps {
   data: {
     user: User
@@ -68,6 +73,7 @@ export interface AuthProps {
   expires_in: number
   auth_response?: AuthResponse
   userId: string
+  sidebarLinks: SidebarResponse[]
 }
 
 export interface Role {

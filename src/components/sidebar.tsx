@@ -1,17 +1,20 @@
 /* eslint-disable react-refresh/only-export-components */
-import {
-  getSidebarLinks,
-  getSidebarText,
-} from '@/hooks/common/common-functions'
-import { useLocalStorageString } from '@/hooks/use-local-storage'
+
+import { SideLink } from '@/data/sidelinks'
+import { getSidebarText } from '@/hooks/common/common-functions'
+import useLocalStorage, {
+  useLocalStorageString,
+} from '@/hooks/use-local-storage'
 import { cn } from '@/lib/utils'
 import { AccountType } from '@/pages/auth/components/user-auth-form'
 import { IconChevronsLeft, IconMenu2, IconX } from '@tabler/icons-react'
-import { HTMLAttributes, useEffect, useState } from 'react'
+import { HTMLAttributes, useEffect, useMemo, useState } from 'react'
 import { Button } from './custom/button'
 import { Layout } from './custom/layout'
 import './index.css'
 import Nav from './nav'
+import { iconObj } from '@/hooks/common/get-icons'
+import { Settings } from 'lucide-react'
 
 interface SidebarProps extends HTMLAttributes<HTMLElement> {
   isCollapsed: boolean
@@ -26,9 +29,22 @@ export default function Sidebar({
   const [navOpened, setNavOpened] = useState(false)
 
   const accountType = useLocalStorageString('accountType') as AccountType
-  const sidebarLinks = getSidebarLinks(accountType)
+  const [sidebar] = useLocalStorage<SideLink[]>({
+    defaultValue: [],
+    key: 'sidebarLinks',
+  })
 
-  /* Make body not scrollable when navBar is opened */
+  const sidebarLinks: SideLink[] = useMemo(() => {
+    return sidebar.map((item) => ({
+      ...item,
+      icon: iconObj[item.href],
+      sub: item.sub?.map((subItem) => ({
+        ...subItem,
+        icon: iconObj[subItem.href] ?? <Settings size={18} />,
+      })),
+    }))
+  }, [sidebar])
+
   useEffect(() => {
     if (navOpened) {
       document.body.classList.add('overflow-hidden')

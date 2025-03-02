@@ -17,7 +17,6 @@ const MagicLink = () => {
   const token = searchParams.get('token') ?? ''
 
   useEffect(() => {
-    // Reset state when token changes
     setData(undefined)
     setHasError(false)
     setIsVerificationComplete(false)
@@ -39,17 +38,13 @@ const MagicLink = () => {
           setIsVerificationComplete(true)
         })
     } else {
-      // Handle case where no token is provided
       setHasError(true)
       setIsVerificationComplete(true)
     }
   }, [token, verifyMagicLink])
 
-  // Only show the verification status when we've either succeeded or
-  // completed verification process
   const showRedirected = data !== undefined && isVerificationComplete
 
-  // Keep showing loading until verification is complete
   const showLoading = isFetching || !isVerificationComplete
 
   return (

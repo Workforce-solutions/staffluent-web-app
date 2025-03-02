@@ -129,12 +129,15 @@ export function UserAuthForm({
         res?.token ||
         res?.access_token ||
         ''
+
+      const sidebarLinks = res.sidebarLinks ?? []
       const refreshToken =
         res?.auth_response?.refresh_token || res?.refresh_token || ''
 
       accessToken && localStorage.setItem('adminToken', accessToken)
       refreshToken && localStorage.setItem('refreshToken', refreshToken)
       accountType && localStorage.setItem('accountType', accountType)
+      localStorage.setItem('sidebarLinks', JSON.stringify(sidebarLinks))
 
       navigate(getRedirectPath(accountType))
     } catch (err) {
