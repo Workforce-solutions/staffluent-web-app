@@ -31,10 +31,12 @@ import {
   useFeatures 
 } from '@/hooks/use-local-storage'
 import { AccountType } from '../auth/components/user-auth-form'
-import { AlertCircle, Check, Pencil, X } from 'lucide-react'
+import { AlertCircle, Check, Pencil } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { format } from 'date-fns'
+
+import { OMNISTACK_BASE_URL } from '@/hooks/common/common-functions'
 // import { Progress } from '@/components/ui/progress'
 
 export default function Settings() {
@@ -46,7 +48,7 @@ export default function Settings() {
   const business = useBusinessData()
   const subscription = useSubscription()
   const features = useFeatures()
-  const userId = useLocalStorageString('userId')
+  const userId = localStorage.getItem('osId')
   
   const { toast } = useToast()
 
@@ -115,11 +117,10 @@ export default function Settings() {
         </div>
 
         <Tabs defaultValue="personal" className="w-full">
-          <TabsList className="grid grid-cols-5 mb-6">
+          <TabsList className="grid grid-cols-4 mb-6">
             <TabsTrigger value="personal">Personal Info</TabsTrigger>
-            <TabsTrigger value="password">Password</TabsTrigger>
-            <TabsTrigger value="business">Business</TabsTrigger>
-            <TabsTrigger value="subscription">Subscription</TabsTrigger>
+            <TabsTrigger value="security">Security</TabsTrigger>
+            <TabsTrigger value="business">Business & Subscription</TabsTrigger>
             <TabsTrigger value="features">Features</TabsTrigger>
           </TabsList>
           
@@ -156,7 +157,6 @@ export default function Settings() {
                 </Card>
 
                 <EmploymentDetailsSection />
-                <CommunicationPreferencesSection />
 
                 <div className="flex justify-center mt-6 mb-8">
                   <Button className='w-fit'>Save Changes</Button>
@@ -165,19 +165,29 @@ export default function Settings() {
             )}
           </TabsContent>
           
-          <TabsContent value="password">
-            <PasswordChangeSection 
-              hasChangedPassword={hasChangedPassword} 
-              userId={userId}
-            />
+          <TabsContent value="security">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              <div>
+                <PasswordChangeSection 
+                  hasChangedPassword={hasChangedPassword} 
+                  userId={userId}
+                />
+              </div>
+              <div>
+                <CommunicationPreferencesSection />
+              </div>
+            </div>
           </TabsContent>
           
           <TabsContent value="business">
-            <BusinessInfoSection business={business} />
-          </TabsContent>
-          
-          <TabsContent value="subscription">
-            <SubscriptionSection subscription={subscription} />
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              <div>
+                <BusinessInfoSection business={business} />
+              </div>
+              <div>
+                <SubscriptionSection subscription={subscription} />
+              </div>
+            </div>
           </TabsContent>
           
           <TabsContent value="features">
@@ -219,24 +229,27 @@ const PasswordChangeSection = ({ hasChangedPassword, userId }: { hasChangedPassw
         : { newPassword }
       
       // Make the API call to change password
-      const response = await fetch(`${process.env.OMNISTACK_BASE_URL || ''}/users/password/${userId}`, {
+      const response = await fetch(`${OMNISTACK_BASE_URL}users/password/${userId}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
+          'Authorization': `Bearer ${localStorage.getItem('adminToken')}`,
+          'client-x-api-key': 'sk_2462670fcf9d668a3ce8e98d5845b3154ee13aa100e4f00e3103b054e9a0bacf',
+          'x-api-key': 'gwy_3kjg9KdJ37sdL4hF8Tk2sXnY5LzW8Rv'
         },
         body: JSON.stringify(passwordData)
       })
       
+      const responseData = await response.json()
+      
       if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.message || "Failed to change password")
+        throw new Error(responseData.message || "Failed to change password")
       }
       
       // Show success toast and clear form
       toast({
         title: "Password changed successfully",
-        description: "Your password has been updated.",
+        description: responseData.message || "Your password has been updated.",
       })
       
       setCurrentPassword('')
@@ -250,9 +263,6 @@ const PasswordChangeSection = ({ hasChangedPassword, userId }: { hasChangedPassw
           const parsedAuth = JSON.parse(osAuth)
           parsedAuth.has_changed_password = true
           localStorage.setItem('osAuth', JSON.stringify(parsedAuth))
-          
-          // Trigger local-storage event to update hooks
-          window.dispatchEvent(new Event('local-storage'))
         }
       }
       
@@ -335,7 +345,7 @@ const BusinessInfoSection = ({ business }: { business: any }) => {
           <div className="space-y-6">
             {business && Object.keys(business).length > 0 ? (
               <>
-                <div className="grid grid-cols-1 gap-y-4 gap-x-6 md:grid-cols-2">
+                <div className="grid grid-cols-1 gap-y-4 gap-x-6">
                   <div>
                     <Label className="text-sm text-muted-foreground">Business Name</Label>
                     <p className="text-lg font-medium">{business.name}</p>
@@ -607,7 +617,7 @@ const EmploymentDetailsSection = () => {
 const CommunicationPreferencesSection = () => {
   return (
     <>
-      <CardTitle className='mt-6 mb-4'>Communication Preferences</CardTitle>
+      <CardTitle className='mb-4'>Communication Preferences</CardTitle>
       <Card>
         <CardContent>
           <div className='flex flex-col gap-4 mt-6'>
@@ -630,6 +640,36 @@ const CommunicationPreferencesSection = () => {
                 </span>
               </div>
               <Switch id='smsNotifications' defaultChecked />
+            </div>
+            
+            <div className='flex justify-between'>
+              <div className='flex flex-col'>
+                <Label htmlFor='pushNotifications'>Push Notifications</Label>
+                <span className='opacity-60'>
+                  Receive push notifications on your devices
+                </span>
+              </div>
+              <Switch id='pushNotifications' defaultChecked />
+            </div>
+            
+            <div className='flex justify-between'>
+              <div className='flex flex-col'>
+                <Label htmlFor='twoFactorAuth'>Two-Factor Authentication</Label>
+                <span className='opacity-60'>
+                  Enable additional security for your account
+                </span>
+              </div>
+              <Switch id='twoFactorAuth' />
+            </div>
+            
+            <div className='flex justify-between'>
+              <div className='flex flex-col'>
+                <Label htmlFor='sessionTimeout'>Session Timeout</Label>
+                <span className='opacity-60'>
+                  Automatically log out after inactivity
+                </span>
+              </div>
+              <Switch id='sessionTimeout' defaultChecked />
             </div>
           </div>
         </CardContent>

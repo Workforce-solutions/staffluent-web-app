@@ -107,6 +107,8 @@ export function UserAuthForm({
           JSON.stringify({ ...res, expires_at: newExpiresAt })
         );
 
+        localStorage.setItem('osId', res?.userId);
+
         // Extract tokens from auth_response
         const accessToken = res.auth_response.token || res.auth_response.access_token || '';
         const refreshToken = res.auth_response.refresh_token || '';
