@@ -1,12 +1,12 @@
 import { AuthResponse } from '@/@types/auth'
 import { getCommonUrl } from '@/hooks/common/common-api-url'
-import { BASE_URL, getPrepareHeaders } from '@/hooks/common/common-functions'
+import { OMNISTACK_BASE_URL, getPrepareHeaders } from '@/hooks/common/common-functions'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
 export const magicLinkApi = createApi({
   reducerPath: 'magicLink',
   baseQuery: fetchBaseQuery({
-    baseUrl: BASE_URL,
+    baseUrl: OMNISTACK_BASE_URL,
     prepareHeaders: (headers) =>
       getPrepareHeaders({ headers, isClientApiKey: true }),
   }),

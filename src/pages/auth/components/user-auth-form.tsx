@@ -16,7 +16,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
 import { useCheckConnectionMutation } from '@/services/vbAuthApi'
-import { useVbLoginMutation } from '@/services/authApi'
+import { useOmniStackLoginMutation, useVbLoginMutation } from '@/services/authApi'
 import supabase from '@/supabaseClient'
 import { useNavigate } from 'react-router-dom'
 import { LoginProps } from '@/@types/auth'
@@ -67,6 +67,7 @@ export function UserAuthForm({
   const [checkConnection, { isLoading: isCheckLoading }] =
     useCheckConnectionMutation()
   const [vbLogin, { isLoading: isVbLoading }] = useVbLoginMutation()
+  const [omniStackLogin, { isLoading: isOmniStackLoading }] = useOmniStackLoginMutation()
   const [magicLink, { isLoading: isMagicLoading }] = useMagicLinkMutation()
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -82,6 +83,37 @@ export function UserAuthForm({
     [AccountType.business]: '/',
     [AccountType.business_team_leader]: '/team-leader/dashboard',
     [AccountType.business_operations_managers]: '/operations-manager/dashboard',
+  }
+
+  const handleOmniStackLogin = async ({ email, password }: LoginProps) => {
+    try {
+      const res = await omniStackLogin({ email, password }).unwrap()
+      if (res) {
+        // Extract account_type from auth_response if it exists, otherwise use default
+        const accountType = res.account_type || res.auth_response?.account_type || AccountType.business
+        const newExpiresAt = Math.floor(Date.now() / 1000) + 60 * 60
+
+        if (newExpiresAt) {
+          localStorage.setItem(
+            'vbAuth',
+            JSON.stringify({ ...res, expires_at: newExpiresAt })
+          )
+        }
+        
+        // Store tokens from auth_response if they exist, otherwise use top-level properties
+        const accessToken = res.auth_response?.access_token || res.access_token || res.token || ''
+        const refreshToken = res.auth_response?.refresh_token || res.refresh_token || ''
+        
+        localStorage.setItem('adminToken', accessToken)
+        localStorage.setItem('refreshToken', refreshToken)
+        localStorage.setItem('accountType', accountType)
+        localStorage.setItem('expires_at', String(newExpiresAt))
+
+        navigate(redirectMap[accountType])
+      }
+    } catch (err) {
+      setError('Invalid login credentials. Please try again.')
+    }
   }
 
   const handleVbLogin = async ({ email, password }: LoginProps) => {
@@ -134,44 +166,51 @@ export function UserAuthForm({
             })
           })
       } else {
-        const loginData = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        })
-
-        const loginError = loginData?.error
-        if (loginError) {
-          await handleVbLogin({ email, password })
-        } else {
-          try {
-            const res = await checkConnection({
-              email: loginData?.data?.user?.email ?? '',
-              supabase_id: loginData?.data?.user?.id ?? '',
-            })
-
-            if (res) {
-              const accountType =
-                res?.data?.account_type ?? AccountType.business
-              const newExpiresAt = Math.floor(Date.now() / 1000) + 60 * 60
-
-              if (newExpiresAt) {
-                localStorage.setItem(
-                  'vbAuth',
-                  JSON.stringify({ ...res, expires_at: newExpiresAt })
-                )
-              }
-              localStorage.setItem('adminToken', res?.data?.token ?? '')
-              localStorage.setItem(
-                'refreshToken',
-                res?.data?.refresh_token ?? ''
-              )
-              localStorage.setItem('accountType', accountType)
-              localStorage.setItem('expires_at', String(newExpiresAt))
-
-              navigate(redirectMap[accountType])
-            }
-          } catch (error) {
+        // First try OmniStack login
+        try {
+          await handleOmniStackLogin({ email, password })
+          return
+        } catch (omniError) {
+          // If OmniStack login fails, try Supabase, then VB login as fallback
+          const loginData = await supabase.auth.signInWithPassword({
+            email,
+            password,
+          })
+  
+          const loginError = loginData?.error
+          if (loginError) {
             await handleVbLogin({ email, password })
+          } else {
+            try {
+              const res = await checkConnection({
+                email: loginData?.data?.user?.email ?? '',
+                supabase_id: loginData?.data?.user?.id ?? '',
+              })
+  
+              if (res) {
+                const accountType =
+                  res?.data?.account_type ?? AccountType.business
+                const newExpiresAt = Math.floor(Date.now() / 1000) + 60 * 60
+  
+                if (newExpiresAt) {
+                  localStorage.setItem(
+                    'vbAuth',
+                    JSON.stringify({ ...res, expires_at: newExpiresAt })
+                  )
+                }
+                localStorage.setItem('adminToken', res?.data?.token ?? '')
+                localStorage.setItem(
+                  'refreshToken',
+                  res?.data?.refresh_token ?? ''
+                )
+                localStorage.setItem('accountType', accountType)
+                localStorage.setItem('expires_at', String(newExpiresAt))
+  
+                navigate(redirectMap[accountType])
+              }
+            } catch (error) {
+              await handleVbLogin({ email, password })
+            }
           }
         }
       }
@@ -180,7 +219,7 @@ export function UserAuthForm({
     }
   }
 
-  const isLoading = isMagicLoading || isCheckLoading || isVbLoading
+  const isLoading = isMagicLoading || isCheckLoading || isVbLoading || isOmniStackLoading
 
   return (
     <div className={cn('grid gap-6', className)} {...props}>
@@ -207,6 +246,7 @@ export function UserAuthForm({
               )}
             />
 
+            {/* The rest of your form remains unchanged */}
             {authMethod === 'password' && (
               <>
                 <FormField
@@ -244,8 +284,7 @@ export function UserAuthForm({
                   </div>
 
                   <div className='text-sm'>
-                    <a
-                      href='/forgot-password'
+                  <a href='/forgot-password'
                       className='font-medium text-[#0A0A0A] hover:text-[#171717]'
                     >
                       Forgot password?
@@ -279,8 +318,7 @@ export function UserAuthForm({
       </div>
 
       <div className='text-sm text-center'>
-        <a
-          href='https://staffluent.co/request-demo'
+        <a href='https://staffluent.co/request-demo'
           className='font-bold text-[#0A0A0A] hover:text-[#171717]'
         >
           Join now

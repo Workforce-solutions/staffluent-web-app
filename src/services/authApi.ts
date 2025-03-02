@@ -4,6 +4,7 @@ import {
   getPrepareHeaders,
   staffAdminAppkeyParam,
   vbUrl,
+  OMNISTACK_BASE_URL,
 } from '@/hooks/common/common-functions'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
@@ -35,6 +36,25 @@ export const authApi = createApi({
       }),
       invalidatesTags: ['User'],
     }),
+    omniStackLogin: builder.mutation<AuthProps, LoginProps>({
+      query: (body) => {
+        const headers = getPrepareHeaders({ headers: new Headers(), isClientApiKey: true });
+        const headerObj = {};
+        
+        // Convert Headers object to plain object for RTK Query
+        headers.forEach((value, key) => {
+          headerObj[key] = value;
+        });
+        
+        return {
+          url: `${OMNISTACK_BASE_URL}auth/staffluent/business-admin/login`,
+          method: 'POST',
+          body,
+          headers: headerObj
+        };
+      },
+      invalidatesTags: ['User'],
+    }),
     authRefresh: builder.mutation<AuthProps, RefreshProps>({
       query: ({ venue_short_code }) => ({
         url: getCommonUrl({
@@ -49,5 +69,9 @@ export const authApi = createApi({
   }),
 })
 
-export const { useLoginMutation, useAuthRefreshMutation, useVbLoginMutation } =
-  authApi
+export const { 
+  useLoginMutation, 
+  useAuthRefreshMutation, 
+  useVbLoginMutation,
+  useOmniStackLoginMutation 
+} = authApi
