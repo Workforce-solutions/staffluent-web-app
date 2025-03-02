@@ -1,9 +1,9 @@
 import { HeaderProps } from '@/@types/common'
 import { clientLinks } from '@/data/client-links'
 import { operationsManagersLinks } from '@/data/operations-managers-links'
-import { sidelinks } from '@/data/sidelinks'
 import { teamLeaderLinks } from '@/data/team-leader-links'
 import { AccountType } from '@/pages/auth/components/user-auth-form'
+type GroupAccountType = 'admin' | 'teamLeader' | 'client' | 'business'
 
 const STAFFLUENT_API_KEY =
   'sk_2462670fcf9d668a3ce8e98d5845b3154ee13aa100e4f00e3103b054e9a0bacf'
@@ -152,31 +152,74 @@ export const statusColorMap: Record<string, string> = {
   cancelled: 'bg-red-500',
 }
 
-export const getSidebarLinks = (accountType: AccountType) => {
+export const getAccountGroup = (accountType: AccountType): GroupAccountType => {
   switch (accountType) {
+    // Group 1: Admin and Operations Managers
+    case AccountType.business_admin:
     case AccountType.business:
-      return sidelinks
-    case AccountType.client:
-      return clientLinks
-    case AccountType.business_team_leader:
-      return teamLeaderLinks
     case AccountType.business_operations_managers:
+    case AccountType.staff_operations_manager:
+    case AccountType.operations_manager:
+      return 'admin'
+
+    // Group 2: Team Leaders
+    case AccountType.business_team_leader:
+    case AccountType.staff_team_leader:
+    case AccountType.team_leader:
+    case AccountType.business_operations_manager:
+      return 'teamLeader'
+
+    // Group 3: Clients
+    case AccountType.app_client:
+    case AccountType.client:
+      return 'client'
+
+    default:
+      return 'business'
+  }
+}
+
+export const getSidebarLinks = (accountType: AccountType) => {
+  const group = getAccountGroup(accountType)
+
+  switch (group) {
+    case 'admin':
       return operationsManagersLinks
+    case 'teamLeader':
+      return teamLeaderLinks
+    case 'client':
+      return clientLinks
     default:
       return []
   }
 }
+
 export const getSidebarText = (accountType: AccountType) => {
-  switch (accountType) {
-    case AccountType.business:
-      return 'Admin'
-    case AccountType.client:
-      return 'Client Portal'
-    case AccountType.business_team_leader:
-      return 'Team Leader'
-    case AccountType.business_operations_managers:
+  const group = getAccountGroup(accountType)
+
+  switch (group) {
+    case 'admin':
       return 'Operations Manager'
+    case 'teamLeader':
+      return 'Team Leader'
+    case 'client':
+      return 'Client Portal'
     default:
-      return []
+      return ''
+  }
+}
+
+export const getRedirectPath = (accountType: AccountType) => {
+  const group = getAccountGroup(accountType)
+
+  switch (group) {
+    case 'admin':
+      return '/operations-manager/dashboard'
+    case 'teamLeader':
+      return '/team-leader/dashboard'
+    case 'client':
+      return '/client-portal/dashboard'
+    default:
+      return '/'
   }
 }
