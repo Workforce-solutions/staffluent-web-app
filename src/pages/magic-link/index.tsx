@@ -1,5 +1,8 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { AuthResponse } from '@/@types/auth'
+import { SideLink } from '@/data/sidelinks'
+import useLocalStorage from '@/hooks/use-local-storage'
 import { useLazyVerifyMagicLinkQuery } from '@/services/magic-linkApi'
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
@@ -13,6 +16,10 @@ const MagicLink = () => {
   const [isVerificationComplete, setIsVerificationComplete] = useState(false)
 
   const [verifyMagicLink, { isFetching }] = useLazyVerifyMagicLinkQuery()
+  const [_, setSidebar] = useLocalStorage<SideLink[]>({
+    defaultValue: [],
+    key: 'sidebarLinks',
+  })
 
   const token = searchParams.get('token') ?? ''
 
@@ -26,6 +33,7 @@ const MagicLink = () => {
       verifyMagicLink({ token })
         .unwrap()
         .then((res) => {
+          setSidebar(res.sidebarLinks ?? [])
           if (res.auth_response) {
             setData(res.auth_response)
           } else {
@@ -41,7 +49,7 @@ const MagicLink = () => {
       setHasError(true)
       setIsVerificationComplete(true)
     }
-  }, [token, verifyMagicLink])
+  }, [token])
 
   const showRedirected = data !== undefined && isVerificationComplete
 

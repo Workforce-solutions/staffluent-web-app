@@ -1,3 +1,4 @@
+import { SideLink } from '@/data/sidelinks'
 import { AccountType } from '@/pages/auth/components/user-auth-form'
 
 export interface LoginData {
@@ -49,11 +50,6 @@ interface User {
   }
 }
 
-export interface SidebarResponse {
-  title: string
-  href: string
-}
-
 export interface AuthProps {
   data: {
     user: User
@@ -73,7 +69,7 @@ export interface AuthProps {
   expires_in: number
   auth_response?: AuthResponse
   userId: string
-  sidebarLinks: SidebarResponse[]
+  sidebarLinks: SideLink[]
 }
 
 export interface Role {
