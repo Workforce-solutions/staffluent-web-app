@@ -33,7 +33,7 @@ export const getPrepareHeaders = ({
   return headers
 }
 
-export const BASE_URL = 'https://apigtw.omnistackhub.xyz/'
+export const OMNISTACK_BASE_URL = 'https://apigtw.omnistackhub.xyz/'
 
 export const supabaseUrl = 'https://unzkbvyeaefcpooqeenz.supabase.co'
 export const vbUrl = 'https://core.venueboost.io/api/v1/'

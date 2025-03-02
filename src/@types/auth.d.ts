@@ -62,7 +62,8 @@ export interface AuthProps {
   access_token: string
   refresh_token: string
   expires_at: number
-  expires_in: number
+  expires_in: number,
+  auth_response?: AuthResponse
 }
 
 export interface Role {
