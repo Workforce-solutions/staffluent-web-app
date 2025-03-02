@@ -16,7 +16,7 @@ export default function Login() {
     const accountType = searchParams.get('accountType')
     const expiresAt = searchParams.get('expires_at')
     const vbAuth = searchParams.get('vbAuth')
-    const sidebarLinks = searchParams.get('sidebarLinks') ?? []
+    const sidebarLinks = searchParams.get('sidebarLinks') ?? '[]'
 
     if (token && refreshToken && accountType && expiresAt && vbAuth) {
       localStorage.setItem('adminToken', token)
@@ -24,8 +24,7 @@ export default function Login() {
       localStorage.setItem('accountType', accountType)
       localStorage.setItem('expires_at', expiresAt)
       localStorage.setItem('vbAuth', vbAuth)
-      sidebarLinks &&
-        localStorage.setItem('sidebarLinks', JSON.stringify(sidebarLinks))
+      sidebarLinks && localStorage.setItem('sidebarLinks', sidebarLinks)
 
       navigate('/')
     }
