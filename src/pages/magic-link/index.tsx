@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { AuthResponse } from '@/@types/auth'
 import { useLazyVerifyMagicLinkQuery } from '@/services/magic-linkApi'
 import { useEffect, useState } from 'react'
@@ -20,7 +21,7 @@ const MagicLink = () => {
     setData(undefined)
     setHasError(false)
     setIsVerificationComplete(false)
-    
+
     if (token) {
       localStorage.setItem('adminToken', token)
       verifyMagicLink({ token })
@@ -47,10 +48,10 @@ const MagicLink = () => {
   // Only show the verification status when we've either succeeded or
   // completed verification process
   const showRedirected = data !== undefined && isVerificationComplete
-  
+
   // Keep showing loading until verification is complete
   const showLoading = isFetching || !isVerificationComplete
-  
+
   return (
     <VerificationStatus
       data={data}
