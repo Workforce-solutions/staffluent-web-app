@@ -31,16 +31,18 @@ import { z } from 'zod'
 
 export enum AccountType {
   client = 'client',
+  app_client = 'app_client',
+
   business_admin = 'business_admin',
   business = 'business',
-  business_team_leader = 'business_team_leader',
-  business_operations_managers = 'business_operations_managers',
+
   staff_team_leader = 'staff_team_leader',
   team_leader = 'team_leader',
-  app_client = 'app_client',
+  business_team_leader = 'business_team_leader',
+
+  business_operations_managers = 'business_operations_managers',
   staff_operations_manager = 'staff_operations_manager',
   operations_manager = 'operations_manager',
-  business_operations_manager = 'business_operations_manager',
 }
 
 interface UserAuthFormProps extends HTMLAttributes<HTMLDivElement> {

@@ -48,12 +48,21 @@ export function UserNav() {
   const getProfilePath = () => {
     switch (accountType) {
       case AccountType.business:
+      case AccountType.business_admin:
         return '/settings'
+
       case AccountType.client:
+      case AccountType.app_client:
         return '/client-portal/settings'
+
       case AccountType.business_team_leader:
+      case AccountType.team_leader:
+      case AccountType.staff_team_leader:
         return '/team-leader/settings'
+
       case AccountType.business_operations_managers:
+      case AccountType.staff_operations_manager:
+      case AccountType.operations_manager:
         return '/operations-manager/settings'
       default:
         return '/profile'
@@ -78,10 +87,10 @@ export function UserNav() {
       <DropdownMenuLabel className='font-normal'>
         <div className='flex flex-col space-y-1'>
           <p className='text-sm font-medium leading-none'>{data?.user.name}</p>
-          <p className='text-xs leading-none truncate text-muted-foreground'>
+          <p className='truncate text-xs leading-none text-muted-foreground'>
             {data?.user.email}
           </p>
-          <p className='text-xs leading-none capitalize text-muted-foreground'>
+          <p className='text-xs capitalize leading-none text-muted-foreground'>
             {accountType.replace('business_', '')}
           </p>
         </div>
@@ -92,7 +101,7 @@ export function UserNav() {
           Profile
           <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
         </DropdownMenuItem>
-  
+
         {accountType !== AccountType.client &&
           accountType !== AccountType.business_operations_managers && (
             <DropdownMenuItem onClick={() => navigate(getConfigPath())}>
@@ -100,7 +109,7 @@ export function UserNav() {
               <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
             </DropdownMenuItem>
           )}
-  
+
         <DropdownMenuItem
           className='cursor-pointer'
           onClick={redirectToNotifications}
@@ -120,16 +129,16 @@ export function UserNav() {
     <div className='flex items-center space-x-2'>
       <Button
         variant='ghost'
-        className='relative p-0 w-8 h-8'
+        className='relative h-8 w-8 p-0'
         onClick={redirectToNotifications}
       >
-        <Bell className='w-5 h-5' />
+        <Bell className='h-5 w-5' />
       </Button>
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant='ghost' className='relative w-8 h-8 rounded-full'>
-            <Avatar className='w-8 h-8'>
+          <Button variant='ghost' className='relative h-8 w-8 rounded-full'>
+            <Avatar className='h-8 w-8'>
               <AvatarImage src='/avatars/01.png' alt='@user' />
               <AvatarFallback>
                 {getFirstCharacters(data?.user.name)}
