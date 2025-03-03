@@ -41,6 +41,7 @@ export enum AccountType {
   business_team_leader = 'business_team_leader',
 
   business_operations_managers = 'business_operations_managers',
+  business_operations_manager='business_operations_manager',
   staff_operations_manager = 'staff_operations_manager',
   operations_manager = 'operations_manager',
 }

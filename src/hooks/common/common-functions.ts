@@ -4,7 +4,7 @@ import { operationsManagersLinks } from '@/data/operations-managers-links'
 import { teamLeaderLinks } from '@/data/team-leader-links'
 import { sidelinks } from '@/data/sidelinks'
 import { AccountType } from '@/pages/auth/components/user-auth-form'
-type GroupAccountType = 'admin' | 'teamLeader' | 'client' | 'operationsManager'
+type GroupAccountType =  'business' | 'admin' | 'teamLeader' | 'client' | 'operationsManager'
 
 const STAFFLUENT_API_KEY =
   'sk_2462670fcf9d668a3ce8e98d5845b3154ee13aa100e4f00e3103b054e9a0bacf'
@@ -173,7 +173,7 @@ export const getAccountGroup = (accountType: AccountType): GroupAccountType => {
     case AccountType.staff_operations_manager:
     case AccountType.operations_manager:
     case AccountType.business_operations_manager:
-        return 'operationsManager'
+        return 'admin'
 
     // Group 3: Clients
     case AccountType.app_client:
@@ -190,7 +190,9 @@ export const getSidebarLinks = (accountType: AccountType) => {
 
   switch (group) {
     case 'admin':
-      return operationsManagersLinks
+      return sidelinks
+    case 'business':
+        return sidelinks
     case 'operationsManager':
         return operationsManagersLinks
     case 'teamLeader':
@@ -207,7 +209,9 @@ export const getSidebarText = (accountType: AccountType) => {
 
   switch (group) {
     case 'admin':
-      return 'Operations Manager'
+      return 'Admin'
+    case 'business':
+      return 'Admin'
     case 'operationsManager':
       return 'Operations Manager'
     case 'teamLeader':
