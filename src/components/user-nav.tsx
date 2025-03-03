@@ -61,6 +61,7 @@ export function UserNav() {
         return '/team-leader/settings'
 
       case AccountType.business_operations_managers:
+      case AccountType.business_operations_manager:
       case AccountType.staff_operations_manager:
       case AccountType.operations_manager:
         return '/operations-manager/settings'

@@ -43,6 +43,7 @@ export enum AccountType {
   business_operations_managers = 'business_operations_managers',
   staff_operations_manager = 'staff_operations_manager',
   operations_manager = 'operations_manager',
+  business_operations_manager = 'business_operations_manager',
 }
 
 interface UserAuthFormProps extends HTMLAttributes<HTMLDivElement> {
