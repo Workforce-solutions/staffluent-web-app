@@ -48,6 +48,10 @@ interface User {
     profile_picture: string | null
     deleted_at: string | null
   }
+  postal_code?: string
+  notes?: string
+  address?: string
+  phone?: string
 }
 
 export interface AuthProps {
