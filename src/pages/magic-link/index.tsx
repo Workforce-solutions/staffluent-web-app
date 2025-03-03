@@ -11,6 +11,7 @@ import VerificationStatus from './VerificationStatus'
 const MagicLink = () => {
   const [searchParams] = useSearchParams()
   const [data, setData] = useState<AuthResponse>()
+  const [sidebarLinks, setSidebarLinks] = useState<SideLink[]>([])
   // @ts-expect-error - Variable is used in state management but not directly in rendering
   const [hasError, setHasError] = useState<boolean>(false)
   const [isVerificationComplete, setIsVerificationComplete] = useState(false)
@@ -34,6 +35,7 @@ const MagicLink = () => {
         .unwrap()
         .then((res) => {
           setSidebar(res.sidebarLinks ?? [])
+          setSidebarLinks(res.sidebarLinks ?? [])
           if (res.auth_response) {
             setData(res.auth_response)
           } else {
@@ -60,6 +62,7 @@ const MagicLink = () => {
       data={data}
       redirected={showRedirected}
       isLoading={showLoading}
+      sidebarLinks={sidebarLinks}
     />
   )
 }
