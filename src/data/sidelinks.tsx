@@ -1,70 +1,76 @@
 import {
-  Building2,
-  Workflow,
-  MapPin,
-  HardHat,
-  ClipboardCheck,
-  Truck,
-  Shield,
-  BarChart3,
-  Wrench,
-  Users,
-  MessageSquare,
-  Calendar,
-  FileSpreadsheet,
-  Boxes,
-  ThermometerSun,
-  Factory,
-  Ruler,
-  HardDrive,
-  Activity,
-  FileCheck,
-  Warehouse, Building, Landmark, User2Icon, Wind, PenTool, FileBarChart
-} from 'lucide-react'
-import {IconChecklist, IconExclamationCircle, IconHexagonNumber1, IconHexagonNumber2} from "@tabler/icons-react";
-import {
+  IconAlignBoxCenterTop,
   IconApps,
   IconBuilding,
+  IconCalendarEvent,
+  IconCertificate,
   IconChartHistogram,
+  IconChecklist,
+  IconClock,
+  IconClockPause,
+  IconDeviceDesktopAnalytics,
+  IconExclamationCircle,
+  IconFileSpreadsheet,
+  IconHexagonNumber1,
+  IconHexagonNumber2,
   IconHexagonNumber3,
   IconHexagonNumber4,
   IconMessages,
+  IconReportAnalytics,
   IconSettings,
   IconTruck,
   IconUser,
   IconUserShield,
   IconUsers,
-  IconReportAnalytics,
-  IconDeviceDesktopAnalytics,
-  IconAlignBoxCenterTop,
-  IconCalendarEvent,
-  IconClock,
-  IconFileSpreadsheet,
-  IconClockPause,
-  IconCertificate
 } from '@tabler/icons-react'
 import {
+  Activity, // Added for time-off requests
+  BarChart2,
+  BarChart3,
+  Boxes,
   Briefcase,
-  ClipboardList,
-  FolderTree,
-  Receipt,
-  FileText,
-  FilePlus,
-  WalletCards,
-  LifeBuoyIcon,
-  Tickets,
-  CalendarDays,  // Added for leave types
-  CalendarOff,  // Added for time-off requests
-  BarChart2,  // Added for leave dashboard
-  Clock,  // Added for overtime base icon
-  Timer,  // Added for overtime list
-  Signature,
-  Package,
+  Building,
+  Building2,
+  Calendar,
+  CalendarDays, // Added for leave types
+  CalendarOff,
+  ClipboardCheck,
+  ClipboardList, // Added for leave dashboard
+  Clock,
   // CalendarCheck,
   DollarSign,
+  Factory,
+  FileBarChart,
+  FileCheck,
+  FilePlus,
+  FileSpreadsheet,
+  FileText,
+  FolderTree,
+  HardDrive,
+  HardHat,
+  Landmark,
+  LifeBuoyIcon,
+  MapPin,
+  MessageSquare,
+  Package,
+  PenTool,
+  Receipt,
+  Ruler,
   Settings,
+  Shield, // Added for overtime list
+  Signature,
+  ThermometerSun,
+  Tickets, // Added for overtime base icon
+  Timer,
+  Truck,
+  User2Icon,
+  Users,
+  WalletCards,
+  Warehouse,
+  Wind,
+  Workflow,
+  Wrench,
 } from 'lucide-react'
-
 
 export interface NavLink {
   title: string
@@ -112,7 +118,7 @@ export const sidelinks: SideLink[] = [
         title: 'Weather Monitoring',
         href: '/services/weather-monitoring',
         icon: <Wind size={18} />,
-      }
+      },
     ],
   },
   {
@@ -123,17 +129,17 @@ export const sidelinks: SideLink[] = [
       {
         title: 'Orders',
         href: '/work-orders',
-        icon: <ClipboardList size={18} />,  // Better represents a list of orders
+        icon: <ClipboardList size={18} />, // Better represents a list of orders
       },
       {
         title: 'Settings',
         href: '/work-orders/settings',
-        icon: <Settings size={18} />,  // More appropriate for settings than FolderTree
+        icon: <Settings size={18} />, // More appropriate for settings than FolderTree
       },
       {
         title: 'Reports',
         href: '/work-orders/reports',
-        icon: <FileBarChart size={18} />,  // Better represents reports than ClipboardList
+        icon: <FileBarChart size={18} />, // Better represents reports than ClipboardList
       },
     ],
   },
@@ -263,44 +269,44 @@ export const sidelinks: SideLink[] = [
   {
     title: 'Leave Management',
     href: '/leave-management',
-    icon: <Calendar size={18} />,  // Changed from AlarmClock
+    icon: <Calendar size={18} />, // Changed from AlarmClock
     sub: [
       {
         title: 'Leave Types',
         label: '',
         href: '/leave-management/leave-types',
-        icon: <CalendarDays size={18} />,  // Changed from AlarmClock
+        icon: <CalendarDays size={18} />, // Changed from AlarmClock
       },
       {
         title: 'Time-Off Requests',
         label: '',
         href: '/leave-management/time-off-requests',
-        icon: <CalendarOff size={18} />,  // Changed from AlarmClock
+        icon: <CalendarOff size={18} />, // Changed from AlarmClock
       },
       {
         title: 'Leave Dashboard',
         label: '',
         href: '/leave-management/dashboard',
-        icon: <BarChart2 size={18} />,  // Changed from AlarmClock
+        icon: <BarChart2 size={18} />, // Changed from AlarmClock
       },
     ],
   },
   {
     title: 'Overtime',
     href: '/overtime',
-    icon: <Clock size={18} />,  // Changed from AlarmClock
+    icon: <Clock size={18} />, // Changed from AlarmClock
     sub: [
       {
         title: 'List',
         label: '',
         href: '/overtime/list',
-        icon: <Timer size={18} />,  // Changed from AlarmClock
+        icon: <Timer size={18} />, // Changed from AlarmClock
       },
       {
         title: 'Overtime dashboard',
         label: '',
         href: '/overtime/dashboard',
-        icon: <Activity size={18} />,  // Changed from AlarmClock
+        icon: <Activity size={18} />, // Changed from AlarmClock
       },
     ],
   },
@@ -378,8 +384,8 @@ export const sidelinks: SideLink[] = [
         title: 'Code Compliance',
         href: '/quality-control/compliance',
         icon: <Shield size={18} />,
-      }
-    ]
+      },
+    ],
   },
   {
     title: 'Equipment Management',
@@ -405,8 +411,8 @@ export const sidelinks: SideLink[] = [
         title: 'Equipment Assignment',
         href: '/equipment/assignment',
         icon: <Users size={18} />,
-      }
-    ]
+      },
+    ],
   },
   {
     title: 'Field Operations',
@@ -427,8 +433,8 @@ export const sidelinks: SideLink[] = [
         title: 'Service Areas',
         href: '/field-ops/service-areas',
         icon: <MapPin size={18} />,
-      }
-    ]
+      },
+    ],
   },
   {
     title: 'Site Management',
@@ -464,8 +470,8 @@ export const sidelinks: SideLink[] = [
         title: 'Site Access Control',
         href: '/sites/access',
         icon: <Shield size={18} />,
-      }
-    ]
+      },
+    ],
   },
   {
     title: 'Project Management',
@@ -509,8 +515,8 @@ export const sidelinks: SideLink[] = [
         title: 'Weather Monitoring',
         href: '/projects/weather',
         icon: <ThermometerSun size={18} />,
-      }
-    ]
+      },
+    ],
   },
   {
     title: 'Supply Management',
@@ -568,8 +574,8 @@ export const sidelinks: SideLink[] = [
         title: 'Site Safety Maps',
         href: '/safety/maps',
         icon: <MapPin size={18} />,
-      }
-    ]
+      },
+    ],
   },
 
   {
@@ -596,8 +602,8 @@ export const sidelinks: SideLink[] = [
         title: 'Site Performance',
         href: '/reports/sites',
         icon: <BarChart3 size={18} />,
-      }
-    ]
+      },
+    ],
   },
   {
     title: 'Configuration',

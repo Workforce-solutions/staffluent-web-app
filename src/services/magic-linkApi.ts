@@ -1,6 +1,9 @@
-import { AuthResponse } from '@/@types/auth'
+import { AuthProps } from '@/@types/auth'
 import { getCommonUrl } from '@/hooks/common/common-api-url'
-import { OMNISTACK_BASE_URL, getPrepareHeaders } from '@/hooks/common/common-functions'
+import {
+  OMNISTACK_BASE_URL,
+  getPrepareHeaders,
+} from '@/hooks/common/common-functions'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 
 export const magicLinkApi = createApi({
@@ -12,10 +15,7 @@ export const magicLinkApi = createApi({
   }),
   tagTypes: ['MagicLink'],
   endpoints: (builder) => ({
-    verifyMagicLink: builder.query<
-      { auth_response: AuthResponse },
-      { token: string }
-    >({
+    verifyMagicLink: builder.query<AuthProps, { token: string }>({
       query: ({ token }) => ({
         url: getCommonUrl({
           queryString: `/magic-link/verify?token=${token}`,

@@ -1,5 +1,8 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { AuthResponse } from '@/@types/auth'
+import { SideLink } from '@/data/sidelinks'
+import useLocalStorage from '@/hooks/use-local-storage'
 import { useLazyVerifyMagicLinkQuery } from '@/services/magic-linkApi'
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
@@ -13,11 +16,14 @@ const MagicLink = () => {
   const [isVerificationComplete, setIsVerificationComplete] = useState(false)
 
   const [verifyMagicLink, { isFetching }] = useLazyVerifyMagicLinkQuery()
+  const [_, setSidebar] = useLocalStorage<SideLink[]>({
+    defaultValue: [],
+    key: 'sidebarLinks',
+  })
 
   const token = searchParams.get('token') ?? ''
 
   useEffect(() => {
-    // Reset state when token changes
     setData(undefined)
     setHasError(false)
     setIsVerificationComplete(false)
@@ -27,6 +33,7 @@ const MagicLink = () => {
       verifyMagicLink({ token })
         .unwrap()
         .then((res) => {
+          setSidebar(res.sidebarLinks ?? [])
           if (res.auth_response) {
             setData(res.auth_response)
           } else {
@@ -39,17 +46,13 @@ const MagicLink = () => {
           setIsVerificationComplete(true)
         })
     } else {
-      // Handle case where no token is provided
       setHasError(true)
       setIsVerificationComplete(true)
     }
-  }, [token, verifyMagicLink])
+  }, [token])
 
-  // Only show the verification status when we've either succeeded or
-  // completed verification process
   const showRedirected = data !== undefined && isVerificationComplete
 
-  // Keep showing loading until verification is complete
   const showLoading = isFetching || !isVerificationComplete
 
   return (
