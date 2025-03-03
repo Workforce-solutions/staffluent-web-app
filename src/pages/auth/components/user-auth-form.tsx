@@ -12,7 +12,9 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { toast } from '@/components/ui/use-toast'
+import { SideLink } from '@/data/sidelinks'
 import { getRedirectPath } from '@/hooks/common/common-functions'
+import useLocalStorage from '@/hooks/use-local-storage'
 import { cn } from '@/lib/utils'
 import {
   useOmniStackLoginMutation,
@@ -75,6 +77,10 @@ export function UserAuthForm({
 
   const [error, setError] = useState<string | null>(null)
   const navigate = useNavigate()
+  const [sidebar] = useLocalStorage<SideLink[]>({
+    defaultValue: [],
+    key: 'sidebarLinks',
+  })
   const [checkConnection, { isLoading: isCheckLoading }] =
     useCheckConnectionMutation()
   const [vbLogin, { isLoading: isVbLoading }] = useVbLoginMutation()
@@ -139,7 +145,11 @@ export function UserAuthForm({
       accountType && localStorage.setItem('accountType', accountType)
       localStorage.setItem('sidebarLinks', JSON.stringify(sidebarLinks))
 
-      navigate(getRedirectPath(accountType))
+      navigate(
+        sidebarLinks[0].sub?.[0]?.href ??
+          sidebarLinks[0].href ??
+          getRedirectPath(accountType)
+      )
     } catch (err) {
       setError('Invalid login credentials. Please try again.')
     }
@@ -163,7 +173,11 @@ export function UserAuthForm({
         localStorage.setItem('accountType', accountType)
         localStorage.setItem('expires_at', String(newExpiresAt))
 
-        navigate(getRedirectPath(accountType))
+        navigate(
+          sidebar[0].sub?.[0]?.href ??
+            sidebar[0].href ??
+            getRedirectPath(accountType)
+        )
       }
     } catch (err) {
       setError('Invalid login credentials. Please try again.')
@@ -235,7 +249,11 @@ export function UserAuthForm({
                 localStorage.setItem('accountType', accountType)
                 localStorage.setItem('expires_at', String(newExpiresAt))
 
-                navigate(getRedirectPath(accountType))
+                navigate(
+                  sidebar[0].sub?.[0]?.href ??
+                    sidebar[0].href ??
+                    getRedirectPath(accountType)
+                )
               }
             } catch (error) {
               await handleVbLogin({ email, password })

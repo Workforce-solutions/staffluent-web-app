@@ -1,9 +1,10 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from 'react'
-import { UserAuthForm } from './components/user-auth-form'
+import { AccountType, UserAuthForm } from './components/user-auth-form'
 import staffLogo from '/images/logo.png'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
+import { getRedirectPath } from '@/hooks/common/common-functions'
 
 export default function Login() {
   const [searchParams] = useSearchParams()
@@ -26,7 +27,17 @@ export default function Login() {
       localStorage.setItem('vbAuth', vbAuth)
       sidebarLinks && localStorage.setItem('sidebarLinks', sidebarLinks)
 
-      navigate('/')
+      const sidebar = sidebarLinks ? JSON.parse(sidebarLinks) : []
+
+      if (sidebar && accountType) {
+        navigate(
+          sidebar[0].sub?.[0]?.href ??
+            sidebar[0].href ??
+            getRedirectPath(accountType as AccountType)
+        )
+      } else {
+        navigate('/')
+      }
     }
   }, [searchParams])
 
