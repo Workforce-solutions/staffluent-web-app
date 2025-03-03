@@ -41,9 +41,9 @@ export enum AccountType {
   business_team_leader = 'business_team_leader',
 
   business_operations_managers = 'business_operations_managers',
+  business_operations_manager='business_operations_manager',
   staff_operations_manager = 'staff_operations_manager',
   operations_manager = 'operations_manager',
-  business_operations_manager = 'business_operations_manager',
 }
 
 interface UserAuthFormProps extends HTMLAttributes<HTMLDivElement> {
@@ -318,7 +318,7 @@ export function UserAuthForm({
                   )}
                 />
 
-                <div className='flex items-center justify-between'>
+                <div className='flex justify-between items-center'>
                   <div className='flex items-center'>
                     <input
                       id='remember-me'
@@ -358,18 +358,18 @@ export function UserAuthForm({
       </Form>
 
       <div className='relative'>
-        <div className='absolute inset-0 flex items-center'>
+        <div className='flex absolute inset-0 items-center'>
           <div className='w-full border-t border-gray-300' />
         </div>
-        <div className='relative flex justify-center text-sm'>
-          <span className='bg-white px-2 text-center text-gray-500'>
+        <div className='flex relative justify-center text-sm'>
+          <span className='px-2 text-center text-gray-500 bg-white'>
             Not part of Staffluent yet? Contact us to streamline your workforce
             management
           </span>
         </div>
       </div>
 
-      <div className='text-center text-sm'>
+      <div className='text-sm text-center'>
         <a
           href='https://staffluent.co/request-demo'
           className='font-bold text-[#0A0A0A] hover:text-[#171717]'

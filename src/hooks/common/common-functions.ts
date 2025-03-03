@@ -2,8 +2,9 @@ import { HeaderProps } from '@/@types/common'
 import { clientLinks } from '@/data/client-links'
 import { operationsManagersLinks } from '@/data/operations-managers-links'
 import { teamLeaderLinks } from '@/data/team-leader-links'
+import { sidelinks } from '@/data/sidelinks'
 import { AccountType } from '@/pages/auth/components/user-auth-form'
-type GroupAccountType = 'admin' | 'teamLeader' | 'client' | 'business'
+type GroupAccountType =  'business' | 'admin' | 'teamLeader' | 'client' | 'operationsManager'
 
 const STAFFLUENT_API_KEY =
   'sk_2462670fcf9d668a3ce8e98d5845b3154ee13aa100e4f00e3103b054e9a0bacf'
@@ -157,17 +158,22 @@ export const getAccountGroup = (accountType: AccountType): GroupAccountType => {
     // Group 1: Admin and Operations Managers
     case AccountType.business_admin:
     case AccountType.business:
-    case AccountType.business_operations_managers:
-    case AccountType.staff_operations_manager:
-    case AccountType.operations_manager:
+   
       return 'admin'
 
     // Group 2: Team Leaders
     case AccountType.business_team_leader:
     case AccountType.staff_team_leader:
     case AccountType.team_leader:
-    case AccountType.business_operations_manager:
       return 'teamLeader'
+
+      // Group 2: Team Leaders
+    
+    case AccountType.business_operations_managers:
+    case AccountType.staff_operations_manager:
+    case AccountType.operations_manager:
+    case AccountType.business_operations_manager:
+        return 'admin'
 
     // Group 3: Clients
     case AccountType.app_client:
@@ -175,7 +181,7 @@ export const getAccountGroup = (accountType: AccountType): GroupAccountType => {
       return 'client'
 
     default:
-      return 'business'
+      return 'admin'
   }
 }
 
@@ -184,7 +190,11 @@ export const getSidebarLinks = (accountType: AccountType) => {
 
   switch (group) {
     case 'admin':
-      return operationsManagersLinks
+      return sidelinks
+    case 'business':
+        return sidelinks
+    case 'operationsManager':
+        return operationsManagersLinks
     case 'teamLeader':
       return teamLeaderLinks
     case 'client':
@@ -199,6 +209,10 @@ export const getSidebarText = (accountType: AccountType) => {
 
   switch (group) {
     case 'admin':
+      return 'Admin'
+    case 'business':
+      return 'Admin'
+    case 'operationsManager':
       return 'Operations Manager'
     case 'teamLeader':
       return 'Team Leader'
@@ -214,6 +228,8 @@ export const getRedirectPath = (accountType: AccountType) => {
 
   switch (group) {
     case 'admin':
+      return '/dashboard'
+    case 'operationsManager':
       return '/operations-manager/dashboard'
     case 'teamLeader':
       return '/team-leader/dashboard'
