@@ -120,11 +120,12 @@ export default function Settings() {
           <TabsList className='mb-6 grid grid-cols-4'>
             <TabsTrigger value='personal'>Personal Info</TabsTrigger>
             <TabsTrigger value='security'>Security</TabsTrigger>
-            {accountType !== AccountType.business && (
-              <TabsTrigger value='business'>
-                Business & Subscription
-              </TabsTrigger>
-            )}
+            {accountType !== AccountType.client &&
+              accountType !== AccountType.app_client && (
+                <TabsTrigger value='business'>
+                  Business & Subscription
+                </TabsTrigger>
+              )}
             <TabsTrigger value='features'>Features</TabsTrigger>
           </TabsList>
 
