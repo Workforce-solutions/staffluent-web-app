@@ -30,7 +30,7 @@ const VerificationStatus: React.FC<VerificationStatusProps> = ({
 
   const newExpiresAt = Math.floor(Date.now() / 1000) + 60 * 60
   const accountType = data?.account_type ?? AccountType.business
-  const token = data?.token ?? ''
+  const token = data?.token ?? data?.access_token ?? ''
   const refreshToken = data?.refresh_token ?? ''
 
   useEffect(() => {
