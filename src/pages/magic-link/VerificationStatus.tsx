@@ -14,6 +14,7 @@ interface VerificationStatusProps {
   isLoading?: boolean
   data?: AuthResponse
   sidebarLinks: SideLink[]
+  userId?: string
 }
 
 const VerificationStatus: React.FC<VerificationStatusProps> = ({
@@ -21,6 +22,7 @@ const VerificationStatus: React.FC<VerificationStatusProps> = ({
   isLoading: initialLoading = true,
   data,
   sidebarLinks = [],
+  userId,
 }) => {
   const navigate = useNavigate()
   const [status, setStatus] = useState<'loading' | 'success' | 'failed'>(
@@ -42,6 +44,9 @@ const VerificationStatus: React.FC<VerificationStatusProps> = ({
       localStorage.setItem('accountType', accountType)
       localStorage.setItem('expires_at', String(newExpiresAt))
       localStorage.setItem('vbAuth', JSON.stringify(data))
+      if (userId) {
+        localStorage.setItem('osId', userId)
+      }
 
       const timeout = setTimeout(() => {
         if (accountType) {

@@ -41,7 +41,7 @@ export enum AccountType {
   business_team_leader = 'business_team_leader',
 
   business_operations_managers = 'business_operations_managers',
-  business_operations_manager='business_operations_manager',
+  business_operations_manager = 'business_operations_manager',
   staff_operations_manager = 'staff_operations_manager',
   operations_manager = 'operations_manager',
 }
@@ -237,6 +237,7 @@ export function UserAuthForm({
                 const accountType =
                   res?.data?.account_type ?? AccountType.business
                 const newExpiresAt = Math.floor(Date.now() / 1000) + 60 * 60
+                const userId = res.data?.userId
 
                 if (newExpiresAt) {
                   localStorage.setItem(
@@ -244,6 +245,10 @@ export function UserAuthForm({
                     JSON.stringify({ ...res, expires_at: newExpiresAt })
                   )
                 }
+                if (userId) {
+                  localStorage.setItem('osId', userId)
+                }
+
                 localStorage.setItem('adminToken', res?.data?.token ?? '')
                 localStorage.setItem(
                   'refreshToken',
@@ -318,7 +323,7 @@ export function UserAuthForm({
                   )}
                 />
 
-                <div className='flex justify-between items-center'>
+                <div className='flex items-center justify-between'>
                   <div className='flex items-center'>
                     <input
                       id='remember-me'
@@ -358,18 +363,18 @@ export function UserAuthForm({
       </Form>
 
       <div className='relative'>
-        <div className='flex absolute inset-0 items-center'>
+        <div className='absolute inset-0 flex items-center'>
           <div className='w-full border-t border-gray-300' />
         </div>
-        <div className='flex relative justify-center text-sm'>
-          <span className='px-2 text-center text-gray-500 bg-white'>
+        <div className='relative flex justify-center text-sm'>
+          <span className='bg-white px-2 text-center text-gray-500'>
             Not part of Staffluent yet? Contact us to streamline your workforce
             management
           </span>
         </div>
       </div>
 
-      <div className='text-sm text-center'>
+      <div className='text-center text-sm'>
         <a
           href='https://staffluent.co/request-demo'
           className='font-bold text-[#0A0A0A] hover:text-[#171717]'
