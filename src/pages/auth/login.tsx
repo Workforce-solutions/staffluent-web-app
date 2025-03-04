@@ -1,48 +1,79 @@
 /* eslint-disable react-hooks/exhaustive-deps */
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { useBusinessByAdminMutation } from '@/services/magic-linkApi'
 import { useEffect, useState } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { AccountType, UserAuthForm } from './components/user-auth-form'
 import staffLogo from '/images/logo.png'
-import { useNavigate, useSearchParams } from 'react-router-dom'
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
-import { getRedirectPath } from '@/hooks/common/common-functions'
+import { Loader2 } from 'lucide-react'
 
 export default function Login() {
-  const [searchParams] = useSearchParams()
-  const navigate = useNavigate()
   const [authMethod, setAuthMethod] = useState('password')
+  const [authToken, setAuthToken] = useState<string | null>(null)
+  const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+
+  const token = searchParams.get('token')
+  const userId = searchParams.get('userId')
+
+  console.log(userId, 'userIduserId')
+
+  const [registerAdmin, { isLoading }] = useBusinessByAdminMutation()
 
   useEffect(() => {
-    const token = searchParams.get('token')
-    const refreshToken = searchParams.get('refreshToken')
-    const accountType = searchParams.get('accountType')
-    const expiresAt = searchParams.get('expires_at')
-    const vbAuth = searchParams.get('vbAuth')
-    const sidebarLinks = searchParams.get('sidebarLinks') ?? '[]'
-
-    if (token && refreshToken && accountType && expiresAt && vbAuth) {
+    if (token) {
       localStorage.setItem('adminToken', token)
-      localStorage.setItem('refreshToken', refreshToken)
-      localStorage.setItem('accountType', accountType)
-      localStorage.setItem('expires_at', expiresAt)
-      localStorage.setItem('vbAuth', vbAuth)
-      sidebarLinks && localStorage.setItem('sidebarLinks', sidebarLinks)
+      setAuthToken(token)
+    }
+  }, [token])
 
-      const sidebar = sidebarLinks ? JSON.parse(sidebarLinks) : []
+  useEffect(() => {
+    const registerAdminUser = async () => {
+      if (userId && authToken) {
+        await new Promise((resolve) => setTimeout(resolve, 0))
 
-      if (sidebar && accountType) {
-        navigate(
-          sidebar[0].sub?.[0]?.href ??
-            sidebar[0].href ??
-            getRedirectPath(accountType as AccountType)
-        )
-      } else {
-        navigate('/')
+        try {
+          const res = await registerAdmin({ userId }).unwrap()
+          if (res) {
+            const accountType = res?.account_type ?? AccountType.business
+            const newExpiresAt = Math.floor(Date.now() / 1000) + 60 * 60
+            const sidebarLinks = res.sidebarLinks ?? []
+            localStorage.setItem(
+              'adminToken',
+              res.access_token ?? res.token ?? ''
+            )
+
+            localStorage.setItem('refreshToken', res?.refresh_token ?? '')
+            localStorage.setItem('accountType', accountType)
+            localStorage.setItem('expires_at', String(newExpiresAt))
+            if (sidebarLinks) {
+              localStorage.setItem('sidebarLinks', JSON.stringify(sidebarLinks))
+            }
+            localStorage.setItem(
+              'vbAuth',
+              JSON.stringify({ ...res.auth_response, expires_at: newExpiresAt })
+            )
+            navigate('/')
+          }
+        } catch (error) {
+          console.error('Registration failed:', error)
+        }
       }
     }
-  }, [searchParams])
+
+    registerAdminUser()
+  }, [userId, authToken])
 
   const className =
     'data-[state=active]:bg-gray-100 data-[state=active]:text-black data-[state=active]:shadow'
+
+  if (isLoading) {
+    return (
+      <div className='flex h-screen items-center justify-center'>
+        <Loader2 className='h-8 w-8 animate-spin' />
+      </div>
+    )
+  }
 
   return (
     <div className='flex min-h-screen flex-col justify-center bg-gray-50 px-4 py-12 sm:px-6 lg:px-8'>
