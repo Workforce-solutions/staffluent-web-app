@@ -35,8 +35,19 @@ export const magicLinkApi = createApi({
       }),
       invalidatesTags: ['MagicLink'],
     }),
+    businessByAdmin: builder.mutation<AuthProps, { userId: string }>({
+      query: (body) => ({
+        url: 'auth/staffluent/business-admin/by-userId',
+        method: 'POST',
+        body,
+      }),
+      invalidatesTags: ['MagicLink'],
+    }),
   }),
 })
 
-export const { useLazyVerifyMagicLinkQuery, useMagicLinkMutation } =
-  magicLinkApi
+export const {
+  useLazyVerifyMagicLinkQuery,
+  useMagicLinkMutation,
+  useBusinessByAdminMutation,
+} = magicLinkApi

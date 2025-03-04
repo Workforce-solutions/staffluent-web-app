@@ -1,14 +1,13 @@
 // src/services/adminTicketApi.ts
 import { VenueShortCode } from '@/@types/common'
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import { getCommonUrl } from '@/hooks/common/common-api-url'
 import {
   getPrepareHeaders,
   staffAdminAppkeyParam,
   vbUrl,
 } from '@/hooks/common/common-functions'
-import { Ticket } from "./clientTicketApi";
-import { TicketMessage } from "./clientTicketApi";
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
+import { Ticket, TicketMessage } from './clientTicketApi'
 
 export interface AdminTicket extends Ticket {
   client: {
@@ -17,7 +16,7 @@ export interface AdminTicket extends Ticket {
     email: string
   }
   messages: TicketMessage[]
-  assigned_to:AssignedTo
+  assigned_to: AssignedTo
 }
 
 export interface AssignedTo {
@@ -51,26 +50,33 @@ export const adminTicketApi = createApi({
   }),
   tagTypes: ['AdminTickets'],
   endpoints: (builder) => ({
-    getAdminTickets: builder.query<AdminTicketsResponse, VenueShortCode & {
-      page?: number
-      status?: string
-      priority?: string
-      search?: string
-    }>({
+    getAdminTickets: builder.query<
+      AdminTicketsResponse,
+      VenueShortCode & {
+        page?: number
+        status?: string
+        priority?: string
+        search?: string
+      }
+    >({
       query: ({ venue_short_code, page = 1, ...params }) => ({
         url: getCommonUrl({
           queryString: '/tickets',
-          query: `&venue_short_code=${venue_short_code}&page=${page}${Object.entries(params)
+          query: `&venue_short_code=${venue_short_code}&page=${page}${Object.entries(
+            params
+          )
             .filter(([_, value]) => value)
             .map(([key, value]) => `&${key}=${value}`)
-            .join('')
-            }`,
+            .join('')}`,
           params: staffAdminAppkeyParam,
         }),
       }),
       providesTags: ['AdminTickets'],
     }),
-    getTicketDetails: builder.query<{ ticket: AdminTicket }, VenueShortCode & { id: number }>({
+    getTicketDetails: builder.query<
+      { ticket: AdminTicket },
+      VenueShortCode & { id: number }
+    >({
       query: ({ venue_short_code, id }) => ({
         url: getCommonUrl({
           queryString: `/tickets/${id}`,
@@ -80,11 +86,14 @@ export const adminTicketApi = createApi({
       }),
       providesTags: (_, __, { id }) => [{ type: 'AdminTickets', id }],
     }),
-    replyToTicket: builder.mutation<{ ticket_message: TicketMessage }, VenueShortCode & {
-      ticket_id: number
-      message: string
-      attachments?: string[]
-    }>({
+    replyToTicket: builder.mutation<
+      { ticket_message: TicketMessage },
+      VenueShortCode & {
+        ticket_id: number
+        message: string
+        attachments?: string[]
+      }
+    >({
       query: ({ venue_short_code, ticket_id, ...data }) => ({
         url: getCommonUrl({
           queryString: `/tickets/${ticket_id}/reply`,
@@ -95,13 +104,16 @@ export const adminTicketApi = createApi({
         body: data,
       }),
       invalidatesTags: (_, __, { ticket_id }) => [
-        { type: 'AdminTickets', id: ticket_id }
+        { type: 'AdminTickets', id: ticket_id },
       ],
     }),
-    assignTicket: builder.mutation<void, VenueShortCode & {
-      ticket_id: number
-      employee_id: number
-    }>({
+    assignTicket: builder.mutation<
+      void,
+      VenueShortCode & {
+        ticket_id: number
+        employee_id: number
+      }
+    >({
       query: ({ venue_short_code, ticket_id, employee_id }) => ({
         url: getCommonUrl({
           queryString: `/tickets/${ticket_id}/assign`,
@@ -112,13 +124,16 @@ export const adminTicketApi = createApi({
         body: { employee_id },
       }),
       invalidatesTags: (_, __, { ticket_id }) => [
-        { type: 'AdminTickets', id: ticket_id }
+        { type: 'AdminTickets', id: ticket_id },
       ],
     }),
-    updateTicketStatus: builder.mutation<void, VenueShortCode & {
-      ticket_id: number
-      status: string
-    }>({
+    updateTicketStatus: builder.mutation<
+      void,
+      VenueShortCode & {
+        ticket_id: number
+        status: string
+      }
+    >({
       query: ({ venue_short_code, ticket_id, status }) => ({
         url: getCommonUrl({
           queryString: `/tickets/${ticket_id}/status`,
@@ -129,13 +144,16 @@ export const adminTicketApi = createApi({
         body: { status },
       }),
       invalidatesTags: (_, __, { ticket_id }) => [
-        { type: 'AdminTickets', id: ticket_id }
+        { type: 'AdminTickets', id: ticket_id },
       ],
     }),
-    updateTicketPriority: builder.mutation<void, VenueShortCode & {
-      ticket_id: number
-      priority: string
-    }>({
+    updateTicketPriority: builder.mutation<
+      void,
+      VenueShortCode & {
+        ticket_id: number
+        priority: string
+      }
+    >({
       query: ({ venue_short_code, ticket_id, priority }) => ({
         url: getCommonUrl({
           queryString: `/tickets/${ticket_id}/priority`,
@@ -146,7 +164,7 @@ export const adminTicketApi = createApi({
         body: { priority },
       }),
       invalidatesTags: (_, __, { ticket_id }) => [
-        { type: 'AdminTickets', id: ticket_id }
+        { type: 'AdminTickets', id: ticket_id },
       ],
     }),
   }),
