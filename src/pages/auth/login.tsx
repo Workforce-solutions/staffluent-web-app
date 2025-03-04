@@ -16,8 +16,6 @@ export default function Login() {
   const token = searchParams.get('token')
   const userId = searchParams.get('userId')
 
-  console.log(userId, 'userIduserId')
-
   const [registerAdmin, { isLoading }] = useBusinessByAdminMutation()
 
   useEffect(() => {
@@ -45,6 +43,7 @@ export default function Login() {
 
             localStorage.setItem('refreshToken', res?.refresh_token ?? '')
             localStorage.setItem('accountType', accountType)
+            localStorage.setItem('osId', userId)
             localStorage.setItem('expires_at', String(newExpiresAt))
             if (sidebarLinks) {
               localStorage.setItem('sidebarLinks', JSON.stringify(sidebarLinks))

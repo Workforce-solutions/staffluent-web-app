@@ -11,6 +11,7 @@ import VerificationStatus from './VerificationStatus'
 const MagicLink = () => {
   const [searchParams] = useSearchParams()
   const [data, setData] = useState<AuthResponse>()
+  const [userId, setUserId] = useState<string>()
   const [sidebarLinks, setSidebarLinks] = useState<SideLink[]>([])
   // @ts-expect-error - Variable is used in state management but not directly in rendering
   const [hasError, setHasError] = useState<boolean>(false)
@@ -36,6 +37,9 @@ const MagicLink = () => {
         .then((res) => {
           setSidebar(res.sidebarLinks ?? [])
           setSidebarLinks(res.sidebarLinks ?? [])
+          setUserId(res.userId)
+          localStorage.setItem('adminToken', res.userId)
+
           if (res.auth_response) {
             setData(res.auth_response)
           } else {
@@ -63,6 +67,7 @@ const MagicLink = () => {
       redirected={showRedirected}
       isLoading={showLoading}
       sidebarLinks={sidebarLinks}
+      userId={userId}
     />
   )
 }
