@@ -1,4 +1,9 @@
-import { AuthProps, AuthResponse, LoginProps, RefreshProps } from '@/@types/auth'
+import {
+  AuthProps,
+  AuthResponse,
+  LoginProps,
+  RefreshProps,
+} from '@/@types/auth'
 import { getCommonUrl } from '@/hooks/common/common-api-url'
 import {
   getPrepareHeaders,
@@ -25,6 +30,7 @@ export const authApi = createApi({
       }),
       invalidatesTags: ['User'],
     }),
+
     vbLogin: builder.mutation<AuthProps, LoginProps>({
       query: (body) => ({
         url: getCommonUrl({
@@ -36,22 +42,28 @@ export const authApi = createApi({
       }),
       invalidatesTags: ['User'],
     }),
-    omniStackLogin: builder.mutation<AuthProps & {auth_response?: AuthResponse}, LoginProps>({
+    omniStackLogin: builder.mutation<
+      AuthProps & { auth_response?: AuthResponse },
+      LoginProps
+    >({
       query: (body) => {
-        const headers = getPrepareHeaders({ headers: new Headers(), isClientApiKey: true });
-        const headerObj: Record<string, string> = {};
-        
+        const headers = getPrepareHeaders({
+          headers: new Headers(),
+          isClientApiKey: true,
+        })
+        const headerObj: Record<string, string> = {}
+
         // Convert Headers object to plain object for RTK Query
         headers.forEach((value, key) => {
-          headerObj[key] = value;
-        });
-        
+          headerObj[key] = value
+        })
+
         return {
           url: `${OMNISTACK_BASE_URL}auth/staffluent/business-admin/login`,
           method: 'POST',
           body,
-          headers: headerObj
-        };
+          headers: headerObj,
+        }
       },
       invalidatesTags: ['User'],
     }),
@@ -69,9 +81,9 @@ export const authApi = createApi({
   }),
 })
 
-export const { 
-  useLoginMutation, 
-  useAuthRefreshMutation, 
+export const {
+  useLoginMutation,
+  useAuthRefreshMutation,
   useVbLoginMutation,
-  useOmniStackLoginMutation 
+  useOmniStackLoginMutation,
 } = authApi
