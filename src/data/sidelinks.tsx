@@ -77,6 +77,7 @@ export interface NavLink {
   label?: string
   href: string
   icon: JSX.Element
+  category?: string
 }
 
 export interface SideLink extends NavLink {
@@ -644,3 +645,14 @@ export const sidelinks: SideLink[] = [
     icon: <IconSettings size={18} />,
   },
 ]
+
+export interface NavLinkProps extends SideLink {
+  subLink?: boolean
+  closeNav: () => void
+}
+
+export interface NavProps extends React.HTMLAttributes<HTMLDivElement> {
+  isCollapsed: boolean
+  links: SideLink[]
+  closeNav: () => void
+}
