@@ -2,19 +2,19 @@
 
 import { SideLink } from '@/data/sidelinks'
 import { getSidebarText } from '@/hooks/common/common-functions'
+import { iconObj } from '@/hooks/common/get-icons'
 import useLocalStorage, {
   useLocalStorageString,
 } from '@/hooks/use-local-storage'
 import { cn } from '@/lib/utils'
 import { AccountType } from '@/pages/auth/components/user-auth-form'
 import { IconChevronsLeft, IconMenu2, IconX } from '@tabler/icons-react'
+import { Settings } from 'lucide-react'
 import { HTMLAttributes, useEffect, useMemo, useState } from 'react'
 import { Button } from './custom/button'
 import { Layout } from './custom/layout'
 import './index.css'
 import Nav from './nav'
-import { iconObj } from '@/hooks/common/get-icons'
-import { Settings } from 'lucide-react'
 
 interface SidebarProps extends HTMLAttributes<HTMLElement> {
   isCollapsed: boolean

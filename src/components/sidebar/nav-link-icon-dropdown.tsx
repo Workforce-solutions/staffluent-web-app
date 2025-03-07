@@ -13,18 +13,13 @@ import {
 } from '../ui/dropdown-menu'
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip'
 
-export function NavLinkIconDropdown({
-  title,
-  icon,
-  label,
-  sub,
-  closeNav,
-}: NavLinkProps) {
+export function NavLinkIconDropdown(props: NavLinkProps) {
+  const { title, icon, label, sub, closeNav } = props
   const { checkActiveNav } = useCheckActiveNav()
 
   /* Open collapsible by default
    * if one of child element is active */
-  const isChildActive = !!sub?.find((s) => checkActiveNav(s.href))
+  const isChildActive = !!sub?.find(() => checkActiveNav(props))
 
   return (
     <DropdownMenu>
@@ -64,7 +59,7 @@ export function NavLinkIconDropdown({
               onClick={closeNav}
               className={cn(
                 'flex items-center',
-                checkActiveNav(href) ? 'bg-primary/10 text-primary' : ''
+                checkActiveNav(props) ? 'bg-primary/10 text-primary' : ''
               )}
             >
               {icon} <span className='ml-2 max-w-52 text-wrap'>{title}</span>
